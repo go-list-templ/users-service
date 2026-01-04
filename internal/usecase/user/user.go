@@ -25,7 +25,7 @@ func (u *UseCase) All(ctx context.Context) ([]entity.User, error) {
 }
 
 func (u *UseCase) Create(ctx context.Context, user entity.User) (entity.User, error) {
-	err := u.repo.Create(ctx, user)
+	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return user, err
 	}

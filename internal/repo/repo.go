@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	UserStorageRepo interface {
+	UserRepo interface {
 		Store(context.Context, entity.User) error
 		All(context.Context) ([]entity.User, error)
 	}

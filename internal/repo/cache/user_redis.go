@@ -1,4 +1,4 @@
-package repo
+package cache
 
 import (
 	"context"
@@ -6,29 +6,30 @@ import (
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
-	"github.com/go-list-templ/grpc/internal/repo/dao"
+	"github.com/go-list-templ/grpc/internal/repo"
+	"github.com/go-list-templ/grpc/internal/repo/cache/dao"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"go.uber.org/zap"
 )
 
 const (
-	CacheKeyAllUsers = "users:all"
+	KeyAllUsers = "users:all"
 )
 
-type UserRepo struct {
-	persistent UserStorageRepo
-	redis      redis.Redis
-	logger     zap.Logger
+type UserRedisRepo struct {
+	repo   repo.UserRepo
+	redis  redis.Redis
+	logger zap.Logger
 }
 
-func NewUserRepo(p UserStorageRepo, r redis.Redis, logger zap.Logger) *UserRepo {
-	return &UserRepo{persistent: p, redis: r, logger: logger}
+func NewUserRedisRepo(repo repo.UserRepo, redis redis.Redis, logger zap.Logger) *UserRedisRepo {
+	return &UserRedisRepo{repo: repo, redis: redis, logger: logger}
 }
 
-func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
+func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 	var cachedUsers []dao.User
 
-	cachedData, err := u.redis.Get(ctx, CacheKeyAllUsers).Bytes()
+	cachedData, err := u.redis.Get(ctx, KeyAllUsers).Bytes()
 	if err != nil {
 		u.logger.Warn("failed to get cached users", zap.Error(err))
 	}
@@ -58,7 +59,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		}
 	}
 
-	users, err := u.persistent.All(ctx)
+	users, err := u.repo.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (u *UserRepo) cacheAllUsers(users []entity.User) {
+func (u *UserRedisRepo) cacheAllUsers(users []entity.User) {
 	newCachedUsers := make([]dao.User, 0, len(users))
 	for _, user := range users {
 		newCachedUsers = append(newCachedUsers, dao.User{
@@ -86,21 +87,20 @@ func (u *UserRepo) cacheAllUsers(users []entity.User) {
 		u.logger.Error("marshal users error", zap.Error(err))
 	}
 
-	err = u.redis.Set(context.Background(), CacheKeyAllUsers, data, time.Hour).Err()
+	err = u.redis.Set(context.Background(), KeyAllUsers, data, time.Hour).Err()
 	if err != nil {
 		u.logger.Error("redis set error", zap.Error(err))
 	}
 }
 
-func (u *UserRepo) Create(ctx context.Context, user entity.User) error {
-	err := u.persistent.Store(ctx, user)
+func (u *UserRedisRepo) Store(ctx context.Context, user entity.User) error {
+	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return err
 	}
 
 	go func() {
-		err = u.redis.Del(context.Background(), CacheKeyAllUsers).Err()
-		if err != nil {
+		if err = u.redis.Del(context.Background(), KeyAllUsers).Err(); err != nil {
 			u.logger.Error("redis del error", zap.Error(err))
 		}
 	}()
