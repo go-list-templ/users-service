@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/internal/repo/storage"
 	"log"
 	"os"
 	"os/signal"
@@ -10,7 +11,6 @@ import (
 	"github.com/go-list-templ/grpc/config"
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo"
-	"github.com/go-list-templ/grpc/internal/repo/persistent"
 	"github.com/go-list-templ/grpc/internal/usecase/user"
 	"github.com/go-list-templ/grpc/pkg/grpcserver"
 	"github.com/go-list-templ/grpc/pkg/httpserver"
@@ -60,7 +60,7 @@ func run() error {
 
 	logger.Info("initializing repositories")
 
-	userRepo := repo.NewUserRepo(persistent.NewUserPostgresRepo(pg), *rd, *logger)
+	userRepo := repo.NewUserRepo(storage.NewUserPostgresRepo(pg), *rd, *logger)
 
 	logger.Info("initializing use case")
 

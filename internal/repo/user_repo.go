@@ -16,12 +16,12 @@ const (
 )
 
 type UserRepo struct {
-	persistent UserPersistentRepo
+	persistent UserStorageRepo
 	redis      redis.Redis
 	logger     zap.Logger
 }
 
-func NewUserRepo(p UserPersistentRepo, r redis.Redis, logger zap.Logger) *UserRepo {
+func NewUserRepo(p UserStorageRepo, r redis.Redis, logger zap.Logger) *UserRepo {
 	return &UserRepo{persistent: p, redis: r, logger: logger}
 }
 
