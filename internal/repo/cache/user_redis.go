@@ -36,8 +36,6 @@ func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 			users[i] = user.ToEntity()
 		}
 
-		u.logger.Info("all users from cache")
-
 		return users, nil
 	}
 
@@ -58,8 +56,6 @@ func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 			u.logger.Error("redis set error", zap.Error(err))
 		}
 	}()
-
-	u.logger.Info("all users from postgres")
 
 	return users, nil
 }
