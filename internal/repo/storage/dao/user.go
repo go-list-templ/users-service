@@ -16,27 +16,12 @@ type User struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (u *User) ToEntity() (*entity.User, error) {
-	id, err := vo.NewIDFromString(u.ID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	name, err := vo.NewName(u.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	email, err := vo.NewEmail(u.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	return &entity.User{
-		ID:        id,
-		Name:      name,
-		Email:     email,
+func (u *User) ToEntity() entity.User {
+	return entity.User{
+		ID:        vo.UnsafeID(u.ID),
+		Name:      vo.UnsafeName(u.Name),
+		Email:     vo.UnsafeEmail(u.Email),
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
-	}, nil
+	}
 }

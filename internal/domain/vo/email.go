@@ -23,10 +23,10 @@ func NewEmail(email string) (Email, error) {
 	return Email{value: email}, nil
 }
 
-func (e Email) Value() string {
-	return e.value
+func UnsafeEmail(email string) Email {
+	return Email{value: email}
 }
 
-func (e Email) Equals(other Email) bool {
-	return e.value == other.value
+func (e Email) Value() string {
+	return e.value
 }

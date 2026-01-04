@@ -37,26 +37,11 @@ func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 	if err := json.Unmarshal(cachedData, &cachedUsers); err == nil {
 		users := make([]entity.User, 0, len(cachedUsers))
 
-		var errToEntity error
-
 		for _, user := range cachedUsers {
-			toEntity, err := user.ToEntity()
-			if err != nil {
-				errToEntity = err
-
-				u.logger.Warn("failed to convert to entity", zap.Error(err), zap.Any("user", user))
-
-				break
-			}
-
-			users = append(users, *toEntity)
+			users = append(users, user.ToEntity())
 		}
 
-		if errToEntity == nil {
-			u.logger.Info("all users from cache")
-
-			return users, nil
-		}
+		return users, nil
 	}
 
 	users, err := u.repo.All(ctx)
@@ -71,18 +56,13 @@ func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 }
 
 func (u *UserRedisRepo) cacheAllUsers(users []entity.User) {
-	newCachedUsers := make([]dao.User, 0, len(users))
+	cacheUsers := make([]dao.User, 0, len(users))
+
 	for _, user := range users {
-		newCachedUsers = append(newCachedUsers, dao.User{
-			ID:        user.ID.Value(),
-			Name:      user.Name.Value(),
-			Email:     user.Email.Value(),
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		})
+		cacheUsers = append(cacheUsers, dao.FromEntity(user))
 	}
 
-	data, err := json.Marshal(newCachedUsers)
+	data, err := json.Marshal(cacheUsers)
 	if err != nil {
 		u.logger.Error("marshal users error", zap.Error(err))
 	}
@@ -100,7 +80,7 @@ func (u *UserRedisRepo) Store(ctx context.Context, user entity.User) error {
 	}
 
 	go func() {
-		if err = u.redis.Del(context.Background(), KeyAllUsers).Err(); err != nil {
+		if err = u.redis.Invalidate(KeyAllUsers); err != nil {
 			u.logger.Error("redis del error", zap.Error(err))
 		}
 	}()

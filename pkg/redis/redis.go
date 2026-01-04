@@ -25,3 +25,7 @@ func New(cfg *config.Redis) (*Redis, error) {
 
 	return &Redis{client}, nil
 }
+
+func (r *Redis) Invalidate(key string) error {
+	return r.Del(context.Background(), key).Err()
+}

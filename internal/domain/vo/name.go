@@ -40,10 +40,10 @@ func NewName(name string) (Name, error) {
 	return Name{value: name}, nil
 }
 
-func (u Name) Value() string {
-	return u.value
+func UnsafeName(name string) Name {
+	return Name{value: name}
 }
 
-func (u Name) Equals(other Name) bool {
-	return u.value == other.value
+func (u Name) Value() string {
+	return u.value
 }

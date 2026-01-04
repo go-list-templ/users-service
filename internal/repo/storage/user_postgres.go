@@ -53,12 +53,7 @@ func (r *UserPostgresRepo) All(ctx context.Context) ([]entity.User, error) {
 			return nil, err
 		}
 
-		user, err := userDAO.ToEntity()
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, *user)
+		users = append(users, userDAO.ToEntity())
 	}
 
 	return users, nil

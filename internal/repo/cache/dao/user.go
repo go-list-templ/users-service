@@ -9,34 +9,29 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `db:"id"`
-	Name      string    `db:"name"`
-	Email     string    `db:"email"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        uuid.UUID
+	Name      string
+	Email     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-func (u *User) ToEntity() (*entity.User, error) {
-	id, err := vo.NewIDFromString(u.ID.String())
-	if err != nil {
-		return nil, err
+func FromEntity(e entity.User) User {
+	return User{
+		e.ID.Value(),
+		e.Name.Value(),
+		e.Email.Value(),
+		e.CreatedAt,
+		e.UpdatedAt,
 	}
+}
 
-	name, err := vo.NewName(u.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	email, err := vo.NewEmail(u.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	return &entity.User{
-		ID:        id,
-		Name:      name,
-		Email:     email,
+func (u *User) ToEntity() entity.User {
+	return entity.User{
+		ID:        vo.UnsafeID(u.ID),
+		Name:      vo.UnsafeName(u.Name),
+		Email:     vo.UnsafeEmail(u.Email),
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
-	}, nil
+	}
 }
