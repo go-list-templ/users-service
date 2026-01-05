@@ -8,11 +8,12 @@ import (
 )
 
 type UseCase struct {
-	repo repo.UserRepo
+	repo       repo.UserRepo
+	avatarRepo repo.UserAvatarRepo
 }
 
-func New(repo repo.UserRepo) *UseCase {
-	return &UseCase{repo: repo}
+func New(r repo.UserRepo, a repo.UserAvatarRepo) *UseCase {
+	return &UseCase{repo: r, avatarRepo: a}
 }
 
 func (u *UseCase) All(ctx context.Context) ([]entity.User, error) {
@@ -29,6 +30,8 @@ func (u *UseCase) Create(ctx context.Context, user entity.User) (entity.User, er
 	if err != nil {
 		return user, err
 	}
+
+	u.avatarRepo.Set(user)
 
 	return user, nil
 }

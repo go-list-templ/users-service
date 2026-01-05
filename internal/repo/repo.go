@@ -11,4 +11,8 @@ type (
 		Store(context.Context, entity.User) error
 		All(context.Context) ([]entity.User, error)
 	}
+
+	UserAvatarRepo interface {
+		Set(entity.User)
+	}
 )
