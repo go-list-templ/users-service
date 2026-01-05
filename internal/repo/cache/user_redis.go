@@ -17,12 +17,12 @@ const (
 
 type UserRedisRepo struct {
 	repo   repo.UserRepo
-	redis  redis.Redis
+	redis  *redis.Redis
 	logger *zap.Logger
 }
 
-func NewUserRedisRepo(repo repo.UserRepo, redis redis.Redis, logger zap.Logger) *UserRedisRepo {
-	return &UserRedisRepo{repo: repo, redis: redis, logger: &logger}
+func NewUserRedisRepo(repo repo.UserRepo, redis *redis.Redis, logger *zap.Logger) *UserRedisRepo {
+	return &UserRedisRepo{repo: repo, redis: redis, logger: logger}
 }
 
 func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
