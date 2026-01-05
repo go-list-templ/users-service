@@ -34,11 +34,18 @@ type (
 		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
 	}
 
+	Client struct {
+		ReadTimeout  time.Duration `envconfig:"CLIENT_READ_TIMEOUT"`
+		WriteTimeout time.Duration `envconfig:"CLIENT_WRITE_TIMEOUT"`
+		MaxIdle      time.Duration `envconfig:"CLIENT_MAX_IDLE"`
+	}
+
 	Config struct {
 		App    App
 		Server Server
 		DB     DB
 		Redis  Redis
+		Client Client
 	}
 )
 
