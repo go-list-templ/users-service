@@ -10,9 +10,11 @@ import (
 	"github.com/go-list-templ/grpc/config"
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo/cache"
+	"github.com/go-list-templ/grpc/internal/repo/external"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
 	"github.com/go-list-templ/grpc/internal/usecase/user"
 	"github.com/go-list-templ/grpc/pkg/grpcserver"
+	"github.com/go-list-templ/grpc/pkg/httpclient"
 	"github.com/go-list-templ/grpc/pkg/httpserver"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
@@ -58,14 +60,19 @@ func run() error {
 		}
 	}()
 
+	logger.Info("initializing http client")
+
+	hc := httpclient.New(cfg.Client)
+
 	logger.Info("initializing repositories")
 
 	userStorageRepo := storage.NewUserPostgresRepo(pg)
-	userCacheRepo := cache.NewUserRedisRepo(userStorageRepo, *rd, *logger)
+	userCacheRepo := cache.NewUserRedisRepo(userStorageRepo, rd, logger)
+	userAvatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing use case")
 
-	userUseCase := user.New(userCacheRepo)
+	userUseCase := user.New(userCacheRepo, userAvatarRepo)
 
 	logger.Info("initializing servers")
 
