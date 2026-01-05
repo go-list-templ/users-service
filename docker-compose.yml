@@ -19,6 +19,9 @@ services:
       - DB_MAX_CONN=${DB_MAX_CONN}
       - DB_MAX_CONN_TIME=${DB_MAX_CONN_TIME}
       - REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
+      - CLIENT_READ_TIMEOUT=${CLIENT_READ_TIMEOUT}
+      - CLIENT_WRITE_TIMEOUT=${CLIENT_WRITE_TIMEOUT}
+      - CLIENT_MAX_IDLE=${CLIENT_MAX_IDLE}
     depends_on:
       - db
       - redis
