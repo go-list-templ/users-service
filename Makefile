@@ -22,3 +22,6 @@ go-lint-fix:
 
 migrate:
 	docker run --rm --network=host -v $$(pwd)/db/migrations:/db/migrations -e DATABASE_URL="$(DB_URL)" amacneil/dbmate:2.28 up
+
+log:
+	docker logs -f --tail 10 app.${APP_NAME}
