@@ -12,6 +12,7 @@ type User struct {
 	ID        uuid.UUID `db:"id"`
 	Name      string    `db:"name"`
 	Email     string    `db:"email"`
+	Avatar    string    `db:"avatar"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
@@ -21,6 +22,7 @@ func (u *User) ToEntity() entity.User {
 		ID:        vo.UnsafeID(u.ID),
 		Name:      vo.UnsafeName(u.Name),
 		Email:     vo.UnsafeEmail(u.Email),
+		Avatar:    vo.UnsafeAvatar(u.Avatar),
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
