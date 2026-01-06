@@ -27,7 +27,7 @@ func NewUserRoute(server *pbgrpc.Server, u usecase.User, l zap.Logger) {
 }
 
 func (r *UserService) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*v1.CreateUserResponse, error) {
-	user, err := entity.NewUser(request.GetUsername(), request.GetEmail())
+	user, err := entity.NewUser(request.GetName(), request.GetEmail())
 	if err != nil {
 		r.logger.Warn("grpc - v1 - NewUser", zap.Any("error:", err.Error()))
 
@@ -44,8 +44,9 @@ func (r *UserService) CreateUser(ctx context.Context, request *v1.CreateUserRequ
 	return &v1.CreateUserResponse{
 		User: &v1.User{
 			Id:        createdUser.ID.Value().String(),
-			Username:  createdUser.Name.Value(),
+			Name:      createdUser.Name.Value(),
 			Email:     createdUser.Email.Value(),
+			Avatar:    createdUser.Avatar.Value(),
 			CreatedAt: timestamppb.New(createdUser.CreatedAt),
 			UpdatedAt: timestamppb.New(createdUser.UpdatedAt),
 		},
@@ -65,8 +66,9 @@ func (r *UserService) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.
 	for i, u := range allUsers {
 		users[i] = &v1.User{
 			Id:        u.ID.Value().String(),
-			Username:  u.Name.Value(),
+			Name:      u.Name.Value(),
 			Email:     u.Email.Value(),
+			Avatar:    u.Avatar.Value(),
 			CreatedAt: timestamppb.New(u.CreatedAt),
 			UpdatedAt: timestamppb.New(u.UpdatedAt),
 		}
