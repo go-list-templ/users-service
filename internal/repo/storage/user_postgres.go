@@ -18,14 +18,15 @@ func NewUserPostgresRepo(postgres *postgres.Postgres) *UserPostgresRepo {
 
 func (r *UserPostgresRepo) Store(ctx context.Context, user entity.User) error {
 	query := `
-		INSERT INTO users (id, name, email, created_at, updated_at) 
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
 	_, err := r.Exec(ctx, query,
 		user.ID.Value(),
 		user.Name.Value(),
 		user.Email.Value(),
+		user.Avatar.Value(),
 		user.CreatedAt,
 		user.UpdatedAt,
 	)
@@ -48,7 +49,14 @@ func (r *UserPostgresRepo) All(ctx context.Context) ([]entity.User, error) {
 	for rows.Next() {
 		var userDAO dao.User
 
-		err = rows.Scan(&userDAO.ID, &userDAO.Name, &userDAO.Email, &userDAO.CreatedAt, &userDAO.UpdatedAt)
+		err = rows.Scan(
+			&userDAO.ID,
+			&userDAO.Name,
+			&userDAO.Email,
+			&userDAO.Avatar,
+			&userDAO.CreatedAt,
+			&userDAO.UpdatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
