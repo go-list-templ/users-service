@@ -15,6 +15,8 @@ github.com/go-list-templ/proto v0.0.1 h1:US8VBM22Qsxxke/mwCJqtOVn7nv1lqIji3lfeUp
 github.com/go-list-templ/proto v0.0.1/go.mod h1:4RKTnwpjr/XeV0kRHQrbtHXlmAA4of9qsQAp2oBVzrM=
 github.com/go-list-templ/proto v0.0.2 h1:364KEnJxaU9K7qe9Lw0o7GC5Wh2BoER1P9Ve8tZJl2I=
 github.com/go-list-templ/proto v0.0.2/go.mod h1:4RKTnwpjr/XeV0kRHQrbtHXlmAA4of9qsQAp2oBVzrM=
+github.com/go-list-templ/proto v0.0.3 h1:UDLXSzCeczCu94m8vHyJSLeXq1MMAOPxYnutvwO9aWg=
+github.com/go-list-templ/proto v0.0.3/go.mod h1:4RKTnwpjr/XeV0kRHQrbtHXlmAA4of9qsQAp2oBVzrM=
 github.com/go-logr/logr v1.4.3 h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
 github.com/go-logr/logr v1.4.3/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=
