@@ -10,6 +10,7 @@ type User struct {
 	ID        vo.ID
 	Name      vo.Name
 	Email     vo.Email
+	Avatar    vo.Avatar
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -29,6 +30,7 @@ func NewUser(Name, email string) (*User, error) {
 		ID:        vo.NewID(),
 		Name:      validName,
 		Email:     validEmail,
+		Avatar:    vo.NewAvatar(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}, nil
