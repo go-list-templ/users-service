@@ -13,9 +13,9 @@ import (
 	"github.com/go-list-templ/grpc/internal/repo/external"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
 	"github.com/go-list-templ/grpc/internal/usecase/user"
-	"github.com/go-list-templ/grpc/pkg/grpcserver"
-	"github.com/go-list-templ/grpc/pkg/httpclient"
-	"github.com/go-list-templ/grpc/pkg/httpserver"
+	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
+	httpclient "github.com/go-list-templ/grpc/pkg/http/client"
+	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"go.uber.org/zap"
@@ -76,10 +76,10 @@ func run() error {
 
 	logger.Info("initializing servers")
 
-	grpcServer := grpcserver.NewAPIServer(&cfg.Server)
+	grpcServer := grpcserver.NewAPI(&cfg.Server)
 	grpcServer.Start()
 
-	healthServer := httpserver.NewHealthServer(&cfg.Server)
+	healthServer := httpserver.NewHealth(&cfg.Server)
 	healthServer.Start()
 
 	logger.Info("initializing routes")
