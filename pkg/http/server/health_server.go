@@ -1,4 +1,4 @@
-package httpserver
+package server
 
 import (
 	"context"
@@ -8,14 +8,14 @@ import (
 	"github.com/go-list-templ/grpc/config"
 )
 
-type HealthServer struct {
+type Health struct {
 	server http.Server
 	config *config.Server
 	errors chan error
 }
 
-func NewHealthServer(cfg *config.Server) *HealthServer {
-	return &HealthServer{
+func NewHealth(cfg *config.Server) *Health {
+	return &Health{
 		server: http.Server{
 			Addr:              net.JoinHostPort("", cfg.HealthPort),
 			Handler:           nil,
@@ -27,17 +27,17 @@ func NewHealthServer(cfg *config.Server) *HealthServer {
 	}
 }
 
-func (s *HealthServer) Notify() <-chan error {
+func (s *Health) Notify() <-chan error {
 	return s.errors
 }
 
-func (s *HealthServer) Start() {
+func (s *Health) Start() {
 	go func() {
 		s.errors <- s.server.ListenAndServe()
 		close(s.errors)
 	}()
 }
 
-func (s *HealthServer) Stop(ctx context.Context) error {
+func (s *Health) Stop(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }
