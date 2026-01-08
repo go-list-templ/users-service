@@ -12,7 +12,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/repo/cache"
 	"github.com/go-list-templ/grpc/internal/repo/external"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
-	"github.com/go-list-templ/grpc/internal/usecase/user"
+	"github.com/go-list-templ/grpc/internal/usecase"
 	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
 	httpclient "github.com/go-list-templ/grpc/pkg/http/client"
 	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
@@ -72,7 +72,7 @@ func run() error {
 
 	logger.Info("initializing use case")
 
-	userUseCase := user.New(userCacheRepo, userAvatarRepo)
+	userUseCase := usecase.NewUser(userCacheRepo, userAvatarRepo)
 
 	logger.Info("initializing servers")
 
@@ -84,7 +84,7 @@ func run() error {
 
 	logger.Info("initializing routes")
 
-	grpc.NewRouter(grpcServer.Server, userUseCase, *logger)
+	grpc.NewRouter(grpcServer.Server, userUseCase, logger)
 
 	logger.Info("server started successfully")
 

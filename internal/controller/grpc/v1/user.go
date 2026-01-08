@@ -15,11 +15,11 @@ import (
 type UserService struct {
 	v1.UserServiceServer
 
-	usecase usecase.User
-	logger  zap.Logger
+	usecase *usecase.User
+	logger  *zap.Logger
 }
 
-func NewUserRoute(server *pbgrpc.Server, u usecase.User, l zap.Logger) {
+func NewUserRoute(server *pbgrpc.Server, u *usecase.User, l *zap.Logger) {
 	r := &UserService{usecase: u, logger: l}
 	{
 		v1.RegisterUserServiceServer(server, r)

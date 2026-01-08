@@ -1,4 +1,4 @@
-package user
+package usecase
 
 import (
 	"context"
@@ -7,16 +7,16 @@ import (
 	"github.com/go-list-templ/grpc/internal/repo"
 )
 
-type UseCase struct {
+type User struct {
 	repo       repo.UserRepo
 	avatarRepo repo.UserAvatarRepo
 }
 
-func New(r repo.UserRepo, a repo.UserAvatarRepo) *UseCase {
-	return &UseCase{repo: r, avatarRepo: a}
+func NewUser(r repo.UserRepo, a repo.UserAvatarRepo) *User {
+	return &User{repo: r, avatarRepo: a}
 }
 
-func (u *UseCase) All(ctx context.Context) ([]entity.User, error) {
+func (u *User) All(ctx context.Context) ([]entity.User, error) {
 	users, err := u.repo.All(ctx)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (u *UseCase) All(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (u *UseCase) Create(ctx context.Context, user entity.User) (entity.User, error) {
+func (u *User) Create(ctx context.Context, user entity.User) (entity.User, error) {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return user, err
