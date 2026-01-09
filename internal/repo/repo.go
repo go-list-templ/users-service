@@ -13,6 +13,6 @@ type (
 	}
 
 	UserAvatarRepo interface {
-		Set(entity.User)
+		Set(entity.User) entity.User
 	}
 )
