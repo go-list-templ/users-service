@@ -15,17 +15,17 @@ const (
 	KeyAllUsers = "users:all"
 )
 
-type UserRedisRepo struct {
+type UserRedis struct {
 	repo   repo.UserRepo
 	redis  *redis.Redis
 	logger *zap.Logger
 }
 
-func NewUserRedisRepo(repo repo.UserRepo, redis *redis.Redis, logger *zap.Logger) *UserRedisRepo {
-	return &UserRedisRepo{repo: repo, redis: redis, logger: logger}
+func NewUserRedis(repo repo.UserRepo, redis *redis.Redis, logger *zap.Logger) *UserRedis {
+	return &UserRedis{repo: repo, redis: redis, logger: logger}
 }
 
-func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
+func (u *UserRedis) All(ctx context.Context) ([]entity.User, error) {
 	var cachedUsers []dao.User
 
 	err := u.redis.GetCache(KeyAllUsers, &cachedUsers)
@@ -60,7 +60,7 @@ func (u *UserRedisRepo) All(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (u *UserRedisRepo) Store(ctx context.Context, user entity.User) error {
+func (u *UserRedis) Store(ctx context.Context, user entity.User) error {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return err

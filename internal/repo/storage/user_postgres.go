@@ -8,15 +8,15 @@ import (
 	"github.com/go-list-templ/grpc/pkg/postgres"
 )
 
-type UserPostgresRepo struct {
+type UserPostgres struct {
 	*postgres.Postgres
 }
 
-func NewUserPostgresRepo(postgres *postgres.Postgres) *UserPostgresRepo {
-	return &UserPostgresRepo{postgres}
+func NewUserPostgres(postgres *postgres.Postgres) *UserPostgres {
+	return &UserPostgres{postgres}
 }
 
-func (r *UserPostgresRepo) Store(ctx context.Context, user entity.User) error {
+func (r *UserPostgres) Store(ctx context.Context, user entity.User) error {
 	query := `
 		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -37,7 +37,7 @@ func (r *UserPostgresRepo) Store(ctx context.Context, user entity.User) error {
 	return nil
 }
 
-func (r *UserPostgresRepo) All(ctx context.Context) ([]entity.User, error) {
+func (r *UserPostgres) All(ctx context.Context) ([]entity.User, error) {
 	var users []entity.User
 
 	rows, err := r.Query(ctx, "SELECT * FROM users")
