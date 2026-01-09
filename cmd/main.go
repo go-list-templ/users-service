@@ -7,15 +7,16 @@ import (
 	"os/signal"
 	"syscall"
 
+	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
+	httpclient "github.com/go-list-templ/grpc/pkg/http/client"
+	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
+
 	"github.com/go-list-templ/grpc/config"
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo/cache"
 	"github.com/go-list-templ/grpc/internal/repo/external"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
 	"github.com/go-list-templ/grpc/internal/usecase"
-	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
-	httpclient "github.com/go-list-templ/grpc/pkg/http/client"
-	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"go.uber.org/zap"
@@ -66,13 +67,13 @@ func run() error {
 
 	logger.Info("initializing repositories")
 
-	userStorageRepo := storage.NewUserPostgresRepo(pg)
-	userCacheRepo := cache.NewUserRedisRepo(userStorageRepo, rd, logger)
-	userAvatarRepo := external.NewUserUnavatar(hc, logger)
+	userPostgresRepo := storage.NewUserPostgres(pg)
+	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
+	userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing use case")
 
-	userUseCase := usecase.NewUser(userCacheRepo, userAvatarRepo)
+	userUseCase := usecase.NewUser(userRedisRepo, userUnavatarRepo)
 
 	logger.Info("initializing servers")
 
