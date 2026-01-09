@@ -19,12 +19,14 @@ func NewUserUnavatar(c *client.Client, l *zap.Logger) *UserUnavatar {
 	return &UserUnavatar{client: c, logger: l}
 }
 
-func (u UserUnavatar) Set(user entity.User) {
+func (u UserUnavatar) Set(user entity.User) entity.User {
 	uri := fmt.Sprintf("https://unavatar.io/%v?json", user.Email.Value())
 
 	res, err := u.client.Get(uri)
 	if err != nil {
 		u.logger.Warn("client get", zap.Error(err))
+
+		return user
 	}
 	defer u.client.ReleaseGet(res)
 
@@ -33,7 +35,20 @@ func (u UserUnavatar) Set(user entity.User) {
 	err = json.Unmarshal(res.Body(), avatar)
 	if err != nil {
 		u.logger.Warn("unmarshal", zap.Error(err))
+
+		return user
 	}
 
-	u.logger.Info("avatar", zap.String("response", avatar.URL))
+	u.logger.Info("url avatar", zap.String("url", avatar.URL))
+
+	err = user.Avatar.Update(avatar.URL)
+	if err != nil {
+		u.logger.Warn("avatar set", zap.Error(err))
+
+		return user
+	}
+
+	u.logger.Info("updated avatar", zap.Any("avatar", user.Avatar.Value()))
+
+	return user
 }
