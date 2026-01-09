@@ -26,12 +26,12 @@ func (u *User) All(ctx context.Context) ([]entity.User, error) {
 }
 
 func (u *User) Create(ctx context.Context, user entity.User) (entity.User, error) {
+	user = u.avatarRepo.Set(user)
+
 	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return user, err
 	}
-
-	u.avatarRepo.Set(user)
 
 	return user, nil
 }
