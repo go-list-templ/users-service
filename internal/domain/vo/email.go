@@ -27,6 +27,6 @@ func UnsafeEmail(email string) Email {
 	return Email{value: email}
 }
 
-func (e Email) Value() string {
+func (e *Email) Value() string {
 	return e.value
 }

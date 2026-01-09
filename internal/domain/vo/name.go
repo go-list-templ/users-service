@@ -44,6 +44,6 @@ func UnsafeName(name string) Name {
 	return Name{value: name}
 }
 
-func (u Name) Value() string {
+func (u *Name) Value() string {
 	return u.value
 }

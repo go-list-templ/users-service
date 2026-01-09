@@ -14,6 +14,6 @@ func UnsafeID(id uuid.UUID) ID {
 	return ID{value: id}
 }
 
-func (id ID) Value() uuid.UUID {
-	return id.value
+func (i *ID) Value() uuid.UUID {
+	return i.value
 }
