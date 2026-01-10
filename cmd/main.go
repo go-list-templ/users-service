@@ -43,7 +43,7 @@ func run() error {
 
 	logger.Info("initializing postgres")
 
-	pg, err := postgres.New(&cfg.DB)
+	pg, err := postgres.New(&cfg.DB, logger)
 	if err != nil {
 		logger.Panic("cant init postgres", zap.Error(err))
 	}
