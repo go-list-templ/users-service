@@ -30,14 +30,14 @@ services:
 
   db:
     container_name: db.${APP_NAME}
-    image: postgres:17
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: '${DB_USERNAME}'
       POSTGRES_PASSWORD: '${DB_PASSWORD}'
-      POSTGRES_DB: '${DB_DATABASE}'
-      PGDATA: '/var/lib/postgresql/data/pgdata'
+    command: [ "postgres", "-c", "wal_level=logical" ]
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - '${DB_PORT}:5432'
     networks:
@@ -67,7 +67,7 @@ services:
       - '${REDIS_PORT}'
 
 volumes:
-  pg_data:
+  db_data:
   redis_data:
 
 networks:
