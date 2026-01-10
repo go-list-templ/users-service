@@ -3,7 +3,7 @@ package event
 import (
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/domain/vo"
+	"github.com/go-list-templ/grpc/internal/domain/entity"
 )
 
 const (
@@ -16,7 +16,15 @@ type (
 
 	UserEvent struct {
 		Event     TypeUserEvent
-		UserID    vo.ID
+		Entity    entity.User
 		EventTime time.Time
 	}
 )
+
+func UserCreated(user entity.User) UserEvent {
+	return UserEvent{
+		Event:     Created,
+		Entity:    user,
+		EventTime: time.Now(),
+	}
+}
