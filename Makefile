@@ -1,6 +1,6 @@
 include .env
 
-DB_URL=${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@localhost:5432/${DB_DATABASE}?sslmode=disable
+DB_URL=${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_DATABASE}?sslmode=disable
 
 start: build migrate
 
@@ -9,7 +9,7 @@ lint: docker-lint go-lint
 lint-fix: go-lint-fix
 
 build:
-	docker compose --env-file .env up -d --build
+	docker compose --env-file .env up -d --build --remove-orphans
 
 docker-lint:
 	docker run --rm -i -v ./hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint < ./Dockerfile
@@ -22,6 +22,9 @@ go-lint-fix:
 
 migrate:
 	docker run --rm --network=host -v $$(pwd)/db/migrations:/db/migrations -e DATABASE_URL="$(DB_URL)" amacneil/dbmate:2.28 up
+
+migrate-rollback:
+	docker run --rm --network=host -v $$(pwd)/db/migrations:/db/migrations -e DATABASE_URL="$(DB_URL)" amacneil/dbmate:2.28 rollback
 
 log:
 	docker logs -f --tail 10 app.${APP_NAME}
