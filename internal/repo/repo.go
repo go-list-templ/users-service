@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/internal/domain/event"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
 )
@@ -14,5 +15,9 @@ type (
 
 	UserAvatarRepo interface {
 		Set(entity.User) entity.User
+	}
+
+	OutboxRepo interface {
+		Publish(context.Context, event.Event) error
 	}
 )
