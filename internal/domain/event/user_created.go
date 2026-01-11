@@ -1,41 +1,19 @@
 package event
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/go-list-templ/grpc/internal/domain/entity"
 )
 
 type UserCreated struct {
-	eventID       uuid.UUID
-	payload       []byte
-	occurredAt    time.Time
-	aggregateID   string
-	aggregateType string
+	Event
 }
 
-func NewUserCreated(aggregateID, aggregateType string, payload []byte) UserCreated {
+func NewUserCreated(user entity.User) UserCreated {
 	return UserCreated{
-		eventID:       uuid.New(),
-		payload:       payload,
-		occurredAt:    time.Now(),
-		aggregateID:   aggregateID,
-		aggregateType: aggregateType,
+		*NewEvent(
+			user.ID.Value().String(),
+			"user",
+			nil,
+		),
 	}
-}
-
-func (e *UserCreated) Payload() []byte {
-	return e.payload
-}
-
-func (e *UserCreated) OccurredAt() time.Time {
-	return e.occurredAt
-}
-
-func (e *UserCreated) AggregateID() string {
-	return e.aggregateID
-}
-
-func (e *UserCreated) AggregateType() string {
-	return e.aggregateType
 }
