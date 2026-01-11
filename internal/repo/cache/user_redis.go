@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
@@ -60,8 +61,8 @@ func (u *UserRedis) All(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (u *UserRedis) Store(ctx context.Context, user entity.User) error {
-	err := u.repo.Store(ctx, user)
+func (u *UserRedis) Store(ctx context.Context, tx pgx.Tx, user entity.User) error {
+	err := u.repo.Store(ctx, tx, user)
 	if err != nil {
 		return err
 	}

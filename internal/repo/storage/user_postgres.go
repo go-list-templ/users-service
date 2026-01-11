@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
 	"github.com/go-list-templ/grpc/internal/repo/storage/dao"
@@ -16,13 +17,13 @@ func NewUserPostgres(postgres *postgres.Postgres) *UserPostgres {
 	return &UserPostgres{postgres}
 }
 
-func (r *UserPostgres) Store(ctx context.Context, user entity.User) error {
+func (r *UserPostgres) Store(ctx context.Context, tx pgx.Tx, user entity.User) error {
 	query := `
 		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	_, err := r.Exec(ctx, query,
+	_, err := tx.Exec(ctx, query,
 		user.ID.Value(),
 		user.Name.Value(),
 		user.Email.Value(),
