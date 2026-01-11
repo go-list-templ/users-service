@@ -2,22 +2,26 @@ package usecase
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/internal/domain/event"
+	"github.com/go-list-templ/grpc/pkg/uow"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
 	"github.com/go-list-templ/grpc/internal/repo"
 )
 
 type User struct {
-	repo       repo.UserRepo
-	avatarRepo repo.UserAvatarRepo
+	userRepo   repo.UserRepo
+	outboxRepo repo.OutboxRepo
+	uow        *uow.UnitOfWork
 }
 
-func NewUser(r repo.UserRepo, a repo.UserAvatarRepo) *User {
-	return &User{repo: r, avatarRepo: a}
+func NewUser(u repo.UserRepo, o repo.OutboxRepo, uo *uow.UnitOfWork) *User {
+	return &User{userRepo: u, outboxRepo: o, uow: uo}
 }
 
 func (u *User) All(ctx context.Context) ([]entity.User, error) {
-	users, err := u.repo.All(ctx)
+	users, err := u.userRepo.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -26,11 +30,18 @@ func (u *User) All(ctx context.Context) ([]entity.User, error) {
 }
 
 func (u *User) Create(ctx context.Context, user entity.User) (entity.User, error) {
-	user = u.avatarRepo.Set(user)
+	err := u.uow.Do(ctx, func(tx pgx.Tx) error {
+		err := u.userRepo.Store(ctx, tx, user)
+		if err != nil {
+			return err
+		}
 
-	err := u.repo.Store(ctx, user)
+		userCreated := event.NewUserCreated(user)
+
+		return u.outboxRepo.Publish(ctx, tx, userCreated.Event)
+	})
 	if err != nil {
-		return user, err
+		return entity.User{}, err
 	}
 
 	return user, nil
