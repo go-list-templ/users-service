@@ -2,19 +2,18 @@ package main
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/pkg/uow"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
-	httpclient "github.com/go-list-templ/grpc/pkg/http/client"
 	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
 
 	"github.com/go-list-templ/grpc/config"
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo/cache"
-	"github.com/go-list-templ/grpc/internal/repo/external"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
 	"github.com/go-list-templ/grpc/internal/usecase"
 	"github.com/go-list-templ/grpc/pkg/postgres"
@@ -63,17 +62,22 @@ func run() error {
 
 	logger.Info("initializing http client")
 
-	hc := httpclient.New(cfg.Client)
+	//hc := httpclient.New(cfg.Client)
+
+	logger.Info("initializing unit of work")
+
+	uo := uow.NewUnitOfWork(pg, logger)
 
 	logger.Info("initializing repositories")
 
+	outboxPostgresRepo := storage.NewOutboxPostgres(pg)
 	userPostgresRepo := storage.NewUserPostgres(pg)
 	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
-	userUnavatarRepo := external.NewUserUnavatar(hc, logger)
+	//userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing use case")
 
-	userUseCase := usecase.NewUser(userRedisRepo, userUnavatarRepo)
+	userUseCase := usecase.NewUser(userRedisRepo, outboxPostgresRepo, uo)
 
 	logger.Info("initializing servers")
 
