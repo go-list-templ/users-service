@@ -25,12 +25,6 @@ func (u *UnitOfWork) Do(ctx context.Context, fn func(tx pgx.Tx) error) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if p := recover(); p != nil {
-			_ = tx.Rollback(ctx)
-			u.logger.Panic("recovered from panic")
-		}
-	}()
 
 	if err = fn(tx); err != nil {
 		_ = tx.Rollback(ctx)
