@@ -2,13 +2,13 @@ package cache
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/domain/entity"
 	"github.com/go-list-templ/grpc/internal/repo"
 	"github.com/go-list-templ/grpc/internal/repo/cache/dao"
 	"github.com/go-list-templ/grpc/pkg/redis"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +29,7 @@ func NewUserRedis(repo repo.UserRepo, redis *redis.Redis, logger *zap.Logger) *U
 func (u *UserRedis) All(ctx context.Context) ([]entity.User, error) {
 	var cachedUsers []dao.User
 
-	err := u.redis.GetCache(KeyAllUsers, &cachedUsers)
+	err := u.redis.GetCache(ctx, KeyAllUsers, &cachedUsers)
 	if err == nil && len(cachedUsers) > 0 {
 		users := make([]entity.User, len(cachedUsers))
 
@@ -45,20 +45,31 @@ func (u *UserRedis) All(ctx context.Context) ([]entity.User, error) {
 		return nil, err
 	}
 
-	go func() {
-		cacheUsers := make([]dao.User, len(users))
+	go u.cacheAllUsers(users)
 
-		for i, user := range users {
-			cacheUsers[i] = dao.FromEntity(user)
-		}
+	return users, nil
+}
 
-		err = u.redis.SetCache(KeyAllUsers, cacheUsers, time.Hour)
-		if err != nil {
-			u.logger.Error("redis set error", zap.Error(err))
+func (u *UserRedis) cacheAllUsers(users []entity.User) {
+	defer func() {
+		if r := recover(); r != nil {
+			u.logger.Error("panic in cacheAllUsers", zap.Any("panic", r))
 		}
 	}()
 
-	return users, nil
+	cacheUsers := make([]dao.User, len(users))
+
+	for i, user := range users {
+		cacheUsers[i] = dao.FromEntity(user)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := u.redis.SetCache(ctx, KeyAllUsers, cacheUsers, time.Hour)
+	if err != nil {
+		u.logger.Error("redis set error", zap.Error(err))
+	}
 }
 
 func (u *UserRedis) Store(ctx context.Context, tx pgx.Tx, user entity.User) error {
@@ -67,11 +78,24 @@ func (u *UserRedis) Store(ctx context.Context, tx pgx.Tx, user entity.User) erro
 		return err
 	}
 
-	go func() {
-		if err = u.redis.DeleteCache(KeyAllUsers); err != nil {
-			u.logger.Error("redis del error", zap.Error(err))
+	go u.clearCache(KeyAllUsers)
+
+	return nil
+}
+
+func (u *UserRedis) clearCache(keys ...string) {
+	defer func() {
+		if r := recover(); r != nil {
+			u.logger.Error("panic in clearCache", zap.Any("panic", r))
 		}
 	}()
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	for _, key := range keys {
+		if err := u.redis.DeleteCache(ctx, key); err != nil {
+			u.logger.Error("redis del error", zap.String("key", key), zap.Error(err))
+		}
+	}
 }
