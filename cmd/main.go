@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/go-list-templ/grpc/pkg/uow"
 	"log"
 	"os"
 	"os/signal"
@@ -15,7 +14,8 @@ import (
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo/cache"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
-	"github.com/go-list-templ/grpc/internal/usecase"
+	"github.com/go-list-templ/grpc/internal/usecase/user/command"
+	"github.com/go-list-templ/grpc/internal/usecase/user/query"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"go.uber.org/zap"
@@ -64,10 +64,6 @@ func run() error {
 
 	//hc := httpclient.New(cfg.Client)
 
-	logger.Info("initializing unit of work")
-
-	uo := uow.NewUnitOfWork(pg, logger)
-
 	logger.Info("initializing repositories")
 
 	outboxPostgresRepo := storage.NewOutboxPostgres(pg)
@@ -75,9 +71,10 @@ func run() error {
 	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
 	//userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
-	logger.Info("initializing use case")
+	logger.Info("initializing usecase")
 
-	userUseCase := usecase.NewUser(userRedisRepo, outboxPostgresRepo, uo)
+	userQueryUsecase := query.NewUserUsecase(userRedisRepo)
+	userCommandUsecase := command.NewUserUsecase(userRedisRepo, outboxPostgresRepo)
 
 	logger.Info("initializing servers")
 
@@ -89,7 +86,7 @@ func run() error {
 
 	logger.Info("initializing routes")
 
-	grpc.NewRouter(grpcServer.Server, userUseCase, logger)
+	grpc.NewRouter(grpcServer.Server, userQueryUsecase, userCommandUsecase, logger)
 
 	logger.Info("server started successfully")
 
