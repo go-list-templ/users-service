@@ -8,7 +8,6 @@ import (
 	"github.com/go-list-templ/grpc/internal/repo"
 	"github.com/go-list-templ/grpc/internal/repo/cache/dao"
 	"github.com/go-list-templ/grpc/pkg/redis"
-	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -72,8 +71,8 @@ func (u *UserRedis) cacheAllUsers(users []entity.User) {
 	}
 }
 
-func (u *UserRedis) Store(ctx context.Context, tx pgx.Tx, user entity.User) error {
-	err := u.repo.Store(ctx, tx, user)
+func (u *UserRedis) Store(ctx context.Context, user entity.User) error {
+	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return err
 	}
