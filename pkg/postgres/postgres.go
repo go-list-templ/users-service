@@ -33,10 +33,13 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	connAttempts := DefaultConnAttempts
 	connTimeout := DefaultConnTimeout
 
-	for connAttempts > 0 {
-		pg.Pool, _ = pgxpool.NewWithConfig(context.Background(), conf)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-		err = pg.Pool.Ping(context.Background())
+	for connAttempts > 0 {
+		pg.Pool, _ = pgxpool.NewWithConfig(ctx, conf)
+
+		err = pg.Pool.Ping(ctx)
 		if err == nil {
 			break
 		}

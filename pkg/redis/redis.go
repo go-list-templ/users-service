@@ -20,7 +20,10 @@ func New(cfg *config.Redis) (*Redis, error) {
 		DB:       0,
 	})
 
-	_, err := client.Ping(context.Background()).Result()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := client.Ping(ctx).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +31,12 @@ func New(cfg *config.Redis) (*Redis, error) {
 	return &Redis{client}, nil
 }
 
-func (r *Redis) DeleteCache(key string) error {
-	return r.Del(context.Background(), key).Err()
+func (r *Redis) DeleteCache(ctx context.Context, key string) error {
+	return r.Del(ctx, key).Err()
 }
 
-func (r *Redis) GetCache(key string, pointer any) error {
-	data, err := r.Get(context.Background(), key).Bytes()
+func (r *Redis) GetCache(ctx context.Context, key string, pointer any) error {
+	data, err := r.Get(ctx, key).Bytes()
 	if err != nil {
 		return err
 	}
@@ -41,11 +44,11 @@ func (r *Redis) GetCache(key string, pointer any) error {
 	return json.Unmarshal(data, pointer)
 }
 
-func (r *Redis) SetCache(key string, data any, ttl time.Duration) error {
+func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Duration) error {
 	data, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	return r.Set(context.Background(), key, data, ttl).Err()
+	return r.Set(ctx, key, data, ttl).Err()
 }
