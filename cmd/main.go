@@ -62,14 +62,14 @@ func run() error {
 
 	logger.Info("initializing http client")
 
-	//hc := httpclient.New(cfg.Client)
+	// hc := httpclient.New(cfg.Client)
 
 	logger.Info("initializing repositories")
 
 	outboxPostgresRepo := storage.NewOutboxPostgres(pg)
 	userPostgresRepo := storage.NewUserPostgres(pg)
 	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
-	//userUnavatarRepo := external.NewUserUnavatar(hc, logger)
+	// userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing usecase")
 

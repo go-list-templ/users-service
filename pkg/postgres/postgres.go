@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	DefaultConnAttempts = 10
-	DefaultConnTimeout  = time.Second
+	DefaultConnAttempts   = 10
+	DefaultConnTimeout    = time.Second
+	DefaultContextTimeout = 5 * time.Second
 )
 
 type Postgres struct {
@@ -33,13 +34,16 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	connAttempts := DefaultConnAttempts
 	connTimeout := DefaultConnTimeout
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()
 
 	for connAttempts > 0 {
-		pg.Pool, _ = pgxpool.NewWithConfig(ctx, conf)
+		pg.Pool, err = pgxpool.NewWithConfig(ctx, conf)
+		if err != nil {
+			logger.Info("postgres err config", zap.Error(err))
+		}
 
-		err = pg.Pool.Ping(ctx)
+		err = pg.Ping(ctx)
 		if err == nil {
 			break
 		}

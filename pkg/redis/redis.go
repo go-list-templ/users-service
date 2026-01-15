@@ -9,6 +9,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const DefaultContextTimeout = 5 * time.Second
+
 type Redis struct {
 	*redis.Client
 }
@@ -20,7 +22,7 @@ func New(cfg *config.Redis) (*Redis, error) {
 		DB:       0,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()
 
 	_, err := client.Ping(ctx).Result()
