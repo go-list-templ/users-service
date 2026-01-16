@@ -86,7 +86,8 @@ func run() error {
 
 	logger.Info("initializing routes")
 
-	grpc.NewRouter(grpcServer.Server, userQueryUsecase, userCommandUsecase, logger)
+	grpcRouter := grpc.NewRouter(grpcServer.Server, logger)
+	grpcRouter.UserRegister(userQueryUsecase, userCommandUsecase)
 
 	logger.Info("server started successfully")
 
