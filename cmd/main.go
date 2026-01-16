@@ -89,6 +89,8 @@ func run() error {
 	grpcRouter := grpc.NewRouter(grpcServer.Server, logger)
 	grpcRouter.UserRegister(userQueryUsecase, userCommandUsecase)
 
+	grpcRouter.Release()
+
 	logger.Info("server started successfully")
 
 	interrupt := make(chan os.Signal, 1)
