@@ -6,14 +6,17 @@ import (
 	"github.com/go-list-templ/grpc/internal/domain/entity"
 	"github.com/go-list-templ/grpc/internal/repo/storage/dao"
 	"github.com/go-list-templ/grpc/pkg/postgres"
+	"github.com/go-list-templ/grpc/pkg/trm"
 )
 
 type UserPostgres struct {
 	*postgres.Postgres
+
+	getter *trm.CtxGetter
 }
 
-func NewUserPostgres(postgres *postgres.Postgres) *UserPostgres {
-	return &UserPostgres{postgres}
+func NewUserPostgres(p *postgres.Postgres, g *trm.CtxGetter) *UserPostgres {
+	return &UserPostgres{p, g}
 }
 
 func (u *UserPostgres) Store(ctx context.Context, user entity.User) error {
@@ -22,19 +25,17 @@ func (u *UserPostgres) Store(ctx context.Context, user entity.User) error {
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	_, err := u.Exec(ctx, query,
-		user.ID.Value(),
-		user.Name.Value(),
-		user.Email.Value(),
-		user.Avatar.Value(),
-		user.CreatedAt,
-		user.UpdatedAt,
-	)
-	if err != nil {
-		return err
-	}
+	_, err := u.getter.TrOrDB(ctx, u.Postgres).
+		Exec(ctx, query,
+			user.ID.Value(),
+			user.Name.Value(),
+			user.Email.Value(),
+			user.Avatar.Value(),
+			user.CreatedAt,
+			user.UpdatedAt,
+		)
 
-	return nil
+	return err
 }
 
 func (u *UserPostgres) All(ctx context.Context) ([]entity.User, error) {
