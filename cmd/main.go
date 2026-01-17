@@ -18,6 +18,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/usecase/user/query"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
+	"github.com/go-list-templ/grpc/pkg/trm"
 	"go.uber.org/zap"
 )
 
@@ -64,17 +65,22 @@ func run() error {
 
 	// hc := httpclient.New(cfg.Client)
 
+	logger.Info("initializing utils")
+
+	trManager := trm.NewManager(pg, logger)
+	trGetter := trm.NewCtxGetter(trManager)
+
 	logger.Info("initializing repositories")
 
-	outboxPostgresRepo := storage.NewOutboxPostgres(pg)
-	userPostgresRepo := storage.NewUserPostgres(pg)
+	outboxPostgresRepo := storage.NewOutboxPostgres(pg, trGetter)
+	userPostgresRepo := storage.NewUserPostgres(pg, trGetter)
 	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
 	// userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing usecase")
 
 	userQueryUsecase := query.NewUserUsecase(userRedisRepo)
-	userCommandUsecase := command.NewUserUsecase(userRedisRepo, outboxPostgresRepo)
+	userCommandUsecase := command.NewUserUsecase(userRedisRepo, outboxPostgresRepo, trManager)
 
 	logger.Info("initializing servers")
 
