@@ -23,9 +23,7 @@ func (r *Router) Release() {
 	reflection.Register(r.server)
 }
 
-func (r *Router) UserRegister(uq *query.UserUsecase, uc *command.UserUsecase) {
-	{
-		user.NewQueryService(r.server, uq, r.logger)
-		user.NewCommandService(r.server, uc, r.logger)
-	}
+func (r *Router) User(uq *query.UserUsecase, uc *command.UserUsecase) {
+	user.NewQueryService(r.server, uq, r.logger)
+	user.NewCommandService(r.server, uc, r.logger)
 }
