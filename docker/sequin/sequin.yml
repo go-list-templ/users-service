@@ -1,0 +1,41 @@
+account:
+  name: sequin
+
+users:
+  - account: sequin
+    email: ${SEQUIN_EMAIL}
+    password: ${SEQUIN_PASSWORD}
+
+functions:
+  - name: record.message
+    type: path
+    path: record.message
+
+databases:
+  - name: ${DB_DATABASE}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hostname: db
+    database: ${DB_DATABASE}
+    port: ${DB_PORT}
+    slot_name: sequin_slot
+    publication_name: sequin_pub
+
+sinks:
+  - name: outbox
+    database: ${DB_DATABASE}
+    source:
+      include_table_names:
+        - public.outbox
+    actions:
+      - insert
+    transform: record.message
+    batch_size: 10
+    destination:
+      type: rabbitmq
+      host: rabbitmq
+      virtual_host: /
+      username: ${MQ_USERNAME}
+      password: ${MQ_PASSWORD}
+      port: ${MQ_PORT}
+      exchange: events
