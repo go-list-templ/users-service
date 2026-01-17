@@ -12,18 +12,18 @@ functions:
     path: record.message
 
 databases:
-  - name: ${DB_DATABASE}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    hostname: db
-    database: ${DB_DATABASE}
-    port: ${DB_PORT}
+  - name: ${PG_DATABASE}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    hostname: ${PG_HOSTNAME}
+    database: ${PG_DATABASE}
+    port: ${PG_PORT}
     slot_name: sequin_slot
     publication_name: sequin_pub
 
 sinks:
   - name: outbox
-    database: ${DB_DATABASE}
+    database: ${PG_DATABASE}
     source:
       include_table_names:
         - public.outbox

@@ -106,6 +106,8 @@ services:
       - VAULT_KEY=2Sig69bIpuSm2kv0VQfDekET2qy8qUZGI8v3/h3ASiY=
       - REDIS_URL=redis://redis:${REDIS_PORT}
       - CONFIG_FILE_PATH=/config/main.yml
+      - SEQUIN_EMAIL=${SEQUIN_EMAIL}
+      - SEQUIN_PASSWORD=${SEQUIN_PASSWORD}
     volumes:
       - ./docker/sequin/sequin.yml:/config/main.yml
     depends_on:
