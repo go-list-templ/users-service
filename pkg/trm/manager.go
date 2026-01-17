@@ -33,7 +33,10 @@ func (m *Manager) Do(ctx context.Context, fn func(ctx context.Context) error) er
 	}()
 
 	if err = fn(trCtx); err != nil {
-		_ = tx.Rollback(trCtx)
+		errTx := tx.Rollback(trCtx)
+		if errTx != nil {
+			m.logger.Warn("trm rollback", zap.Error(errTx))
+		}
 
 		return err
 	}
