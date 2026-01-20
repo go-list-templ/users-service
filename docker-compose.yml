@@ -108,6 +108,9 @@ services:
       - CONFIG_FILE_PATH=/config/main.yml
       - SEQUIN_EMAIL=${SEQUIN_EMAIL}
       - SEQUIN_PASSWORD=${SEQUIN_PASSWORD}
+      - MQ_USERNAME=${MQ_USERNAME}
+      - MQ_PASSWORD=${MQ_PASSWORD}
+      - MQ_PORT=${MQ_PORT}
     volumes:
       - ./docker/sequin/sequin.yml:/config/main.yml
     depends_on:
