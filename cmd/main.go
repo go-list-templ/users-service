@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/go-list-templ/grpc/pkg/rabbitmq"
 	"log"
 	"os"
 	"os/signal"
@@ -18,6 +17,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/usecase/user/command"
 	"github.com/go-list-templ/grpc/internal/usecase/user/query"
 	"github.com/go-list-templ/grpc/pkg/postgres"
+	"github.com/go-list-templ/grpc/pkg/rabbitmq"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"github.com/go-list-templ/grpc/pkg/trm"
 	"go.uber.org/zap"
@@ -29,7 +29,7 @@ func main() {
 	}
 }
 
-// nolint:errcheck
+// nolint:errcheck,gocyclo
 func run() error {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
