@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/pkg/rabbitmq"
 	"log"
 	"os"
 	"os/signal"
@@ -48,6 +49,18 @@ func run() error {
 		logger.Panic("cant init postgres", zap.Error(err))
 	}
 	defer pg.Close()
+
+	logger.Info("initializing rabbitmq")
+
+	mq, err := rabbitmq.New(&cfg.RabbitMQ, logger)
+	if err != nil {
+		logger.Panic("cant init rabbitmq", zap.Error(err))
+	}
+	defer func() {
+		if err = mq.Conn.Close(); err != nil {
+			logger.Error("rabbitmq close failed", zap.Error(err))
+		}
+	}()
 
 	logger.Info("initializing redis")
 
