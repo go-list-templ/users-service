@@ -22,6 +22,7 @@ services:
       - CLIENT_READ_TIMEOUT=${CLIENT_READ_TIMEOUT}
       - CLIENT_WRITE_TIMEOUT=${CLIENT_WRITE_TIMEOUT}
       - CLIENT_MAX_IDLE=${CLIENT_MAX_IDLE}
+      - MQ_URL=amqp://${MQ_USERNAME}:${MQ_PASSWORD}@rabbitmq:${MQ_PORT}/
     depends_on:
       - db
       - redis
