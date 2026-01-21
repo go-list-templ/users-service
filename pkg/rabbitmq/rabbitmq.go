@@ -16,12 +16,14 @@ func New(cfg *config.RabbitMQ, logger *zap.Logger) (*RabbitMQ, error) {
 	conn, err := amqp.Dial(cfg.URL)
 	if err != nil {
 		logger.Warn("Failed to connect to RabbitMQ", zap.Error(err))
+
 		return nil, err
 	}
 
 	ch, err := conn.Channel()
 	if err != nil {
 		logger.Warn("Failed to open a RabbitMQ channel", zap.Error(err))
+
 		return nil, err
 	}
 

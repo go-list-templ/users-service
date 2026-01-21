@@ -29,7 +29,7 @@ func main() {
 	}
 }
 
-// nolint:errcheck,gocyclo
+// nolint:errcheck,gocyclo,cyclop
 func run() error {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
