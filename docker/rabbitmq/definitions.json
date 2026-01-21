@@ -27,12 +27,7 @@
   "queues": [
     {
       "vhost": "/",
-      "name": "y",
-      "durable": true
-    },
-    {
-      "vhost": "/",
-      "name": "z",
+      "name": "user_created",
       "durable": true
     }
   ],
@@ -48,13 +43,7 @@
     {
       "vhost": "/",
       "source": "events",
-      "destination": "y",
-      "destination_type": "queue"
-    },
-    {
-      "vhost": "/",
-      "source": "events",
-      "destination": "z",
+      "destination": "user_created",
       "destination_type": "queue"
     }
   ]
