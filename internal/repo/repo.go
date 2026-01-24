@@ -13,10 +13,6 @@ type (
 		All(context.Context) ([]entity.User, error)
 	}
 
-	UserAvatarRepo interface {
-		Set(entity.User) entity.User
-	}
-
 	OutboxRepo interface {
 		Publish(context.Context, event.Event) error
 	}
