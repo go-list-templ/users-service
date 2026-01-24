@@ -14,10 +14,8 @@ import (
 	"github.com/go-list-templ/grpc/internal/controller/grpc"
 	"github.com/go-list-templ/grpc/internal/repo/cache"
 	"github.com/go-list-templ/grpc/internal/repo/storage"
-	"github.com/go-list-templ/grpc/internal/usecase/user/command"
-	"github.com/go-list-templ/grpc/internal/usecase/user/query"
+	"github.com/go-list-templ/grpc/internal/usecase/user"
 	"github.com/go-list-templ/grpc/pkg/postgres"
-	"github.com/go-list-templ/grpc/pkg/rabbitmq"
 	"github.com/go-list-templ/grpc/pkg/redis"
 	"github.com/go-list-templ/grpc/pkg/trm"
 	"go.uber.org/zap"
@@ -50,18 +48,6 @@ func run() error {
 	}
 	defer pg.Close()
 
-	logger.Info("initializing rabbitmq")
-
-	mq, err := rabbitmq.New(&cfg.RabbitMQ, logger)
-	if err != nil {
-		logger.Panic("cant init rabbitmq", zap.Error(err))
-	}
-	defer func() {
-		if err = mq.Conn.Close(); err != nil {
-			logger.Error("rabbitmq close failed", zap.Error(err))
-		}
-	}()
-
 	logger.Info("initializing redis")
 
 	rd, err := redis.New(&cfg.Redis)
@@ -74,11 +60,7 @@ func run() error {
 		}
 	}()
 
-	logger.Info("initializing http client")
-
-	// hc := httpclient.New(cfg.Client)
-
-	logger.Info("initializing utils")
+	logger.Info("initializing transaction manager")
 
 	trManager := trm.NewManager(pg, logger)
 	trGetter := trm.NewCtxGetter(trManager)
@@ -88,12 +70,10 @@ func run() error {
 	outboxPostgresRepo := storage.NewOutboxPostgres(pg, trGetter)
 	userPostgresRepo := storage.NewUserPostgres(pg, trGetter)
 	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
-	// userUnavatarRepo := external.NewUserUnavatar(hc, logger)
 
 	logger.Info("initializing usecase")
 
-	userQueryUsecase := query.NewUserUsecase(userRedisRepo)
-	userCommandUsecase := command.NewUserUsecase(userRedisRepo, outboxPostgresRepo, trManager)
+	userUsecase := user.NewUserUsecase(userRedisRepo, outboxPostgresRepo, trManager)
 
 	logger.Info("initializing servers")
 
@@ -105,8 +85,7 @@ func run() error {
 
 	logger.Info("initializing routes")
 
-	grpcRouter := grpc.NewRouter(grpcServer.Server, logger)
-	grpcRouter.User(userQueryUsecase, userCommandUsecase)
+	grpc.NewRouter(grpcServer.Server, userUsecase, logger)
 
 	logger.Info("server started successfully")
 
