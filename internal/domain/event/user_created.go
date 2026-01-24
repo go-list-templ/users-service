@@ -2,15 +2,28 @@ package event
 
 import (
 	"encoding/json"
+
 	"github.com/go-list-templ/grpc/internal/domain/entity"
+	"github.com/go-list-templ/grpc/internal/domain/event/dao"
 )
+
+const AggregateUserCreated = "user_created"
 
 type UserCreated struct {
 	Event
 }
 
 func NewUserCreated(user entity.User) (UserCreated, error) {
-	payload, err := json.Marshal(user)
+	userDAO := dao.User{
+		ID:        user.ID.Value(),
+		Name:      user.Name.Value(),
+		Email:     user.Email.Value(),
+		Avatar:    user.Avatar.Value(),
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	payload, err := json.Marshal(userDAO)
 	if err != nil {
 		return UserCreated{}, err
 	}
@@ -18,7 +31,7 @@ func NewUserCreated(user entity.User) (UserCreated, error) {
 	return UserCreated{
 		*NewEvent(
 			user.ID.Value().String(),
-			"user_created",
+			AggregateUserCreated,
 			payload,
 		),
 	}, nil
