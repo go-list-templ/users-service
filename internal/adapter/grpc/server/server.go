@@ -3,7 +3,7 @@ package server
 import (
 	"net"
 
-	"github.com/go-list-templ/grpc/config"
+	"github.com/go-list-templ/grpc/pkg/config"
 	"google.golang.org/grpc"
 )
 

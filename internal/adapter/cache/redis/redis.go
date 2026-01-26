@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/go-list-templ/grpc/config"
+	"github.com/go-list-templ/grpc/pkg/config"
 	"github.com/redis/go-redis/v9"
 )
 

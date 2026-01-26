@@ -3,7 +3,7 @@ package transaction
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/pkg/postgres"
+	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"go.uber.org/zap"
 )
 

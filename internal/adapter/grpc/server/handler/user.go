@@ -3,12 +3,12 @@ package handler
 import (
 	"context"
 	"fmt"
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/port"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
+	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/grpc/internal/core/port"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -43,14 +43,7 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 	}
 
 	return &v1.CreateUserResponse{
-		User: &v1.User{
-			Id:        createdUser.ID.Value().String(),
-			Name:      createdUser.Name.Value(),
-			Email:     createdUser.Email.Value(),
-			Avatar:    createdUser.Avatar.Value(),
-			CreatedAt: timestamppb.New(createdUser.CreatedAt),
-			UpdatedAt: timestamppb.New(createdUser.UpdatedAt),
-		},
+		User: u.toProto(createdUser),
 	}, nil
 }
 
@@ -65,17 +58,21 @@ func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUser
 	users := make([]*v1.User, len(allUsers))
 
 	for i, user := range allUsers {
-		users[i] = &v1.User{
-			Id:        user.ID.Value().String(),
-			Name:      user.Name.Value(),
-			Email:     user.Email.Value(),
-			Avatar:    user.Avatar.Value(),
-			CreatedAt: timestamppb.New(user.CreatedAt),
-			UpdatedAt: timestamppb.New(user.UpdatedAt),
-		}
+		users[i] = u.toProto(user)
 	}
 
 	return &v1.AllUsersResponse{
 		Users: users,
 	}, nil
+}
+
+func (u *User) toProto(user entity.User) *v1.User {
+	return &v1.User{
+		Id:        user.ID.Value().String(),
+		Name:      user.Name.Value(),
+		Email:     user.Email.Value(),
+		Avatar:    user.Avatar.Value(),
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+	}
 }

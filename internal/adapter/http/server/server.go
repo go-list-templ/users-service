@@ -5,17 +5,17 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/go-list-templ/grpc/config"
+	"github.com/go-list-templ/grpc/pkg/config"
 )
 
-type Health struct {
+type HTTP struct {
 	server http.Server
 	config *config.Server
 	errors chan error
 }
 
-func NewHealth(cfg *config.Server) *Health {
-	return &Health{
+func NewHTTP(cfg *config.Server) *HTTP {
+	return &HTTP{
 		server: http.Server{
 			Addr:              net.JoinHostPort("", cfg.HealthPort),
 			Handler:           nil,
@@ -27,17 +27,17 @@ func NewHealth(cfg *config.Server) *Health {
 	}
 }
 
-func (s *Health) Notify() <-chan error {
+func (s *HTTP) Notify() <-chan error {
 	return s.errors
 }
 
-func (s *Health) Start() {
+func (s *HTTP) Start() {
 	go func() {
 		s.errors <- s.server.ListenAndServe()
 		close(s.errors)
 	}()
 }
 
-func (s *Health) Stop(ctx context.Context) error {
+func (s *HTTP) Stop(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }

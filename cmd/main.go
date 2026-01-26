@@ -7,17 +7,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	redisrepo "github.com/go-list-templ/grpc/internal/adapter/cache/redis"
-	grpchandler "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
-	pgrepo "github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
-	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
-	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
+	redisrepo "github.com/go-list-templ/grpc/internal/adapter/cache/redis/repo"
+	apiserver "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
+	diagserver "github.com/go-list-templ/grpc/internal/adapter/http/server"
+	pgrepo "github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo"
 
-	"github.com/go-list-templ/grpc/config"
+	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
+	"github.com/go-list-templ/grpc/internal/adapter/grpc/server/handler"
+	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/app/service"
-	"github.com/go-list-templ/grpc/pkg/postgres"
-	"github.com/go-list-templ/grpc/pkg/redis"
+	"github.com/go-list-templ/grpc/pkg/config"
 	"go.uber.org/zap"
 )
 
@@ -77,15 +77,15 @@ func run() error {
 
 	logger.Info("initializing servers")
 
-	gServer := grpcserver.New(&cfg.Server)
-	gServer.Start()
+	grpcServer := apiserver.New(&cfg.Server)
+	grpcServer.Start()
 
-	healthServer := httpserver.NewHealth(&cfg.Server)
-	healthServer.Start()
+	httpServer := diagserver.NewHTTP(&cfg.Server)
+	httpServer.Start()
 
 	logger.Info("registering handlers")
 
-	grpchandler.RegisterUserHandler(gServer.Server, userService, logger)
+	handler.RegisterUser(grpcServer.Server, userService, logger)
 
 	logger.Info("server started successfully")
 
@@ -94,9 +94,9 @@ func run() error {
 	select {
 	case x := <-interrupt:
 		logger.Info("Received a signal.", zap.String("signal", x.String()))
-	case err = <-healthServer.Notify():
+	case err = <-httpServer.Notify():
 		logger.Error("Received an error from the health server", zap.Error(err))
-	case err = <-gServer.Notify():
+	case err = <-grpcServer.Notify():
 		logger.Error("Received an error from the grpc server", zap.Error(err))
 	}
 
@@ -105,9 +105,9 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
 
-	gServer.Stop()
+	grpcServer.Stop()
 
-	if err = healthServer.Stop(ctx); err != nil {
+	if err = httpServer.Stop(ctx); err != nil {
 		logger.Error("server stopped with error", zap.Error(err))
 	}
 

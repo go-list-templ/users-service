@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/adapter/cache/redis/dao"
+	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
+	"github.com/go-list-templ/grpc/internal/adapter/cache/redis/repo/dao"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/port"
-	"github.com/go-list-templ/grpc/pkg/redis"
 	"go.uber.org/zap"
 )
 

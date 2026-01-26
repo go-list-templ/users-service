@@ -3,10 +3,10 @@ package repo
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/dao"
+	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
+	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/pkg/postgres"
 )
 
 type UserRepo struct {
@@ -50,14 +50,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	for rows.Next() {
 		var userDAO dao.User
 
-		err = rows.Scan(
-			&userDAO.ID,
-			&userDAO.Name,
-			&userDAO.Email,
-			&userDAO.Avatar,
-			&userDAO.CreatedAt,
-			&userDAO.UpdatedAt,
-		)
+		err = rows.Scan(&userDAO)
 		if err != nil {
 			return nil, err
 		}
