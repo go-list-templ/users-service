@@ -7,17 +7,17 @@ import (
 	"os/signal"
 	"syscall"
 
+	redisrepo "github.com/go-list-templ/grpc/internal/adapter/cache/redis"
+	grpchandler "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
+	pgrepo "github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	grpcserver "github.com/go-list-templ/grpc/pkg/grpc/server"
 	httpserver "github.com/go-list-templ/grpc/pkg/http/server"
 
 	"github.com/go-list-templ/grpc/config"
-	"github.com/go-list-templ/grpc/internal/controller/grpc"
-	"github.com/go-list-templ/grpc/internal/repo/cache"
-	"github.com/go-list-templ/grpc/internal/repo/storage"
-	"github.com/go-list-templ/grpc/internal/usecase/user"
+	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
+	"github.com/go-list-templ/grpc/internal/app/service"
 	"github.com/go-list-templ/grpc/pkg/postgres"
 	"github.com/go-list-templ/grpc/pkg/redis"
-	"github.com/go-list-templ/grpc/pkg/trm"
 	"go.uber.org/zap"
 )
 
@@ -62,30 +62,30 @@ func run() error {
 
 	logger.Info("initializing transaction manager")
 
-	trManager := trm.NewManager(pg, logger)
-	trGetter := trm.NewCtxGetter(trManager)
+	trManager := transaction.NewManager(pg, logger)
+	trGetter := transaction.NewTrmGetter(trManager)
 
 	logger.Info("initializing repositories")
 
-	outboxPostgresRepo := storage.NewOutboxPostgres(pg, trGetter)
-	userPostgresRepo := storage.NewUserPostgres(pg, trGetter)
-	userRedisRepo := cache.NewUserRedis(userPostgresRepo, rd, logger)
+	outboxPostgresRepo := pgrepo.NewOutboxRepo(pg, trGetter)
+	userPostgresRepo := pgrepo.NewUserRepo(pg, trGetter)
+	userRedisRepo := redisrepo.NewUserRepo(userPostgresRepo, rd, logger)
 
-	logger.Info("initializing usecase")
+	logger.Info("initializing service")
 
-	userUsecase := user.NewUserUsecase(userRedisRepo, outboxPostgresRepo, trManager)
+	userService := service.NewUser(userRedisRepo, outboxPostgresRepo, trManager)
 
 	logger.Info("initializing servers")
 
-	grpcServer := grpcserver.NewAPI(&cfg.Server)
-	grpcServer.Start()
+	gServer := grpcserver.New(&cfg.Server)
+	gServer.Start()
 
 	healthServer := httpserver.NewHealth(&cfg.Server)
 	healthServer.Start()
 
-	logger.Info("initializing routes")
+	logger.Info("registering handlers")
 
-	grpc.NewRouter(grpcServer.Server, userUsecase, logger)
+	grpchandler.RegisterUserHandler(gServer.Server, userService, logger)
 
 	logger.Info("server started successfully")
 
@@ -96,7 +96,7 @@ func run() error {
 		logger.Info("Received a signal.", zap.String("signal", x.String()))
 	case err = <-healthServer.Notify():
 		logger.Error("Received an error from the health server", zap.Error(err))
-	case err = <-grpcServer.Notify():
+	case err = <-gServer.Notify():
 		logger.Error("Received an error from the grpc server", zap.Error(err))
 	}
 
@@ -105,7 +105,7 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
 
-	grpcServer.Stop()
+	gServer.Stop()
 
 	if err = healthServer.Stop(ctx); err != nil {
 		logger.Error("server stopped with error", zap.Error(err))

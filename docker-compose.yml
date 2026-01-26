@@ -3,7 +3,7 @@ services:
     container_name: app.${APP_NAME}
     build:
       context: .
-      dockerfile: ./docker/go/Dockerfile
+      dockerfile: .docker/go/Dockerfile
     ports:
       - "${GRPC_PORT}:${GRPC_PORT}"
       - "${HEALTH_PORT}:${HEALTH_PORT}"
@@ -57,8 +57,8 @@ services:
     networks:
       - app
     volumes:
-      - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./.docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./.docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics -q ping
@@ -76,8 +76,8 @@ services:
     command: [ "postgres", "-c", "wal_level=logical" ]
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db/init-outbox.sql:/docker-entrypoint-initdb.d/init-outbox.sql
+      - ./internal/adapter/persistence/postgres/init/init.sql:/.docker-entrypoint-initdb.d/init.sql
+      - ./internal/adapter/persistence/postgres/init/init-outbox.sql:/.docker-entrypoint-initdb.d/init-outbox.sql
     ports:
       - '${DB_PORT}:5432'
     networks:
@@ -113,7 +113,7 @@ services:
       - MQ_PASSWORD=${MQ_PASSWORD}
       - MQ_PORT=${MQ_PORT}
     volumes:
-      - ./docker/sequin/sequin.yml:/config/main.yml
+      - ./.docker/sequin/sequin.yml:/config/main.yml
     depends_on:
       redis:
         condition: service_healthy
