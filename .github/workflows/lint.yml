@@ -21,12 +21,13 @@ jobs:
         uses: jbergstroem/hadolint-gh-action@v1
         with:
           config_file: ".docker/hadolint/hadolint.yaml"
+          dockerfile: ".docker/go/Dockerfile"
           error_level: 1
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.1
-          args: > 
+          args: >
             run --config=.docker/golangci/.golangci.yml
 
 
