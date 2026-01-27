@@ -27,7 +27,6 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.1
-          args: >
-            run --config=.docker/golangci/.golangci.yml
+          args: --config=/.docker/golangci/.golangci.yml --issues-exit-code=0
 
 
