@@ -18,10 +18,11 @@ jobs:
         with:
           go-version: stable
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: jbergstroem/hadolint-gh-action@v1
         with:
-          dockerfile: Dockerfile
-          recursive: true
+          config_file: ".docker/hadolint/hadolint.yaml"
+          dockerfile: ".docker/go/Dockerfile"
+          error_level: 1
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
