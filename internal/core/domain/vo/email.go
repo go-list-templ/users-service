@@ -2,21 +2,18 @@ package vo
 
 import (
 	"errors"
-	"regexp"
+	"net/mail"
 )
 
-var (
-	ErrInvalidEmail = errors.New("invalid email")
-
-	emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-)
+var ErrInvalidEmail = errors.New("invalid email")
 
 type Email struct {
 	value string
 }
 
 func NewEmail(email string) (Email, error) {
-	if !emailRegex.MatchString(email) {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
 		return Email{}, ErrInvalidEmail
 	}
 

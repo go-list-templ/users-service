@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MinLength = 5
+	MinLength = 2
 	MaxLength = 30
 )
 
