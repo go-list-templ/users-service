@@ -35,7 +35,7 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 		return nil, fmt.Errorf("grpc - v1 - NewUser: %w", err)
 	}
 
-	createdUser, err := u.userService.Create(ctx, *user)
+	createdUser, err := u.userService.Create(ctx, user)
 	if err != nil {
 		u.logger.Warn("grpc - v1 - CreateUser", zap.Any("error:", err.Error()))
 

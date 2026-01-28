@@ -15,18 +15,18 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-func NewUser(Name, email string) (*User, error) {
+func NewUser(Name, email string) (User, error) {
 	validName, err := vo.NewName(Name)
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
 	validEmail, err := vo.NewEmail(email)
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
-	return &User{
+	return User{
 		ID:        vo.NewID(),
 		Name:      validName,
 		Email:     validEmail,
