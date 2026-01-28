@@ -28,7 +28,7 @@ go-lint-fix:
 	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --fix --config=.docker/lint/conf.yml
 
 docker-lint:
-	@for f in $(shell find . -name 'Dockerfile'); do \
+	@for f in $(shell find . -name '*Dockerfile'); do \
     	  echo "Lint $$f"; \
     	  docker run --rm -i \
     	    -v "$$PWD":/src \
@@ -41,3 +41,14 @@ docker-lint:
 test:
 	docker build -f ./.docker/go/test.Dockerfile -t go-test .
 	docker run --rm go-test
+
+test-cmd:
+	go test -v -count=1 ./internal/...
+
+test-coverage:
+	docker build -f .docker/coverage/Dockerfile -t go-test-coverage .
+	docker run --rm go-test-coverage
+
+test-coverage-cmd:
+	go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+	go-test-coverage --config=./.docker/coverage/conf.yml
