@@ -6,7 +6,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 )
 
-//go:generate mockgen -source=service.go -destination=../../../test/mocks/mocks_service_test.go -package=mock_test
+//go:generate mockgen -source=service.go -destination=../../../test/mocks/mock_service.go -package=mocks
 
 type (
 	UserService interface {
