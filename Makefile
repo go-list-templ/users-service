@@ -22,10 +22,10 @@ log:
 	docker logs -f --tail 100 app.${APP_NAME}
 
 go-lint:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/golangci/.golangci.yml
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml
 
 go-lint-fix:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --fix --config=.docker/golangci/.golangci.yml
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --fix --config=.docker/lint/conf.yml
 
 docker-lint:
 	@for f in $(shell find . -name 'Dockerfile'); do \
@@ -36,3 +36,8 @@ docker-lint:
     	    --workdir /src \
     	    hadolint/hadolint hadolint "$${f#./}"; \
     	done
+
+.PHONY: test
+test:
+	docker build -f ./.docker/go/test.Dockerfile -t go-test .
+	docker run --rm go-test
