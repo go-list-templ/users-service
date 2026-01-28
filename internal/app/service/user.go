@@ -42,7 +42,7 @@ func (s *User) Create(ctx context.Context, user entity.User) (entity.User, error
 func (s *User) All(ctx context.Context) ([]entity.User, error) {
 	users, err := s.userRepo.All(ctx)
 	if err != nil {
-		return nil, err
+		return []entity.User{}, err
 	}
 
 	return users, nil
