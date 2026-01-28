@@ -17,10 +17,6 @@ type (
 		MaxIdleTime time.Duration `envconfig:"DB_MAX_IDLE_TIME"`
 	}
 
-	RabbitMQ struct {
-		URL string `envconfig:"MQ_URL"`
-	}
-
 	Redis struct {
 		Address string `envconfig:"REDIS_ADDRESS"`
 	}
@@ -45,12 +41,11 @@ type (
 	}
 
 	Config struct {
-		App      App
-		Server   Server
-		DB       DB
-		RabbitMQ RabbitMQ
-		Redis    Redis
-		Client   Client
+		App    App
+		Server Server
+		DB     DB
+		Redis  Redis
+		Client Client
 	}
 )
 
