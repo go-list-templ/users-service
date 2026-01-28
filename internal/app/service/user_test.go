@@ -2,105 +2,155 @@ package service
 
 import (
 	"context"
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/port"
-	"reflect"
+	"errors"
 	"testing"
+	"time"
+
+	mock "github.com/go-list-templ/grpc/test/mocks"
+
+	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
+var errSome = errors.New("something went wrong")
+
+func mocks(t *testing.T) (*mock.MockUserRepo, *mock.MockOutboxRepo, *mock.MockTransactionManager) {
+	t.Helper()
+
+	mockCtl := gomock.NewController(t)
+	defer mockCtl.Finish()
+
+	ur := mock.NewMockUserRepo(mockCtl)
+	or := mock.NewMockOutboxRepo(mockCtl)
+	tm := mock.NewMockTransactionManager(mockCtl)
+
+	return ur, or, tm
+}
+
 func TestNewUser(t *testing.T) {
-	type args struct {
-		u port.UserRepo
-		o port.OutboxRepo
-		t port.TransactionManager
-	}
-	tests := []struct {
-		name string
-		args args
-		want *User
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewUser(tt.args.u, tt.args.o, tt.args.t); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewUser() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	t.Run("new user", func(t *testing.T) {
+		ur, or, tm := mocks(t)
+
+		got := NewUser(ur, or, tm)
+		require.Equal(t, &User{
+			ur, or, tm,
+		}, got)
+	})
 }
 
 func TestUser_All(t *testing.T) {
-	type fields struct {
-		userRepo   port.UserRepo
-		outboxRepo port.OutboxRepo
-		trm        port.TransactionManager
+	ur, or, tm := mocks(t)
+	userService := NewUser(ur, or, tm)
+
+	users := []entity.User{
+		{
+			ID:        vo.NewID(),
+			Name:      vo.UnsafeName("test"),
+			Email:     vo.UnsafeEmail("example@example.com"),
+			Avatar:    vo.NewAvatar(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
 	}
-	type args struct {
-		ctx context.Context
-	}
+
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    []entity.User
-		wantErr bool
+		name string
+		mock func()
+		want []entity.User
+		err  error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success - get all users",
+			mock: func() {
+				ur.EXPECT().All(gomock.Any()).Return(users, nil)
+			},
+			want: users,
+			err:  nil,
+		},
+		{
+			name: "success - get empty users",
+			mock: func() {
+				ur.EXPECT().All(context.Background()).Return([]entity.User{}, nil)
+			},
+			want: []entity.User{},
+			err:  nil,
+		},
+		{
+			name: "fail - err user repo",
+			mock: func() {
+				ur.EXPECT().All(context.Background()).Return([]entity.User{}, errSome)
+			},
+			want: []entity.User{},
+			err:  errSome,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &User{
-				userRepo:   tt.fields.userRepo,
-				outboxRepo: tt.fields.outboxRepo,
-				trm:        tt.fields.trm,
-			}
-			got, err := s.All(tt.args.ctx)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("All() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("All() got = %v, want %v", got, tt.want)
-			}
+			tt.mock()
+
+			got, err := userService.All(context.Background())
+
+			require.Equal(t, tt.want, got)
+			require.ErrorIs(t, err, tt.err)
 		})
 	}
 }
 
 func TestUser_Create(t *testing.T) {
-	type fields struct {
-		userRepo   port.UserRepo
-		outboxRepo port.OutboxRepo
-		trm        port.TransactionManager
+	ur, or, tm := mocks(t)
+	userService := NewUser(ur, or, tm)
+
+	user := entity.User{
+		ID:        vo.NewID(),
+		Name:      vo.UnsafeName("test"),
+		Email:     vo.UnsafeEmail("example@example.com"),
+		Avatar:    vo.NewAvatar(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
+
 	type args struct {
-		ctx  context.Context
 		user entity.User
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    entity.User
-		wantErr bool
+		name string
+		mock func()
+		args args
+		want entity.User
+		err  error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success - create user",
+			mock: func() {
+				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(nil)
+			},
+			args: args{
+				user: user,
+			},
+			want: user,
+			err:  nil,
+		},
+		{
+			name: "fail - err in transaction",
+			mock: func() {
+				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(errSome)
+			},
+			args: args{
+				user: user,
+			},
+			want: entity.User{},
+			err:  errSome,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &User{
-				userRepo:   tt.fields.userRepo,
-				outboxRepo: tt.fields.outboxRepo,
-				trm:        tt.fields.trm,
-			}
-			got, err := s.Create(tt.args.ctx, tt.args.user)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Create() got = %v, want %v", got, tt.want)
-			}
+			tt.mock()
+
+			got, err := userService.Create(context.Background(), tt.args.user)
+			require.ErrorIs(t, err, tt.err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
