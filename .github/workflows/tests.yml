@@ -19,6 +19,7 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Tests
         run: |
+          cp .env.example .env
           make test-cmd
 
   test-coverage:
@@ -31,4 +32,5 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Test Coverage
         run: |
+          cp .env.example .env
           make test-coverage-cmd
