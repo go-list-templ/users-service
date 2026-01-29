@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
+      - name: Run Tests
         run: |
           make test-cmd
 
@@ -28,5 +29,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
+      - name: Run Test Coverage
         run: |
           make test-coverage-cmd
