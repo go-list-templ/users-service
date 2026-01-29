@@ -1,0 +1,14 @@
+profile: cover.out
+
+threshold:
+  total: 90
+
+exclude:
+  paths:
+    - ^cmd
+    - ^internal/adapter
+    - ^internal/pkg
+    - ^internal/test
+    - ^internal/core/port
+    - ^internal/core/domain/event
+    - ^internal/core/domain/vo
