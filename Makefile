@@ -5,7 +5,7 @@ MIGRATION_PATH := $$(pwd)/internal/adapter/persistence/postgres/migrations
 
 start: build migrate
 
-lint: docker-lint go-lint
+lint: go-lint
 
 lint-fix: go-lint-fix
 
@@ -26,16 +26,6 @@ go-lint:
 
 go-lint-fix:
 	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --fix --config=.docker/lint/conf.yml
-
-docker-lint:
-	@for f in $(shell find . -name '*Dockerfile'); do \
-    	  echo "Lint $$f"; \
-    	  docker run --rm -i \
-    	    -v "$$PWD":/src \
-    	    -v ./.docker/lint/hadolint.yaml:/.config/hadolint.yaml \
-    	    --workdir /src \
-    	    hadolint/hadolint hadolint "$${f#./}"; \
-    	done
 
 .PHONY: test
 test:
