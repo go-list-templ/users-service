@@ -32,7 +32,7 @@ docker-lint:
     	  echo "Lint $$f"; \
     	  docker run --rm -i \
     	    -v "$$PWD":/src \
-    	    -v ./.docker/hadolint/hadolint.yaml:/.config/hadolint.yaml \
+    	    -v ./.docker/lint/hadolint.yaml:/.config/hadolint.yaml \
     	    --workdir /src \
     	    hadolint/hadolint hadolint "$${f#./}"; \
     	done
@@ -46,9 +46,10 @@ test-cmd:
 	go test -v -count=1 ./internal/...
 
 test-coverage:
-	docker build -f .docker/coverage/Dockerfile -t go-test-coverage .
+	docker build -f .docker/go/test-coverage.Dockerfile -t go-test-coverage .
 	docker run --rm go-test-coverage
 
 test-coverage-cmd:
-	go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
-	go-test-coverage --config=./.docker/coverage/conf.yml
+	go install github.com/vladopajic/go-test-coverage/v2@latest
+	go test ./internal/... -coverprofile=./cover.out -covermode=atomic
+	go-test-coverage --config=./.docker/go/coverage-conf.yml
