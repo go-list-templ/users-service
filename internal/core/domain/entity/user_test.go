@@ -74,10 +74,7 @@ func TestNewUser(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			got, err := NewUser(tt.args.name, tt.args.email)
 			if tt.wantErr {
 				require.Error(t, err)

@@ -133,9 +133,30 @@ func TestUser_Create(t *testing.T) {
 			err:  nil,
 		},
 		{
-			name: "fail - err in transaction",
+			name: "fail - err in user repo",
 			mock: func() {
-				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(errSome)
+				ur.EXPECT().Store(gomock.Any(), gomock.Any()).Return(errSome)
+				tm.EXPECT().Do(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
+						return fn(ctx)
+					})
+			},
+			args: args{
+				user: user,
+			},
+			want: entity.User{},
+			err:  errSome,
+		},
+		{
+			name: "fail - err in outbox repo",
+			mock: func() {
+				ur.EXPECT().Store(gomock.Any(), gomock.Any()).Return(nil)
+				or.EXPECT().Publish(gomock.Any(), gomock.Any()).Return(errSome)
+
+				tm.EXPECT().Do(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(ctx context.Context, fn func(ctx context.Context) error) error {
+						return fn(ctx)
+					})
 			},
 			args: args{
 				user: user,
