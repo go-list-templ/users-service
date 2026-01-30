@@ -12,8 +12,8 @@ const (
 )
 
 var (
-	ErrNameMinLength = fmt.Errorf("name must be at least %v characters", MinLength)
-	ErrNameMaxLength = fmt.Errorf("name must be at least %v characters", MinLength)
+	ErrNameMinLength = fmt.Errorf("min name must be at least %v characters", MinLength)
+	ErrNameMaxLength = fmt.Errorf("max name must be at least %v characters", MinLength)
 	ErrNameValidate  = fmt.Errorf("name can only contain letters, numbers and underscores")
 
 	nameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
