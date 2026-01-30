@@ -3,7 +3,7 @@ services:
     container_name: app.${APP_NAME}
     build:
       context: .
-      dockerfile: .docker/go/Dockerfile
+      dockerfile: .docker/app/Dockerfile
     ports:
       - "${GRPC_PORT}:${GRPC_PORT}"
       - "${HEALTH_PORT}:${HEALTH_PORT}"
