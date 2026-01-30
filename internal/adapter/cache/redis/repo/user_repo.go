@@ -42,6 +42,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 
 	users, err := u.repo.All(ctx)
 	if err != nil {
+		u.logger.Warn("repo all", zap.Error(err))
 		return nil, err
 	}
 
@@ -53,7 +54,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 func (u *UserRepo) cacheAllUsers(users []entity.User) {
 	defer func() {
 		if r := recover(); r != nil {
-			u.logger.Error("panic in cacheAllUsers", zap.Any("panic", r))
+			u.logger.Warn("panic in cacheAllUsers", zap.Any("panic", r))
 		}
 	}()
 
@@ -68,7 +69,7 @@ func (u *UserRepo) cacheAllUsers(users []entity.User) {
 
 	err := u.redis.SetCache(ctx, KeyAllUsers, cacheUsers, time.Hour)
 	if err != nil {
-		u.logger.Error("redis set error", zap.Error(err))
+		u.logger.Warn("redis set error", zap.Error(err))
 	}
 }
 
@@ -86,7 +87,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 func (u *UserRepo) clearCache(keys ...string) {
 	defer func() {
 		if r := recover(); r != nil {
-			u.logger.Error("panic in clearCache", zap.Any("panic", r))
+			u.logger.Warn("panic in clearCache", zap.Any("panic", r))
 		}
 	}()
 
@@ -95,7 +96,7 @@ func (u *UserRepo) clearCache(keys ...string) {
 
 	for _, key := range keys {
 		if err := u.redis.DeleteCache(ctx, key); err != nil {
-			u.logger.Error("redis del error", zap.String("key", key), zap.Error(err))
+			u.logger.Warn("redis del error", zap.String("key", key), zap.Error(err))
 		}
 	}
 }

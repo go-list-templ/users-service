@@ -40,9 +40,13 @@ func run() error {
 		logger.Panic("cant init config", zap.Error(err))
 	}
 
+	logger.Info("named logger")
+
+	logger = logger.Named(cfg.App.Name)
+
 	logger.Info("initializing postgres")
 
-	pg, err := postgres.New(&cfg.DB, logger)
+	pg, err := postgres.New(&cfg.DB, logger.With(zap.String("module", "postgres")))
 	if err != nil {
 		logger.Panic("cant init postgres", zap.Error(err))
 	}
@@ -62,14 +66,14 @@ func run() error {
 
 	logger.Info("initializing transaction manager")
 
-	trManager := transaction.NewManager(pg, logger)
+	trManager := transaction.NewManager(pg, logger.With(zap.String("module", "trx")))
 	trGetter := transaction.NewTrmGetter(trManager)
 
 	logger.Info("initializing repositories")
 
 	outboxPostgresRepo := pgrepo.NewOutboxRepo(pg, trGetter)
-	userPostgresRepo := pgrepo.NewUserRepo(pg, trGetter)
-	userRedisRepo := redisrepo.NewUserRepo(userPostgresRepo, rd, logger)
+	userPostgresRepo := pgrepo.NewUserRepo(pg, logger.With(zap.String("module", "pg user repo")), trGetter)
+	userRedisRepo := redisrepo.NewUserRepo(userPostgresRepo, rd, logger.With(zap.String("module", "redis user repo")))
 
 	logger.Info("initializing service")
 
@@ -85,7 +89,7 @@ func run() error {
 
 	logger.Info("registering handlers")
 
-	handler.RegisterUser(grpcServer.Server, userService, logger)
+	handler.RegisterUser(grpcServer.Server, userService, logger.With(zap.String("module", "grpc user handler")))
 
 	logger.Info("server started successfully")
 

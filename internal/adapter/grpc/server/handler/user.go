@@ -30,16 +30,14 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*v1.CreateUserResponse, error) {
 	user, err := entity.NewUser(request.GetName(), request.GetEmail())
 	if err != nil {
-		u.logger.Warn("grpc - v1 - NewUser", zap.Any("error:", err.Error()))
-
-		return nil, fmt.Errorf("grpc - v1 - NewUser: %w", err)
+		u.logger.Warn("CreateUser", zap.Error(err))
+		return nil, fmt.Errorf("CreateUser: %w", err)
 	}
 
 	createdUser, err := u.userService.Create(ctx, user)
 	if err != nil {
-		u.logger.Warn("grpc - v1 - CreateUser", zap.Any("error:", err.Error()))
-
-		return nil, fmt.Errorf("grpc - v1 - CreateUser: %w", err)
+		u.logger.Warn("CreateUser", zap.Error(err))
+		return nil, fmt.Errorf("CreateUser: %w", err)
 	}
 
 	return &v1.CreateUserResponse{
@@ -50,9 +48,8 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUsersResponse, error) {
 	allUsers, err := u.userService.All(ctx)
 	if err != nil {
-		u.logger.Warn("grpc - v1 - AllUsers", zap.Any("error:", err.Error()))
-
-		return nil, fmt.Errorf("grpc - v1 - AllUsers: %w", err)
+		u.logger.Warn("AllUsers", zap.Error(err))
+		return nil, fmt.Errorf("AllUsers: %w", err)
 	}
 
 	users := make([]*v1.User, len(allUsers))
