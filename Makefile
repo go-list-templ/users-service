@@ -22,6 +22,7 @@ lint:
 
 .PHONY: test
 test:
+	go generate ./...
 	docker build -f ./.docker/go/test.Dockerfile -t go-test .
 	docker run --rm go-test
 
@@ -29,6 +30,7 @@ test-cmd:
 	go test -v -count=1 ./internal/...
 
 test-coverage:
+	go generate ./...
 	docker build -f .docker/go/test-coverage.Dockerfile -t go-test-coverage .
 	docker run --rm go-test-coverage
 
