@@ -2,7 +2,7 @@ package port
 
 import "context"
 
-//go:generate mockgen -source=transaction.go -destination=../../../test/mocks/mock_trx.go -package=mocks
+//go:generate mockgen -source=transaction.go -destination=mock/mock_trx.go -package=mock
 
 type (
 	TransactionManager interface {

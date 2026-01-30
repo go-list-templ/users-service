@@ -7,7 +7,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/core/domain/event"
 )
 
-//go:generate mockgen -source=repo.go -destination=../../../test/mocks/mock_repo.go -package=mocks
+//go:generate mockgen -source=repo.go -destination=mock/mock_repo.go -package=mock
 
 type (
 	UserRepo interface {
