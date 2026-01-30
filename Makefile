@@ -23,7 +23,7 @@ lint:
 .PHONY: test
 test:
 	go generate ./...
-	docker build -f ./.docker/go/test.Dockerfile -t go-test .
+	docker build -f ./.docker/test/Dockerfile -t go-test .
 	docker run --rm go-test
 
 test-cmd:
@@ -31,10 +31,10 @@ test-cmd:
 
 test-coverage:
 	go generate ./...
-	docker build -f .docker/go/test-coverage.Dockerfile -t go-test-coverage .
+	docker build -f ./.docker/coverage/Dockerfile -t go-test-coverage .
 	docker run --rm go-test-coverage
 
 test-coverage-cmd:
 	go install github.com/vladopajic/go-test-coverage/v2@latest
 	go test ./internal/... -coverprofile=./cover.out -covermode=atomic
-	go-test-coverage --config=./.docker/go/coverage-conf.yml
+	go-test-coverage --config=./.docker/coverage/conf.yml
