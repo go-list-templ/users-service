@@ -34,7 +34,6 @@ linters:
     - nestif
     - nlreturn
     - noctx
-    - paralleltest
     - predeclared
     - revive
     - rowserrcheck
@@ -68,25 +67,8 @@ linters:
     nestif:
       min-complexity: 4
   exclusions:
-    generated: lax
     presets:
       - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
-    rules:
-      - linters:
-          - godot
-          - paralleltest
-        path: integration-test
-      - linters:
-          - godot
-        path: internal
-    paths:
-      - bin/
-      - third_party$
-      - builtin$
-      - examples$
 
 formatters:
   enable:
@@ -96,10 +78,3 @@ formatters:
   settings:
     gofumpt:
       extra-rules: true
-  exclusions:
-    generated: lax
-    paths:
-      - bin/
-      - third_party$
-      - builtin$
-      - examples$
