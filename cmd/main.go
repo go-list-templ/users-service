@@ -8,12 +8,13 @@ import (
 	"syscall"
 
 	redisrepo "github.com/go-list-templ/grpc/internal/adapter/cache/redis/repo"
-	apiserver "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
-	diagserver "github.com/go-list-templ/grpc/internal/adapter/http/server"
+	grpcserver "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
+	grpchandler "github.com/go-list-templ/grpc/internal/adapter/grpc/server/handler"
+	httpserver "github.com/go-list-templ/grpc/internal/adapter/http/server"
+	httphandler "github.com/go-list-templ/grpc/internal/adapter/http/server/handler"
 	pgrepo "github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
-	"github.com/go-list-templ/grpc/internal/adapter/grpc/server/handler"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/app/service"
@@ -81,15 +82,16 @@ func run() error {
 
 	logger.Info("initializing servers")
 
-	grpcServer := apiserver.New(&cfg.Server)
+	grpcServer := grpcserver.New(&cfg.Server)
 	grpcServer.Start()
 
-	httpServer := diagserver.NewHTTP(&cfg.Server)
+	httpServer := httpserver.NewHTTP(&cfg.Server)
 	httpServer.Start()
 
 	logger.Info("registering handlers")
 
-	handler.RegisterUser(grpcServer.Server, userService, logger.With(zap.String("module", "grpc user handler")))
+	grpchandler.RegisterUser(grpcServer.Server, userService, logger.With(zap.String("module", "user handler")))
+	httphandler.RegisterDiagnostic(pg, rd, logger.With(zap.String("module", "diagnostic handler")))
 
 	logger.Info("server started successfully")
 
