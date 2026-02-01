@@ -4,6 +4,7 @@ DB_URL := ${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB
 MIGRATION_PATH := $$(pwd)/internal/adapter/persistence/postgres/migrations
 
 start: build migrate
+lint: docker-lint code-lint
 
 build:
 	docker compose --env-file .env up -d --build --remove-orphans
@@ -17,8 +18,11 @@ migrate-rollback:
 log:
 	docker logs -f --tail 100 app.${APP_NAME}
 
-lint:
+code-lint:
 	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml
+
+docker-lint:
+	docker run --rm -i hadolint/hadolint < .docker/app/Dockerfile
 
 .PHONY: test
 test:
