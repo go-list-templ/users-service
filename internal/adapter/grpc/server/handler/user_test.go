@@ -3,6 +3,9 @@ package handler
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/go-list-templ/grpc/internal/core/port/mock"
@@ -11,8 +14,6 @@ import (
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
-	"time"
 )
 
 var errSome = errors.New("something went wrong")

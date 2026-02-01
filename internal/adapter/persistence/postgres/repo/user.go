@@ -46,6 +46,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	rows, err := u.Query(ctx, "SELECT * FROM users")
 	if err != nil {
 		u.logger.Warn("failed query", zap.Error(err))
+
 		return users, err
 	}
 	defer rows.Close()
@@ -63,6 +64,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		)
 		if err != nil {
 			u.logger.Warn("failed scan", zap.Error(err))
+
 			return nil, err
 		}
 

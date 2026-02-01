@@ -43,6 +43,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	users, err := u.repo.All(ctx)
 	if err != nil {
 		u.logger.Warn("repo all", zap.Error(err))
+
 		return nil, err
 	}
 

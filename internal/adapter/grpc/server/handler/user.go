@@ -31,12 +31,14 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 	user, err := entity.NewUser(request.GetName(), request.GetEmail())
 	if err != nil {
 		u.logger.Warn("CreateUser", zap.Error(err))
+
 		return nil, fmt.Errorf("CreateUser: %w", err)
 	}
 
 	createdUser, err := u.userService.Create(ctx, user)
 	if err != nil {
 		u.logger.Warn("CreateUser", zap.Error(err))
+
 		return nil, fmt.Errorf("CreateUser: %w", err)
 	}
 
@@ -49,6 +51,7 @@ func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUser
 	allUsers, err := u.userService.All(ctx)
 	if err != nil {
 		u.logger.Warn("AllUsers", zap.Error(err))
+
 		return nil, fmt.Errorf("AllUsers: %w", err)
 	}
 
