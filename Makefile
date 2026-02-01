@@ -21,6 +21,9 @@ log:
 code-lint:
 	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml
 
+lint-fix:
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml --fix
+
 docker-lint:
 	docker run --rm -i hadolint/hadolint < .docker/app/Dockerfile
 
