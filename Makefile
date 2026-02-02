@@ -19,10 +19,10 @@ log:
 	docker logs -f --tail 100 app.${APP_NAME}
 
 code-lint:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.8.0 golangci-lint run --config=.docker/lint/conf.yml
 
 lint-fix:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint run --config=.docker/lint/conf.yml --fix
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.8.0 golangci-lint run --config=.docker/lint/conf.yml --fix
 
 docker-lint:
 	docker run --rm -i hadolint/hadolint < .docker/app/Dockerfile
@@ -45,3 +45,11 @@ test-coverage-cmd:
 	go install github.com/vladopajic/go-test-coverage/v2@latest
 	go test ./internal/... -coverprofile=./cover.out -covermode=atomic
 	go-test-coverage --config=./.docker/coverage/conf.yml
+
+test-integration:
+	docker compose --env-file .env up -d --build
+	docker build -f ./.docker/test-interfraion/Dockerfile -t go-test-integration .
+	docker run --rm go-test-integration
+
+test-integration-cmd:
+	go test -v -count=1 ./test/interfration/...
