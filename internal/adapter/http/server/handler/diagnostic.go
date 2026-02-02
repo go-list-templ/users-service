@@ -2,11 +2,11 @@ package handler
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
+	"go.uber.org/zap"
 )
 
 type Diagnostic struct {
