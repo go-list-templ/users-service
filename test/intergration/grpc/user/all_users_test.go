@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// nolint:goconst
 func TestAllUsers(t *testing.T) {
 	host := "app"
 	grpcURL := host + ":8080"

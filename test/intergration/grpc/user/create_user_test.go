@@ -2,18 +2,19 @@ package user
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 
+	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// nolint:goconst
 func TestCreateUser(t *testing.T) {
 	host := "app"
 	grpcURL := host + ":8080"
@@ -58,15 +59,26 @@ func TestCreateUser(t *testing.T) {
 			err: nil,
 		},
 		{
-			name: "fail - create invalid user",
+			name: "fail - create invalid name",
 			args: args{
 				request: &v1.CreateUserRequest{
-					Name:  "",
-					Email: "",
+					Name:  "1",
+					Email: "test@test.com",
 				},
 			},
 			want: nil,
-			err:  errors.New("user name is required"),
+			err:  vo.ErrNameMinLength,
+		},
+		{
+			name: "fail - create invalid email",
+			args: args{
+				request: &v1.CreateUserRequest{
+					Name:  "1",
+					Email: "test@",
+				},
+			},
+			want: nil,
+			err:  vo.ErrInvalidEmail,
 		},
 	}
 	for _, tt := range tests {

@@ -1,23 +1,30 @@
 package server
 
 import (
+	"context"
 	"net"
 
 	"github.com/go-list-templ/grpc/pkg/config"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
 type GRPC struct {
 	Server *grpc.Server
+	ctx    context.Context
+	eg     *errgroup.Group
 	config *config.Server
 	errors chan error
 }
 
 func New(cfg *config.Server) *GRPC {
-	grpcServer := grpc.NewServer()
+	group, ctx := errgroup.WithContext(context.Background())
+	group.SetLimit(1)
 
 	return &GRPC{
-		Server: grpcServer,
+		Server: grpc.NewServer(),
+		ctx:    ctx,
+		eg:     group,
 		config: cfg,
 		errors: make(chan error, 1),
 	}
@@ -28,15 +35,29 @@ func (s *GRPC) Notify() <-chan error {
 }
 
 func (s *GRPC) Start() {
-	go func() {
-		lis, err := net.Listen("tcp", net.JoinHostPort("", s.config.GRPCPort))
+	s.eg.Go(func() error {
+		var lc net.ListenConfig
+
+		ln, err := lc.Listen(s.ctx, "tcp", s.config.GRPCPort)
 		if err != nil {
 			s.errors <- err
+
+			close(s.errors)
+
+			return err
 		}
 
-		s.errors <- s.Server.Serve(lis)
-		close(s.errors)
-	}()
+		err = s.Server.Serve(ln)
+		if err != nil {
+			s.errors <- err
+
+			close(s.errors)
+
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *GRPC) Stop() {

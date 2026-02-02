@@ -9,10 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// nolint:goconst
 func TestHealthz(t *testing.T) {
 	host := "app"
-	httpUrl := host + ":8080"
-	url := httpUrl + "/healthz"
+	httpURL := host + ":8080"
+	url := httpURL + "/healthz"
 	requestTimeout := 5 * time.Second
 
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
@@ -21,11 +22,12 @@ func TestHealthz(t *testing.T) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	require.NoError(t, err)
 
-	req.Header.Set("Content-Type", "application/json")
-
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		require.NoError(t, err)
+	}()
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 }

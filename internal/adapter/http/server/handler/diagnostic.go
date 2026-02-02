@@ -22,7 +22,7 @@ func RegisterDiagnostic(pg *postgres.Postgres, rd *redis.Redis, l *zap.Logger) {
 }
 
 func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		status := http.StatusOK
 
 		ctx := context.Background()
