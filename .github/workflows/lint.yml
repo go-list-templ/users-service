@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: .docker/app/Dockerfile
+          dockerfile: ./.docker/app/Dockerfile
 
   golangci:
     name: lint code
