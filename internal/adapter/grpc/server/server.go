@@ -38,7 +38,7 @@ func (s *GRPC) Start() {
 	s.eg.Go(func() error {
 		var lc net.ListenConfig
 
-		ln, err := lc.Listen(s.ctx, "tcp", s.config.GRPCPort)
+		ln, err := lc.Listen(s.ctx, "tcp", net.JoinHostPort("", s.config.GRPCPort))
 		if err != nil {
 			s.errors <- err
 
