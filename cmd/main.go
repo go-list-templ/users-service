@@ -53,6 +53,13 @@ func run() error {
 	}
 	defer pg.Close()
 
+	logger.Info("postgres migration")
+
+	migration := postgres.NewMigration(pg, logger.With(zap.String("module", "migration")))
+	if err = migration.Up(); err != nil {
+		logger.Panic("migration failed", zap.Error(err))
+	}
+
 	logger.Info("initializing redis")
 
 	rd, err := redis.New(&cfg.Redis)
