@@ -1,20 +1,11 @@
 include .env
 
-DB_URL := ${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_DATABASE}?sslmode=disable
-MIGRATION_PATH := $$(pwd)/internal/adapter/persistence/postgres/migrations
 COMPOSE_TEST_CMD := docker compose --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
 
-start: build migrate
 lint: docker-lint code-lint
 
 build:
 	docker compose --env-file .env up -d --build --remove-orphans
-
-migrate:
-	docker run --rm --network=host -v "$(MIGRATION_PATH)":/db/migrations -e DATABASE_URL="$(DB_URL)" amacneil/dbmate:2.28 --migrations-table=migrations --wait up
-
-migrate-rollback:
-	docker run --rm --network=host -v "$(MIGRATION_PATH)":/db/migrations -e DATABASE_URL="$(DB_URL)" amacneil/dbmate:2.28 --migrations-table=migrations --wait rollback
 
 log:
 	docker logs -f --tail 100 app.${APP_NAME}
