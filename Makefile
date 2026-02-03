@@ -2,6 +2,7 @@ include .env
 
 DB_URL := ${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_DATABASE}?sslmode=disable
 MIGRATION_PATH := $$(pwd)/internal/adapter/persistence/postgres/migrations
+COMPOSE_TEST_CMD := docker compose --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
 
 start: build migrate
 lint: docker-lint code-lint
@@ -47,9 +48,8 @@ test-coverage-cmd:
 	go-test-coverage --config=./.docker/coverage/conf.yml
 
 test-integration:
-	docker compose --env-file .env up -d --build
-	docker build -f ./.docker/test-interfraion/Dockerfile -t go-test-integration .
-	docker run --rm go-test-integration
+	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_TEST_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test --attach test
 
 test-integration-cmd:
-	go test -v -count=1 ./test/interfration/...
+	go test -v -count=1 ./test/intergration/...
