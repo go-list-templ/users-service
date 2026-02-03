@@ -28,7 +28,7 @@ type (
 
 	Server struct {
 		GRPCPort        string        `envconfig:"GRPC_PORT"`
-		HealthPort      string        `envconfig:"HEALTH_PORT"`
+		DiagnosticPort  string        `envconfig:"DIAGNOSTIC_PORT"`
 		HTTPTimeout     time.Duration `envconfig:"HTTP_TIMEOUT"`
 		IdleTimeout     time.Duration `envconfig:"IDLE_TIMEOUT"`
 		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
