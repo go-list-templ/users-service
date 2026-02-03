@@ -1,9 +1,7 @@
 package user
 
 import (
-	"context"
 	"testing"
-	"time"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 
@@ -18,18 +16,13 @@ import (
 func TestCreateUser(t *testing.T) {
 	host := "app"
 	grpcURL := host + ":8080"
-	requestTimeout := 1 * time.Second
 
 	grpcConn, err := grpc.NewClient(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
-
 	defer func() {
 		err = grpcConn.Close()
 		require.NoError(t, err)
 	}()
-
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
-	defer cancel()
 
 	UserServiceClient := v1.NewUserServiceClient(grpcConn)
 
@@ -83,17 +76,19 @@ func TestCreateUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := UserServiceClient.CreateUser(ctx, tt.args.request)
+			got, err := UserServiceClient.CreateUser(t.Context(), tt.args.request)
 			require.Equal(t, tt.err, err)
 
-			require.NoError(t, uuid.Validate(got.User.Id))
+			if tt.want != nil {
+				require.NoError(t, uuid.Validate(got.User.Id))
 
-			require.NotEmpty(t, got.User.Avatar)
-			require.NotEmpty(t, got.User.CreatedAt)
-			require.NotEmpty(t, got.User.UpdatedAt)
+				require.NotEmpty(t, got.User.Avatar)
+				require.NotEmpty(t, got.User.CreatedAt)
+				require.NotEmpty(t, got.User.UpdatedAt)
 
-			require.Equal(t, tt.want.User.Name, got.User.Name)
-			require.Equal(t, tt.want.User.Email, got.User.Email)
+				require.Equal(t, tt.want.User.Name, got.User.Name)
+				require.Equal(t, tt.want.User.Email, got.User.Email)
+			}
 		})
 	}
 }
