@@ -1,11 +1,13 @@
 include .env
 
-COMPOSE_TEST_CMD := docker compose --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
+COMPOSE_CMD := docker compose -p app --env-file .env
+COMPOSE_TEST_CMD := docker compose -p app_tests --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
 
 lint: docker-lint code-lint
 
 build:
-	docker compose --env-file .env up -d --build --remove-orphans
+	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_CMD) up -d --build --remove-orphans
 
 log:
 	docker logs -f --tail 100 app.${APP_NAME}
@@ -39,7 +41,7 @@ test-coverage-cmd:
 	go-test-coverage --config=./.docker/coverage/conf.yml
 
 test-integration:
-	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_CMD) down ; $(COMPOSE_TEST_CMD) down -v
 	$(COMPOSE_TEST_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test --attach test
 
 test-integration-cmd:
