@@ -17,7 +17,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
-	"github.com/go-list-templ/grpc/internal/app/service"
+	"github.com/go-list-templ/grpc/internal/core/service"
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.uber.org/zap"
 )
