@@ -1,7 +1,7 @@
 include .env
 
-COMPOSE_CMD := docker compose -p app --env-file .env
-COMPOSE_TEST_CMD := docker compose -p app_tests --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
+COMPOSE_CMD := docker compose -p ${APP_NAME} --env-file .env
+COMPOSE_TEST_CMD := docker compose -p ${APP_NAME}_tests --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
 
 lint: docker-lint code-lint
 
