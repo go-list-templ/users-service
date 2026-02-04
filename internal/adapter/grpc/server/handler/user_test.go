@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
-	"github.com/go-list-templ/grpc/internal/core/port/mock"
+	"github.com/go-list-templ/grpc/internal/port/mock"
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"

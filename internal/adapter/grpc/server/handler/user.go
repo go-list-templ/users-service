@@ -8,7 +8,7 @@ import (
 	pbgrpc "google.golang.org/grpc"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/port"
+	"github.com/go-list-templ/grpc/internal/port"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
