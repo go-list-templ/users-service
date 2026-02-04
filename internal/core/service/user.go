@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/event"
-	"github.com/go-list-templ/grpc/internal/core/port"
+	"github.com/go-list-templ/grpc/internal/port"
 )
 
 type User struct {
