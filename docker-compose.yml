@@ -72,8 +72,7 @@ services:
     command: [ "postgres", "-c", "wal_level=logical" ]
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./internal/adapter/persistence/postgres/init/init.sql:/.docker-entrypoint-initdb.d/init.sql
-      - ./internal/adapter/persistence/postgres/init/init-outbox.sql:/.docker-entrypoint-initdb.d/init-outbox.sql
+      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
     ports:
       - '${DB_PORT}:5432'
     networks:
