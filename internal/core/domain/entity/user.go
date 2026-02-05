@@ -1,9 +1,16 @@
 package entity
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+)
+
+var (
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserInvalidData   = errors.New("invalid user data")
 )
 
 type User struct {
