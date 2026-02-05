@@ -7,7 +7,7 @@ import (
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -62,7 +62,7 @@ func TestCreateUser(t *testing.T) {
 				},
 			},
 			want: nil,
-			err:  nil,
+			err:  status.Error(codes.AlreadyExists, entity.ErrUserAlreadyExists.Error()),
 		},
 		{
 			name: "fail - create invalid name",
@@ -73,7 +73,7 @@ func TestCreateUser(t *testing.T) {
 				},
 			},
 			want: nil,
-			err:  vo.ErrNameMinLength,
+			err:  status.Error(codes.InvalidArgument, entity.ErrUserAlreadyExists.Error()),
 		},
 		{
 			name: "fail - create invalid email",
@@ -84,7 +84,7 @@ func TestCreateUser(t *testing.T) {
 				},
 			},
 			want: nil,
-			err:  vo.ErrInvalidEmail,
+			err:  status.Error(codes.InvalidArgument, entity.ErrUserAlreadyExists.Error()),
 		},
 	}
 	for _, tt := range tests {
@@ -102,9 +102,7 @@ func TestCreateUser(t *testing.T) {
 				require.Equal(t, tt.want.User.Email, got.User.Email)
 			} else {
 				require.Error(t, err)
-				st, ok := status.FromError(err)
-				require.True(t, ok)
-				require.Equal(t, codes.InvalidArgument, st.Code())
+				require.Equal(t, err, tt.err)
 			}
 		})
 	}
