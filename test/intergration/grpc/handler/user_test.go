@@ -1,4 +1,4 @@
-package user
+package handler
 
 import (
 	"google.golang.org/grpc/codes"
@@ -54,6 +54,17 @@ func TestCreateUser(t *testing.T) {
 			err: nil,
 		},
 		{
+			name: "fail - already exists user",
+			args: args{
+				request: &v1.CreateUserRequest{
+					Name:  "test",
+					Email: "test@test.com",
+				},
+			},
+			want: nil,
+			err:  nil,
+		},
+		{
 			name: "fail - create invalid name",
 			args: args{
 				request: &v1.CreateUserRequest{
@@ -96,5 +107,30 @@ func TestCreateUser(t *testing.T) {
 				require.Equal(t, codes.InvalidArgument, st.Code())
 			}
 		})
+	}
+}
+
+// nolint:goconst
+func TestAllUsers(t *testing.T) {
+	host := "app"
+	grpcURL := host + ":8080"
+	requests := 10
+
+	grpcConn, err := grpc.NewClient(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+
+	defer func() {
+		err = grpcConn.Close()
+		require.NoError(t, err)
+	}()
+
+	UserServiceClient := v1.NewUserServiceClient(grpcConn)
+
+	for i := 0; i < requests; i++ {
+		resp, err := UserServiceClient.AllUsers(t.Context(), &v1.AllUsersRequest{})
+		require.NoError(t, err)
+		require.Len(t, resp.Users, 1)
+		require.Equal(t, resp.Users[0].Name, "test")
+		require.Equal(t, resp.Users[0].Email, "test@test.com")
 	}
 }
