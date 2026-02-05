@@ -5,10 +5,7 @@ threshold:
 
 exclude:
   paths:
-    - ^cmd
     - ^internal/adapter
-    - ^internal/pkg
-    - ^internal/test
-    - ^internal/core/port
+    - ^internal/port
     - ^internal/core/domain/event
     - ^internal/core/domain/vo
