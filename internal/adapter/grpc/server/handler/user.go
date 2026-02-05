@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
@@ -30,16 +32,16 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*v1.CreateUserResponse, error) {
 	user, err := entity.NewUser(request.GetName(), request.GetEmail())
 	if err != nil {
-		u.logger.Warn("CreateUser", zap.Error(err))
+		u.logger.Warn("new user", zap.Error(err))
 
-		return nil, fmt.Errorf("CreateUser: %w", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	createdUser, err := u.userService.Create(ctx, user)
 	if err != nil {
-		u.logger.Warn("CreateUser", zap.Error(err))
+		u.logger.Warn("user service create", zap.Error(err))
 
-		return nil, fmt.Errorf("CreateUser: %w", err)
+		return nil, u.toGRPCError(err)
 	}
 
 	return &v1.CreateUserResponse{
@@ -50,9 +52,9 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUsersResponse, error) {
 	allUsers, err := u.userService.All(ctx)
 	if err != nil {
-		u.logger.Warn("AllUsers", zap.Error(err))
+		u.logger.Warn("all user", zap.Error(err))
 
-		return nil, fmt.Errorf("AllUsers: %w", err)
+		return nil, u.toGRPCError(err)
 	}
 
 	users := make([]*v1.User, len(allUsers))
@@ -75,4 +77,20 @@ func (u *User) toProto(user entity.User) *v1.User {
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
+}
+
+func (u *User) toGRPCError(err error) error {
+	if errors.Is(err, entity.ErrUserAlreadyExists) {
+		return status.Error(codes.AlreadyExists, err.Error())
+	}
+
+	if errors.Is(err, entity.ErrUserNotFound) {
+		return status.Error(codes.NotFound, err.Error())
+	}
+
+	if errors.Is(err, entity.ErrUserInvalidData) {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return status.Error(codes.Internal, "internal error")
 }
