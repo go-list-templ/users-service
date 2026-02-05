@@ -2,11 +2,14 @@ package repo
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +40,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 			user.UpdatedAt,
 		)
 
-	return err
+	return u.toPostgresError(err)
 }
 
 func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
@@ -45,7 +48,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 
 	rows, err := u.Query(ctx, "SELECT * FROM users")
 	if err != nil {
-		u.logger.Warn("failed query", zap.Error(err))
+		u.logger.Warn("query", zap.Error(err))
 
 		return users, err
 	}
@@ -63,7 +66,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 			&userDAO.UpdatedAt,
 		)
 		if err != nil {
-			u.logger.Warn("failed scan", zap.Error(err))
+			u.logger.Warn("scan", zap.Error(err))
 
 			return nil, err
 		}
@@ -72,4 +75,26 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	}
 
 	return users, nil
+}
+
+func (u *UserRepo) toPostgresError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var pgErr *pgconn.PgError
+	if !errors.As(err, &pgErr) {
+		return fmt.Errorf("operation: %w", err)
+	}
+
+	switch pgErr.Code {
+	case postgres.ErrCodeAlreadyExists:
+		return entity.ErrUserAlreadyExists
+	case postgres.ErrCodeNotFound:
+		return entity.ErrUserNotFound
+	case postgres.ErrCodeInvalidData:
+		return entity.ErrUserInvalidData
+	default:
+		return fmt.Errorf("postgres %s: %w", pgErr.Code, err)
+	}
 }
