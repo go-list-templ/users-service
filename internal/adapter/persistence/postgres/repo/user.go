@@ -84,6 +84,8 @@ func (u *UserRepo) toPostgresError(err error) error {
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
+		u.logger.Warn("operation", zap.Error(err))
+
 		return fmt.Errorf("operation: %w", err)
 	}
 
@@ -95,6 +97,10 @@ func (u *UserRepo) toPostgresError(err error) error {
 	case postgres.ErrCodeInvalidData:
 		return entity.ErrUserInvalidData
 	default:
-		return fmt.Errorf("postgres %s: %w", pgErr.Code, err)
+		infraErr := fmt.Errorf("code %s: %w", pgErr.Code, err)
+
+		u.logger.Warn("postgres", zap.Error(infraErr))
+
+		return infraErr
 	}
 }
