@@ -11,7 +11,7 @@ permissions:
 jobs:
   tests:
     name: unit test
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
@@ -24,7 +24,7 @@ jobs:
 
   test-coverage:
     name: coverage test
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
