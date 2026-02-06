@@ -52,16 +52,11 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		return []entity.User{}, err
 	}
 
-	usersDAO, err := pgx.CollectRows(rows, pgx.RowToStructByName[dao.User])
+	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		u.logger.Warn("collect rows", zap.Error(err))
+		u.logger.Warn("mapping", zap.Error(err))
 
 		return []entity.User{}, err
-	}
-
-	users := make([]entity.User, len(usersDAO))
-	for i, user := range usersDAO {
-		users[i] = user.ToEntity()
 	}
 
 	return users, nil
