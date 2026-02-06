@@ -85,7 +85,7 @@ func TestCreateUser(t *testing.T) {
 				},
 			},
 			want: nil,
-			err:  nil,
+			err:  status.Error(codes.InvalidArgument, vo.ErrInvalidEmail.Error()),
 		},
 	}
 	for _, tt := range tests {
