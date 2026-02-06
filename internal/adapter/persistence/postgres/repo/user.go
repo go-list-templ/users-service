@@ -9,6 +9,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 )
@@ -44,34 +45,23 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 }
 
 func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
-	var users []entity.User
-
 	rows, err := u.Query(ctx, "SELECT * FROM users")
 	if err != nil {
 		u.logger.Warn("query", zap.Error(err))
 
-		return users, err
+		return []entity.User{}, err
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var userDAO dao.User
+	usersDAO, err := pgx.CollectRows(rows, pgx.RowToStructByName[dao.User])
+	if err != nil {
+		u.logger.Warn("collect rows", zap.Error(err))
 
-		err = rows.Scan(
-			&userDAO.ID,
-			&userDAO.Name,
-			&userDAO.Email,
-			&userDAO.Avatar,
-			&userDAO.CreatedAt,
-			&userDAO.UpdatedAt,
-		)
-		if err != nil {
-			u.logger.Warn("scan", zap.Error(err))
+		return []entity.User{}, err
+	}
 
-			return nil, err
-		}
-
-		users = append(users, userDAO.ToEntity())
+	users := make([]entity.User, len(usersDAO))
+	for i, user := range usersDAO {
+		users[i] = user.ToEntity()
 	}
 
 	return users, nil
