@@ -8,6 +8,7 @@ import (
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -73,18 +74,18 @@ func TestCreateUser(t *testing.T) {
 				},
 			},
 			want: nil,
-			err:  status.Error(codes.InvalidArgument, entity.ErrUserAlreadyExists.Error()),
+			err:  status.Error(codes.InvalidArgument, vo.ErrNameMinLength.Error()),
 		},
 		{
 			name: "fail - create invalid email",
 			args: args{
 				request: &v1.CreateUserRequest{
-					Name:  "1",
+					Name:  "test",
 					Email: "test@",
 				},
 			},
 			want: nil,
-			err:  status.Error(codes.InvalidArgument, entity.ErrUserAlreadyExists.Error()),
+			err:  status.Error(codes.InvalidArgument, vo.ErrInvalidEmail.Error()),
 		},
 	}
 	for _, tt := range tests {
