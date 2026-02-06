@@ -10,10 +10,10 @@ permissions:
 
 jobs:
   tests:
-    name: tests
+    name: unit test
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
@@ -23,10 +23,10 @@ jobs:
           make test-cmd
 
   test-coverage:
-    name: test coverage
+    name: coverage test
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
@@ -36,13 +36,11 @@ jobs:
           make test-coverage-cmd
 
   test-integraion:
-    name: tests
+    name: integration test
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-      - name: Run Tests
+      - uses: actions/checkout@v6
+      - name: Run Test Integration
         run: |
           cp .env.example .env
+          make test-integration
