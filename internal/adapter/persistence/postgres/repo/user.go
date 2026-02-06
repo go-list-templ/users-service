@@ -28,35 +28,41 @@ func NewUserRepo(p *postgres.Postgres, l *zap.Logger, g *transaction.TrmGetter) 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	query := `
 		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
-		VALUES ($1, $2, $3, $4, $5, $6)
+       	VALUES (@id, @name, @email, @avatar, @created_at, @updated_at)
 	`
 
-	_, err := u.getter.TrOrDB(ctx, u.Postgres).
-		Exec(ctx, query,
-			user.ID.Value(),
-			user.Name.Value(),
-			user.Email.Value(),
-			user.Avatar.Value(),
-			user.CreatedAt,
-			user.UpdatedAt,
-		)
+	args := pgx.NamedArgs{
+		"id":         user.ID.Value(),
+		"name":       user.Name.Value(),
+		"email":      user.Email.Value(),
+		"avatar":     user.Avatar.Value(),
+		"created_at": user.CreatedAt,
+		"updated_at": user.UpdatedAt,
+	}
+
+	_, err := u.getter.TrOrDB(ctx, u.Postgres).Exec(ctx, query, args)
 
 	return u.toPostgresError(err)
 }
 
 func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
-	rows, err := u.Query(ctx, "SELECT * FROM users")
+	query := `
+		SELECT id, name, email, avatar, created_at, updated_at 
+		FROM users
+	`
+
+	rows, err := u.Query(ctx, query)
 	if err != nil {
 		u.logger.Warn("query", zap.Error(err))
 
-		return []entity.User{}, err
+		return nil, err
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
 		u.logger.Warn("mapping", zap.Error(err))
 
-		return []entity.User{}, err
+		return nil, err
 	}
 
 	return users, nil
