@@ -6,6 +6,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type User struct {
@@ -26,4 +27,13 @@ func (u *User) ToEntity() entity.User {
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}
+}
+
+func RowToEntity(row pgx.CollectableRow) (entity.User, error) {
+	d, err := pgx.RowToStructByNameLax[User](row)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return d.ToEntity(), nil
 }
