@@ -7,7 +7,7 @@ export function createUserTest(client) {
         email: `parallel_${__VU}_${__ITER}@example.com`,
     };
 
-    const response = client.invoke('v1.UserService/CreateUser', payload);
+    const response = client.invoke('api.user.v1.UserService/CreateUser', payload);
 
     check(response, {
         'create_user: status is OK': (r) => r && r.status === grpc.StatusOK,
