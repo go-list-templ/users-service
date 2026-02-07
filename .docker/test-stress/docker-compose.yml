@@ -1,0 +1,15 @@
+services:
+  test-stress:
+    container_name: test-stress
+    pid: "host"
+    build:
+      context: .
+      dockerfile: .docker/test-stress/Dockerfile
+    depends_on:
+      - app
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
