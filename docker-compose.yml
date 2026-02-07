@@ -7,17 +7,10 @@ services:
     ports:
       - "${GRPC_PORT}:${GRPC_PORT}"
       - "${DIAGNOSTIC_PORT}:${DIAGNOSTIC_PORT}"
+    env_file:
+      - .env
     environment:
-      - APP_NAME=${APP_NAME}
       - DB_URL=${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}?sslmode=disable
-      - DB_DRIVER=${DB_DRIVER}
-      - GRPC_PORT=${GRPC_PORT}
-      - DIAGNOSTIC_PORT=${DIAGNOSTIC_PORT}
-      - HTTP_TIMEOUT=${HTTP_TIMEOUT}
-      - IDLE_TIMEOUT=${IDLE_TIMEOUT}
-      - SHUTDOWN_TIMEOUT=${SHUTDOWN_TIMEOUT}
-      - DB_MAX_CONN=${DB_MAX_CONN}
-      - DB_MAX_CONN_TIME=${DB_MAX_CONN_TIME}
       - REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
     depends_on:
       - db
