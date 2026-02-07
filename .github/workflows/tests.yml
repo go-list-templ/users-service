@@ -19,7 +19,7 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Tests
         run: |
-          cp .env.example .env
+          make copy
           make test-cmd
 
   test-coverage:
@@ -32,7 +32,7 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Test Coverage
         run: |
-          cp .env.example .env
+          make copy
           make test-coverage-cmd
 
   test-integraion:
@@ -42,5 +42,5 @@ jobs:
       - uses: actions/checkout@v6
       - name: Run Test Integration
         run: |
-          cp .env.example .env
+          make copy
           make test-integration
