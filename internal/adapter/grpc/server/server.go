@@ -31,7 +31,6 @@ func New(cfg *config.Server) *GRPC {
 	}
 }
 
-// Reflection use after register grpc handlers
 func (s *GRPC) Reflection(cfg config.App) {
 	if cfg.ENV == "dev" {
 		reflection.Register(s.Server)

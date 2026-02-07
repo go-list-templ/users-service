@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	httphandler "github.com/go-list-templ/grpc/internal/adapter/http/server/handler"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 	grpcserver "github.com/go-list-templ/grpc/internal/adapter/grpc/server"
 	grpchandler "github.com/go-list-templ/grpc/internal/adapter/grpc/server/handler"
 	httpserver "github.com/go-list-templ/grpc/internal/adapter/http/server"
+	httphandler "github.com/go-list-templ/grpc/internal/adapter/http/server/handler"
 	pgrepo "github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
