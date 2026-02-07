@@ -24,6 +24,7 @@ type (
 	App struct {
 		Name    string `envconfig:"APP_NAME"`
 		Version string `envconfig:"APP_VERSION"`
+		ENV     string `envconfig:"APP_ENV"`
 	}
 
 	Server struct {
