@@ -31,8 +31,8 @@ func New(cfg *config.Server) *GRPC {
 	}
 }
 
-// Realese use after register grpc handlers
-func (s *GRPC) Realese(cfg config.App) {
+// Reflection use after register grpc handlers
+func (s *GRPC) Reflection(cfg config.App) {
 	if cfg.ENV == "dev" {
 		reflection.Register(s.Server)
 	}
