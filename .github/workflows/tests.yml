@@ -19,7 +19,7 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Tests
         run: |
-          make copy
+          cp .env.example .env
           make test-cmd
 
   test-coverage:
@@ -32,7 +32,7 @@ jobs:
           go-version-file: "go.mod"
       - name: Run Test Coverage
         run: |
-          make copy
+          cp .env.example .env
           make test-coverage-cmd
 
   test-integration:
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Run Test Integration
         run: |
-          make copy
+          cp .env.example .env
           make test-integration
 
   test-stress:
@@ -52,5 +52,5 @@ jobs:
       - uses: actions/checkout@v6
       - name: Run Test Stress
         run: |
-          make copy
+          cp .env.example .env
           make test-stress
