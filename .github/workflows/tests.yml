@@ -35,7 +35,7 @@ jobs:
           make copy
           make test-coverage-cmd
 
-  test-integraion:
+  test-integration:
     name: integration test
     runs-on: ubuntu-latest
     steps:
@@ -44,3 +44,13 @@ jobs:
         run: |
           make copy
           make test-integration
+
+  test-stress:
+    name: stress test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run Test Stress
+        run: |
+          make copy
+          make test-stress
