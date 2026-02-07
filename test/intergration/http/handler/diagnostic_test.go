@@ -1,4 +1,4 @@
-package diagnostic
+package handler
 
 import (
 	"net/http"
@@ -18,10 +18,8 @@ func TestHealthz(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer func() {
-		err = resp.Body.Close()
-		require.NoError(t, err)
-	}()
-
 	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	err = resp.Body.Close()
+	require.NoError(t, err)
 }
