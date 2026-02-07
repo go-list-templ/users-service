@@ -100,6 +100,10 @@ func run() error {
 	grpchandler.RegisterUser(grpcServer.Server, userService, logger.With(zap.String("module", "user handler")))
 	httphandler.RegisterDiagnostic(pg, rd, logger.With(zap.String("module", "diagnostic handler")))
 
+	logger.Info("registering grpc reflection")
+
+	grpcServer.Realese(cfg.App)
+
 	logger.Info("server started successfully")
 
 	interrupt := make(chan os.Signal, 1)
