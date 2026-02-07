@@ -1,6 +1,7 @@
 services:
   test-stress:
     container_name: test-stress
+    platform: linux/amd64
     pid: "host"
     build:
       context: .
