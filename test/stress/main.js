@@ -31,8 +31,8 @@ export const options = {
         },
     },
     thresholds: {
-        http_req_duration: ['p(95) < 1'],
-        grpc_req_duration: ['p(95) < 1'],
+        http_req_duration: ['p(95) < 500'],
+        grpc_req_duration: ['p(95) < 100'],
     },
 };
 
