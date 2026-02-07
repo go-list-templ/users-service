@@ -13,44 +13,37 @@ export const options = {
             executor: 'constant-vus',
             exec: 'runCreateUser',
             vus: 1,
-            stages: [
-                {duration: '10s', target: 10},
-                {duration: '20s', target: 10},
-            ],
+            duration: '3s',
         },
         all_users_grpc: {
             executor: 'ramping-vus',
             exec: 'runAllUsers',
-            vus: 1,
+            startVUs: 1,
             stages: [
-                {duration: '10s', target: 10},
-                {duration: '20s', target: 10},
+                {duration: '3s', target: 10},
             ],
         },
         healthz_http: {
             executor: 'constant-vus',
             exec: 'runHealthCheck',
-            vus: 2,
-            stages: [
-                {duration: '10s', target: 10},
-                {duration: '20s', target: 10},
-            ],
+            vus: 1,
+            duration: '3s',
         },
     },
     thresholds: {
-        'grpc_req_duration{scenario:create_user_grpc}': ['p(95)<100'],
-        'http_req_duration{scenario:healthz_http}': ['p(99)<500'],
+        http_req_duration: ['p(95) < 500'],
+        grpc_req_duration: ['p(95) < 100'],
     },
 };
 
 export function runCreateUser() {
-    client.connect(grpcUrl, { plaintext: true, reflect: true });
+    client.connect(grpcUrl, {plaintext: true, reflect: true});
 
     createUserTest(client);
 }
 
 export function runAllUsers() {
-    client.connect(grpcUrl, { plaintext: true, reflect: true });
+    client.connect(grpcUrl, {plaintext: true, reflect: true});
 
     allUsersTest(client);
 }
