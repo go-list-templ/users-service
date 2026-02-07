@@ -2,15 +2,21 @@ include .env
 
 COMPOSE_CMD := docker compose -p ${APP_NAME} --env-file .env
 COMPOSE_TEST_CMD := docker compose -p ${APP_NAME}_tests --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
+COMPOSE_TEST_STRESS_CMD := docker compose -p ${APP_NAME}_tests_stress --env-file .env -f docker-compose.yml -f .docker/test-stress/docker-compose.yml
 
+init: copy build
 lint: docker-lint code-lint
 
 build:
 	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_TEST_STRESS_CMD) down -v
 	$(COMPOSE_CMD) up -d --build --remove-orphans
 
 down:
 	$(COMPOSE_CMD) down -v
+
+copy:
+	cp .env.example .env
 
 log:
 	docker logs -f --tail 100 app.${APP_NAME}
@@ -46,7 +52,17 @@ test-coverage-cmd:
 test-integration:
 	$(COMPOSE_CMD) down
 	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_TEST_STRESS_CMD) down -v
 	$(COMPOSE_TEST_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test --attach test
 
 test-integration-cmd:
 	go test -v -count=1 ./test/intergration/...
+
+test-stress:
+	$(COMPOSE_CMD) down
+	$(COMPOSE_TEST_CMD) down -v
+	$(COMPOSE_TEST_STRESS_CMD) down -v
+	$(COMPOSE_TEST_STRESS_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test-stress --attach test-stress
+
+test-stress-cmd:
+	k6 run test/stress/main.js
