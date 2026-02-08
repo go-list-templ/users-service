@@ -1,11 +1,13 @@
 services:
   test-stress:
     container_name: test-stress
-    platform: linux/amd64
-    pid: "host"
     build:
       context: .
       dockerfile: .docker/test-stress/Dockerfile
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     depends_on:
       - app
     networks:
