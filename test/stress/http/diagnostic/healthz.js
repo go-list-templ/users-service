@@ -1,13 +1,10 @@
 import http from 'k6/http';
-import {check, sleep} from 'k6';
+import { sleep } from 'k6';
 
-export function healthCheckTest(url) {
-    const endpoint = url + '/healthz'
-    const res = http.get(endpoint);
+export function healthz(url) {
+    const response =  http.get(url + '/healthz');
 
-    check(res, {
-        'http status is 200': (r) => r.status === 200,
-    });
+    sleep(3)
 
-    sleep(5);
+    return response
 }
