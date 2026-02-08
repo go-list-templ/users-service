@@ -63,6 +63,3 @@ test-stress:
 	$(COMPOSE_TEST_CMD) down -v
 	$(COMPOSE_TEST_STRESS_CMD) down -v
 	$(COMPOSE_TEST_STRESS_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test-stress --attach test-stress
-
-test-stress-cmd:
-	k6 run test/stress/main.js
