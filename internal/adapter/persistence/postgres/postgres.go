@@ -30,6 +30,7 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 
 	conf.MaxConns = cfg.MaxConn
 	conf.MaxConnLifetime = cfg.MaxConnTime
+	conf.MaxConnIdleTime = cfg.MaxIdleTime
 
 	connAttempts := DefaultConnAttempts
 	connTimeout := DefaultConnTimeout

@@ -12,9 +12,8 @@ type (
 		URL         string        `envconfig:"DB_URL"`
 		Driver      string        `envconfig:"DB_DRIVER"`
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
-		MaxIdle     int           `envconfig:"DB_MAX_IDLE"`
 		MaxConnTime time.Duration `envconfig:"DB_MAX_CONN_TIME"`
-		MaxIdleTime time.Duration `envconfig:"DB_MAX_IDLE_TIME"`
+		MaxIdleTime time.Duration `envconfig:"DB_MAX_CONN_IDLE_TIME"`
 	}
 
 	Redis struct {
