@@ -1,6 +1,6 @@
 module github.com/go-list-templ/grpc
 
-go 1.25
+go 1.26
 
 require (
 	github.com/go-list-templ/proto v0.0.6
