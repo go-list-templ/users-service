@@ -19,6 +19,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/service"
 	"github.com/go-list-templ/grpc/pkg/config"
+	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
 )
 
@@ -34,6 +35,15 @@ func run() error {
 	defer logger.Sync()
 
 	logger.Info("starting app")
+
+	undo, err := maxprocs.Set(maxprocs.Logger(func(format string, args ...interface{}) {
+		logger.Info("auto max procs", zap.Any("info", args))
+	}))
+	if err != nil {
+		logger.Error("failed to set auto max procs", zap.Error(err))
+	}
+	defer undo()
+
 	logger.Info("initializing config")
 
 	cfg, err := config.Load()

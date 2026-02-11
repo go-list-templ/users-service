@@ -1,6 +1,14 @@
 services:
   app:
     container_name: app.${APP_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     build:
       context: .
       dockerfile: .docker/app/Dockerfile
