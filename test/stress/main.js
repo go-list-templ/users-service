@@ -19,7 +19,7 @@ export const options = {
             maxVUs: 200,
             stages: [
                 { target: 1000, duration: '1m' },
-                { target: 1000, duration: '2m' },
+                { target: 3000, duration: '3m' },
             ],
             exec: 'runCreateUser',
         },
@@ -31,7 +31,7 @@ export const options = {
             maxVUs: 200,
             stages: [
                 { target: 1000, duration: '1m' },
-                { target: 1000, duration: '2m' },
+                { target: 3000, duration: '3m' },
             ],
             exec: 'runAllUsers',
         },
@@ -39,7 +39,7 @@ export const options = {
             executor: 'constant-vus',
             exec: 'runHealthz',
             vus: 1,
-            duration: '30s',
+            duration: '3m',
         },
     },
     thresholds: {
