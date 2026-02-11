@@ -12,16 +12,28 @@ const client = new grpc.Client();
 export const options = {
     scenarios: {
         create_user_grpc: {
-            executor: 'constant-vus',
+            executor: 'ramping-arrival-rate',
+            startRate: 50,
+            timeUnit: '1s',
+            preAllocatedVUs: 50,
+            maxVUs: 200,
+            stages: [
+                { target: 1000, duration: '1m' },
+                { target: 1000, duration: '2m' },
+            ],
             exec: 'runCreateUser',
-            vus: 100,
-            duration: '30s',
         },
         all_users_grpc: {
-            executor: 'constant-vus',
+            executor: 'ramping-arrival-rate',
+            startRate: 50,
+            timeUnit: '1s',
+            preAllocatedVUs: 50,
+            maxVUs: 200,
+            stages: [
+                { target: 1000, duration: '1m' },
+                { target: 1000, duration: '2m' },
+            ],
             exec: 'runAllUsers',
-            vus: 100,
-            duration: '30s',
         },
         healthz_http: {
             executor: 'constant-vus',
