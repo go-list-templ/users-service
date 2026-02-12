@@ -18,8 +18,7 @@ export const options = {
             preAllocatedVUs: 50,
             maxVUs: 200,
             stages: [
-                {target: 100, duration: '1m'},
-                {target: 500, duration: '3m'},
+                {target: 100, duration: '3m'},
             ],
             exec: 'runCreateUser',
         },
