@@ -22,10 +22,10 @@ log:
 	docker logs -f --tail 100 app.${APP_NAME}
 
 code-lint:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.8.0 golangci-lint run --config=.docker/lint/conf.yml
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.9.0 golangci-lint run --config=.docker/lint/conf.yml
 
 lint-fix:
-	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.8.0 golangci-lint run --config=.docker/lint/conf.yml --fix
+	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.9.0 golangci-lint run --config=.docker/lint/conf.yml --fix
 
 docker-lint:
 	docker run --rm -i hadolint/hadolint < .docker/app/Dockerfile
