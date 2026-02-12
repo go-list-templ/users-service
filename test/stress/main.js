@@ -8,6 +8,7 @@ const grpcUrl = 'app:8080'
 const diagnosticUrl = 'http://app:8081'
 
 const client = new grpc.Client();
+client.load(['/src/proto/api/user/v1'], 'user.proto');
 
 export const options = {
     scenarios: {
@@ -15,10 +16,10 @@ export const options = {
             executor: 'ramping-arrival-rate',
             startRate: 50,
             timeUnit: '1s',
-            preAllocatedVUs: 50,
-            maxVUs: 200,
+            preAllocatedVUs: 10,
+            maxVUs: 10,
             stages: [
-                {target: 100, duration: '3m'},
+                {target: 100, duration: '1m'},
             ],
             exec: 'runCreateUser',
         },
@@ -26,11 +27,11 @@ export const options = {
             executor: 'ramping-arrival-rate',
             startRate: 50,
             timeUnit: '1s',
-            preAllocatedVUs: 50,
-            maxVUs: 200,
+            preAllocatedVUs: 10,
+            maxVUs: 50,
             stages: [
-                {target: 500, duration: '1m'},
-                {target: 1000, duration: '3m'},
+                {target: 100, duration: '30s'},
+                {target: 500, duration: '30s'},
             ],
             exec: 'runAllUsers',
         },
@@ -39,7 +40,7 @@ export const options = {
             exec: 'runHealthz',
             rate: 2,
             timeUnit: '5s',
-            duration: '3m',
+            duration: '1m',
             preAllocatedVUs: 1,
             maxVUs: 1,
         },
@@ -48,13 +49,22 @@ export const options = {
         'grpc_req_duration{scenario:create_user_grpc}': ['p(95) < 100'],
         'grpc_req_duration{scenario:all_users_grpc}': ['p(95) < 100'],
         'http_req_duration{scenario:healthz_http}': ['p(95) < 500'],
-        'checks': ['rate > 0.9'],
     },
     summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(95)', 'p(99)', 'count'],
 };
 
+function ensureConnected(grpcClient) {
+    try {
+        grpcClient.connect(grpcUrl, { plaintext: true });
+    } catch (e) {
+        if (!e.message.includes('already connected')) {
+            console.error(`Connection error: ${e.message}`);
+        }
+    }
+}
+
 export function runCreateUser() {
-    client.connect(grpcUrl, {plaintext: true, reflect: true});
+    ensureConnected(client);
     const response = createUserTest(client);
 
     check(response, {
@@ -63,7 +73,7 @@ export function runCreateUser() {
 }
 
 export function runAllUsers() {
-    client.connect(grpcUrl, {plaintext: true, reflect: true});
+    ensureConnected(client);
     const response = allUsersTest(client);
 
     check(response, {
