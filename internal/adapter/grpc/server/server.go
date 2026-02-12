@@ -7,7 +7,6 @@ import (
 	"github.com/go-list-templ/grpc/pkg/config"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 type GRPC struct {
@@ -28,12 +27,6 @@ func New(cfg *config.Server) *GRPC {
 		eg:     group,
 		config: cfg,
 		errors: make(chan error, 1),
-	}
-}
-
-func (s *GRPC) Reflection(cfg config.App) {
-	if cfg.ENV == "dev" {
-		reflection.Register(s.Server)
 	}
 }
 

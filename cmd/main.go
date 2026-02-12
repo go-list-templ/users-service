@@ -109,10 +109,6 @@ func run() error {
 
 	grpchandler.RegisterUser(grpcServer.Server, userService, logger.With(zap.String("module", "user handler")))
 
-	logger.Info("registering grpc reflection")
-
-	grpcServer.Reflection(cfg.App)
-
 	logger.Info("registering http handlers")
 
 	httphandler.RegisterDiagnostic(pg, rd, logger.With(zap.String("module", "diagnostic handler")))
