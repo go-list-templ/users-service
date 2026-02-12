@@ -36,8 +36,8 @@ func run() error {
 
 	logger.Info("starting app")
 
-	undo, err := maxprocs.Set(maxprocs.Logger(func(format string, args ...interface{}) {
-		logger.Info("auto max procs", zap.Any("info", args))
+	undo, err := maxprocs.Set(maxprocs.Logger(func(_ string, args ...interface{}) {
+		logger.Info("auto max procs", zap.Any("count", args))
 	}))
 	if err != nil {
 		logger.Error("failed to set auto max procs", zap.Error(err))

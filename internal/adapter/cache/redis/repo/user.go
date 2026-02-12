@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
@@ -11,6 +12,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/singleflight"
 )
+
+var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
 const (
 	KeyAllUsers           = "users:all"
@@ -56,7 +59,14 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		return nil, err
 	}
 
-	return v.([]entity.User), nil
+	users, ok := v.([]entity.User)
+	if !ok {
+		u.logger.Error("singleflight typed", zap.Error(err), zap.Any("value", v))
+
+		return nil, ErrTypedSingleflight
+	}
+
+	return users, nil
 }
 
 func (u *UserRepo) cacheAllUsers(users []entity.User) {
