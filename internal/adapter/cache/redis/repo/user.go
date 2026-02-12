@@ -9,6 +9,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/port"
 	"go.uber.org/zap"
+	"golang.org/x/sync/singleflight"
 )
 
 const (
@@ -20,10 +21,11 @@ type UserRepo struct {
 	repo   port.UserRepo
 	redis  *redis.Redis
 	logger *zap.Logger
+	sf     singleflight.Group
 }
 
 func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *UserRepo {
-	return &UserRepo{repo: repo, redis: redis, logger: logger}
+	return &UserRepo{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
 func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
@@ -40,14 +42,21 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		return users, nil
 	}
 
-	users, err := u.repo.All(ctx)
+	v, err, _ := u.sf.Do(KeyAllUsers, func() (interface{}, error) {
+		users, err := u.repo.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		go u.cacheAllUsers(users)
+
+		return users, nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	go u.cacheAllUsers(users)
-
-	return users, nil
+	return v.([]entity.User), nil
 }
 
 func (u *UserRepo) cacheAllUsers(users []entity.User) {
