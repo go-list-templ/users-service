@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"errors"
+	"github.com/go-list-templ/grpc/pkg/pagination"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
@@ -15,10 +16,7 @@ import (
 
 var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
-const (
-	KeyAllUsers           = "users:all"
-	DefaultContextTimeout = 5 * time.Second
-)
+const DefaultContextTimeout = 5 * time.Second
 
 type UserRepo struct {
 	repo   port.UserRepo
@@ -31,10 +29,11 @@ func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *Us
 	return &UserRepo{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
+func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]entity.User, error) {
 	var cachedUsers []dao.User
+	cacheKey := paginate.Token
 
-	err := u.redis.GetCache(ctx, KeyAllUsers, &cachedUsers)
+	err := u.redis.GetCache(ctx, cacheKey, &cachedUsers)
 	if err == nil && len(cachedUsers) > 0 {
 		users := make([]entity.User, len(cachedUsers))
 
@@ -45,13 +44,13 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 		return users, nil
 	}
 
-	v, err, _ := u.sf.Do(KeyAllUsers, func() (interface{}, error) {
-		users, err := u.repo.All(ctx)
+	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
+		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
 			return nil, err
 		}
 
-		go u.cacheAllUsers(users)
+		go u.cacheAllUsers(cacheKey, users)
 
 		return users, nil
 	})
@@ -69,7 +68,7 @@ func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (u *UserRepo) cacheAllUsers(users []entity.User) {
+func (u *UserRepo) cacheAllUsers(cacheKey string, users []entity.User) {
 	defer func() {
 		if r := recover(); r != nil {
 			u.logger.Error("panic in cacheAllUsers", zap.Any("panic", r))
@@ -85,7 +84,7 @@ func (u *UserRepo) cacheAllUsers(users []entity.User) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()
 
-	err := u.redis.SetCache(ctx, KeyAllUsers, cacheUsers, time.Hour)
+	err := u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour)
 	if err != nil {
 		u.logger.Warn("redis set error", zap.Error(err))
 	}
@@ -97,9 +96,9 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 		return err
 	}
 
-	if err = u.redis.DeleteCache(ctx, KeyAllUsers); err != nil {
-		u.logger.Error("redis del error", zap.String("key", KeyAllUsers), zap.Error(err))
-	}
+	//if err = u.redis.DeleteCache(ctx, KeyAllUsers); err != nil {
+	//	u.logger.Error("redis del error", zap.String("key", KeyAllUsers), zap.Error(err))
+	//}
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-list-templ/grpc/pkg/pagination"
 
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
@@ -45,13 +46,16 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(err)
 }
 
-func (u *UserRepo) All(ctx context.Context) ([]entity.User, error) {
+func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]entity.User, error) {
 	query := `
 		SELECT id, name, email, avatar, created_at, updated_at 
-		FROM users
+	   	FROM users
+	   	WHERE id < $1
+	   	ORDER BY id DESC 
+	   	LIMIT $2
 	`
 
-	rows, err := u.Query(ctx, query)
+	rows, err := u.Query(ctx, query, paginate.Cursor(), paginate.Limit())
 	if err != nil {
 		u.logger.Warn("query", zap.Error(err))
 

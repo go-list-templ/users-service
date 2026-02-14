@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/go-list-templ/grpc/pkg/pagination"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/event"
+	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port"
 )
 
@@ -18,9 +20,14 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 	return &User{u, o, t}
 }
 
-func (s *User) Create(ctx context.Context, user entity.User) (entity.User, error) {
-	err := s.trm.Do(ctx, func(ctx context.Context) error {
-		err := s.userRepo.Store(ctx, user)
+func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (entity.User, error) {
+	user, err := entity.NewUser(input.Name, input.Email)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	err = s.trm.Do(ctx, func(ctx context.Context) error {
+		err = s.userRepo.Store(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -39,8 +46,10 @@ func (s *User) Create(ctx context.Context, user entity.User) (entity.User, error
 	return user, nil
 }
 
-func (s *User) List(ctx context.Context) ([]entity.User, error) {
-	users, err := s.userRepo.All(ctx)
+func (s *User) List(ctx context.Context, input dto.UserListInput) ([]entity.User, error) {
+	paginate := pagination.New(input.PageSize, input.PageToken)
+
+	users, err := s.userRepo.All(ctx, *paginate)
 	if err != nil {
 		return []entity.User{}, err
 	}

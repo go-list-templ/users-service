@@ -3,11 +3,12 @@ package handler
 import (
 	"context"
 	"errors"
-	"github.com/go-list-templ/grpc/internal/core/dto"
+
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -30,12 +31,12 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 }
 
 func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
-	inputDTO := dto.UserCreateInput{
+	input := dto.UserCreateInput{
 		Name:  request.GetName(),
 		Email: request.GetEmail(),
 	}
 
-	outputDTO, err := u.userService.Create(ctx, inputDTO)
+	user, err := u.userService.Create(ctx, input)
 	if err != nil {
 		u.logger.Warn("user service create", zap.Error(err))
 
@@ -43,7 +44,7 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 	}
 
 	return &v1.CreateResponse{
-		User: u.toProto(outputDTO),
+		User: u.toProto(user),
 	}, nil
 }
 
@@ -71,12 +72,12 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 	}, nil
 }
 
-func (u *User) toProto(user dto.User) *v1.User {
+func (u *User) toProto(user entity.User) *v1.User {
 	return &v1.User{
-		Id:        user.ID.String(),
-		Name:      user.Name,
-		Email:     user.Email,
-		Avatar:    user.Avatar,
+		Id:        user.ID.Value().String(),
+		Name:      user.Name.Value(),
+		Email:     user.Email.Value(),
+		Avatar:    user.Avatar.Value(),
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
