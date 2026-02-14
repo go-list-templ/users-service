@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
-
+	"github.com/go-list-templ/grpc/internal/core/dto"
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
@@ -30,14 +30,12 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 }
 
 func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
-	user, err := entity.NewUser(request.GetName(), request.GetEmail())
-	if err != nil {
-		u.logger.Warn("new user", zap.Error(err))
-
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	inputDTO := dto.UserCreateInput{
+		Name:  request.GetName(),
+		Email: request.GetEmail(),
 	}
 
-	createdUser, err := u.userService.Create(ctx, user)
+	outputDTO, err := u.userService.Create(ctx, inputDTO)
 	if err != nil {
 		u.logger.Warn("user service create", zap.Error(err))
 
@@ -45,21 +43,26 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 	}
 
 	return &v1.CreateResponse{
-		User: u.toProto(createdUser),
+		User: u.toProto(outputDTO),
 	}, nil
 }
 
 func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
-	allUsers, err := u.userService.List(ctx)
+	inputDTO := dto.UserListInput{
+		PageSize:  request.GetPageSize(),
+		PageToken: request.GetPageToken(),
+	}
+
+	outputDTO, err := u.userService.List(ctx, inputDTO)
 	if err != nil {
 		u.logger.Warn("all user", zap.Error(err))
 
 		return nil, u.toGRPCError(err)
 	}
 
-	users := make([]*v1.User, len(allUsers))
+	users := make([]*v1.User, len(outputDTO))
 
-	for i, user := range allUsers {
+	for i, user := range outputDTO {
 		users[i] = u.toProto(user)
 	}
 
@@ -68,12 +71,12 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 	}, nil
 }
 
-func (u *User) toProto(user entity.User) *v1.User {
+func (u *User) toProto(user dto.User) *v1.User {
 	return &v1.User{
-		Id:        user.ID.Value().String(),
-		Name:      user.Name.Value(),
-		Email:     user.Email.Value(),
-		Avatar:    user.Avatar.Value(),
+		Id:        user.ID.String(),
+		Name:      user.Name,
+		Email:     user.Email,
+		Avatar:    user.Avatar,
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
