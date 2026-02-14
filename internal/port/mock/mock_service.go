@@ -41,21 +41,6 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 	return m.recorder
 }
 
-// All mocks base method.
-func (m *MockUserService) All(arg0 context.Context) ([]entity.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "All", arg0)
-	ret0, _ := ret[0].([]entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// All indicates an expected call of All.
-func (mr *MockUserServiceMockRecorder) All(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockUserService)(nil).All), arg0)
-}
-
 // Create mocks base method.
 func (m *MockUserService) Create(arg0 context.Context, arg1 entity.User) (entity.User, error) {
 	m.ctrl.T.Helper()
@@ -69,4 +54,19 @@ func (m *MockUserService) Create(arg0 context.Context, arg1 entity.User) (entity
 func (mr *MockUserServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserService)(nil).Create), arg0, arg1)
+}
+
+// List mocks base method.
+func (m *MockUserService) List(arg0 context.Context) ([]entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", arg0)
+	ret0, _ := ret[0].([]entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List.
+func (mr *MockUserServiceMockRecorder) List(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserService)(nil).List), arg0)
 }

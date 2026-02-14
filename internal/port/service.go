@@ -11,6 +11,6 @@ import (
 type (
 	UserService interface {
 		Create(context.Context, entity.User) (entity.User, error)
-		All(context.Context) ([]entity.User, error)
+		List(context.Context) ([]entity.User, error)
 	}
 )

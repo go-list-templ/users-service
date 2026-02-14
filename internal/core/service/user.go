@@ -39,7 +39,7 @@ func (s *User) Create(ctx context.Context, user entity.User) (entity.User, error
 	return user, nil
 }
 
-func (s *User) All(ctx context.Context) ([]entity.User, error) {
+func (s *User) List(ctx context.Context) ([]entity.User, error) {
 	users, err := s.userRepo.All(ctx)
 	if err != nil {
 		return []entity.User{}, err

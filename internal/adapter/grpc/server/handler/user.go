@@ -29,7 +29,7 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 	}
 }
 
-func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*v1.CreateUserResponse, error) {
+func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
 	user, err := entity.NewUser(request.GetName(), request.GetEmail())
 	if err != nil {
 		u.logger.Warn("new user", zap.Error(err))
@@ -44,13 +44,13 @@ func (u *User) CreateUser(ctx context.Context, request *v1.CreateUserRequest) (*
 		return nil, u.toGRPCError(err)
 	}
 
-	return &v1.CreateUserResponse{
+	return &v1.CreateResponse{
 		User: u.toProto(createdUser),
 	}, nil
 }
 
-func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUsersResponse, error) {
-	allUsers, err := u.userService.All(ctx)
+func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
+	allUsers, err := u.userService.List(ctx)
 	if err != nil {
 		u.logger.Warn("all user", zap.Error(err))
 
@@ -63,7 +63,7 @@ func (u *User) AllUsers(ctx context.Context, _ *v1.AllUsersRequest) (*v1.AllUser
 		users[i] = u.toProto(user)
 	}
 
-	return &v1.AllUsersResponse{
+	return &v1.ListResponse{
 		Users: users,
 	}, nil
 }

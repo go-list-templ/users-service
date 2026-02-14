@@ -39,7 +39,7 @@ func TestNewUser(t *testing.T) {
 	})
 }
 
-func TestUser_All(t *testing.T) {
+func TestUser_List(t *testing.T) {
 	ur, or, tm := mocks(t)
 	userService := NewUser(ur, or, tm)
 
@@ -89,7 +89,7 @@ func TestUser_All(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.All(context.Background())
+			got, err := userService.List(context.Background())
 
 			require.Equal(t, tt.want, got)
 			require.ErrorIs(t, err, tt.err)
