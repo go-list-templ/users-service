@@ -6,8 +6,13 @@ type ID struct {
 	value uuid.UUID
 }
 
-func NewID() ID {
-	return ID{value: uuid.New()}
+func NewID() (ID, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return ID{}, err
+	}
+
+	return ID{value: id}, nil
 }
 
 func UnsafeID(id uuid.UUID) ID {

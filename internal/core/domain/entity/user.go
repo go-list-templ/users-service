@@ -23,6 +23,11 @@ type User struct {
 }
 
 func NewUser(Name, email string) (User, error) {
+	id, err := vo.NewID()
+	if err != nil {
+		return User{}, err
+	}
+
 	validName, err := vo.NewName(Name)
 	if err != nil {
 		return User{}, err
@@ -34,7 +39,7 @@ func NewUser(Name, email string) (User, error) {
 	}
 
 	return User{
-		ID:        vo.NewID(),
+		ID:        id,
 		Name:      validName,
 		Email:     validEmail,
 		Avatar:    vo.NewAvatar(),

@@ -65,14 +65,14 @@ services:
 
   db:
     container_name: db.${APP_NAME}
-    image: postgres:16
+    image: postgres:18
     environment:
       POSTGRES_USER: '${DB_USERNAME}'
       POSTGRES_PASSWORD: '${DB_PASSWORD}'
       POSTGRES_DB: '${DB_DATABASE}'
     command: [ "postgres", "-c", "wal_level=logical" ]
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
       - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
     ports:
       - '${DB_PORT}:5432'
