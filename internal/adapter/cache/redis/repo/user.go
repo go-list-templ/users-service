@@ -44,13 +44,17 @@ func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]ent
 		return users, nil
 	}
 
+	// todo check what working
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
 			return nil, err
 		}
 
-		go u.cacheAllUsers(cacheKey, users)
+		err = u.cacheAllUsers(ctx, cacheKey, users)
+		if err != nil {
+			u.logger.Warn("redis set error", zap.Error(err))
+		}
 
 		return users, nil
 	})
@@ -68,26 +72,17 @@ func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]ent
 	return users, nil
 }
 
-func (u *UserRepo) cacheAllUsers(cacheKey string, users []entity.User) {
-	defer func() {
-		if r := recover(); r != nil {
-			u.logger.Error("panic in cacheAllUsers", zap.Any("panic", r))
-		}
-	}()
-
+func (u *UserRepo) cacheAllUsers(ctx context.Context, cacheKey string, users []entity.User) error {
 	cacheUsers := make([]dao.User, len(users))
 
 	for i, user := range users {
 		cacheUsers[i] = dao.FromEntity(user)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DefaultContextTimeout)
 	defer cancel()
 
-	err := u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour)
-	if err != nil {
-		u.logger.Warn("redis set error", zap.Error(err))
-	}
+	return u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour)
 }
 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
