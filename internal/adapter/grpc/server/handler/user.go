@@ -36,50 +36,59 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 		Email: request.GetEmail(),
 	}
 
-	user, err := u.userService.Create(ctx, input)
+	output, err := u.userService.Create(ctx, input)
 	if err != nil {
 		u.logger.Warn("user service create", zap.Error(err))
 
 		return nil, u.toGRPCError(err)
 	}
 
-	return &v1.CreateResponse{
-		User: u.toProto(user),
-	}, nil
+	return u.createToProto(output), nil
 }
 
 func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
-	inputDTO := dto.UserListInput{
+	input := dto.UserListInput{
 		PageSize:  request.GetPageSize(),
 		PageToken: request.GetPageToken(),
 	}
 
-	outputDTO, err := u.userService.List(ctx, inputDTO)
+	output, err := u.userService.List(ctx, input)
 	if err != nil {
 		u.logger.Warn("all user", zap.Error(err))
 
 		return nil, u.toGRPCError(err)
 	}
 
-	users := make([]*v1.User, len(outputDTO))
+	return u.listToProto(output), nil
+}
 
-	for i, user := range outputDTO {
-		users[i] = u.toProto(user)
+func (u *User) userToProto(user dto.User) *v1.User {
+	return &v1.User{
+		Id:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Avatar:    user.Avatar,
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+	}
+}
+
+func (u *User) createToProto(output dto.UserCreateOutput) *v1.CreateResponse {
+	return &v1.CreateResponse{
+		User: u.userToProto(output.User),
+	}
+}
+
+func (u *User) listToProto(output dto.UserListOutput) *v1.ListResponse {
+	users := make([]*v1.User, len(output.Users))
+
+	for i, user := range output.Users {
+		users[i] = u.userToProto(user)
 	}
 
 	return &v1.ListResponse{
-		Users: users,
-	}, nil
-}
-
-func (u *User) toProto(user entity.User) *v1.User {
-	return &v1.User{
-		Id:        user.ID.Value().String(),
-		Name:      user.Name.Value(),
-		Email:     user.Email.Value(),
-		Avatar:    user.Avatar.Value(),
-		CreatedAt: timestamppb.New(user.CreatedAt),
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		Users:         users,
+		NextPageToken: output.NextPageToken,
 	}
 }
 
