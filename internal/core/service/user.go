@@ -20,10 +20,10 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 	return &User{u, o, t}
 }
 
-func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (entity.User, error) {
+func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (dto.UserCreateOutput, error) {
 	user, err := entity.NewUser(input.Name, input.Email)
 	if err != nil {
-		return entity.User{}, err
+		return dto.UserCreateOutput{}, err
 	}
 
 	err = s.trm.Do(ctx, func(ctx context.Context) error {
@@ -40,19 +40,27 @@ func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (entity.Us
 		return s.outboxRepo.Publish(ctx, userCreated.Event)
 	})
 	if err != nil {
-		return entity.User{}, err
+		return dto.UserCreateOutput{}, err
 	}
 
-	return user, nil
+	return dto.UserCreateOutput{
+		User: dto.UserFromEntity(user),
+	}, nil
 }
 
-func (s *User) List(ctx context.Context, input dto.UserListInput) ([]entity.User, error) {
+func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListOutput, error) {
 	paginate := pagination.New(input.PageSize, input.PageToken)
 
 	users, err := s.userRepo.All(ctx, *paginate)
 	if err != nil {
-		return []entity.User{}, err
+		return dto.UserListOutput{}, err
 	}
 
-	return users, nil
+	lastUser := users[len(users)-1]
+	pageToken := paginate.GenerateToken(lastUser.ID.Value().String())
+
+	return dto.UserListOutput{
+		Users:         dto.UsersFromEntity(users),
+		NextPageToken: pageToken,
+	}, nil
 }
