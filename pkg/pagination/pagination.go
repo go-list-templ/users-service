@@ -46,17 +46,11 @@ func (p *Paginate) Cursor() string {
 	return base64.StdEncoding.EncodeToString([]byte(p.Token))
 }
 
-func (p *Paginate) GenerateToken(cursor string) (string, error) {
+func (p *Paginate) GenerateToken(cursor string) string {
 	if cursor == "" {
-		return "", ErrEmptyCursor
+		return ""
 	}
 
-	genToken, _ := base64.StdEncoding.DecodeString(cursor)
-	token := string(genToken)
-
-	if p.Token == token {
-		return "", ErrInvalidCursor
-	}
-
-	return token, nil
+	token, _ := base64.StdEncoding.DecodeString(cursor)
+	return string(token)
 }
