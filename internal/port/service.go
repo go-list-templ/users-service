@@ -2,7 +2,7 @@ package port
 
 import (
 	"context"
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+
 	"github.com/go-list-templ/grpc/internal/core/dto"
 )
 
@@ -10,7 +10,7 @@ import (
 
 type (
 	UserService interface {
-		Create(context.Context, dto.UserCreateInput) (entity.User, error)
-		List(context.Context, dto.UserListInput) ([]entity.User, error)
+		Create(context.Context, dto.UserCreateInput) (dto.UserCreateOutput, error)
+		List(context.Context, dto.UserListInput) (dto.UserListOutput, error)
 	}
 )
