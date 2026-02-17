@@ -93,17 +93,14 @@ func (u *User) listToProto(output dto.UserListOutput) *v1.ListResponse {
 }
 
 func (u *User) toGRPCError(err error) error {
-	if errors.Is(err, entity.ErrUserAlreadyExists) {
+	switch {
+	case errors.Is(err, entity.ErrUserAlreadyExists):
 		return status.Error(codes.AlreadyExists, err.Error())
-	}
-
-	if errors.Is(err, entity.ErrUserNotFound) {
+	case errors.Is(err, entity.ErrUserNotFound):
 		return status.Error(codes.NotFound, err.Error())
-	}
-
-	if errors.Is(err, entity.ErrUserInvalidData) {
+	case errors.Is(err, entity.ErrUserInvalidData):
 		return status.Error(codes.InvalidArgument, err.Error())
+	default:
+		return status.Error(codes.Internal, "internal error")
 	}
-
-	return status.Error(codes.Internal, "internal error")
 }
