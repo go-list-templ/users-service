@@ -1,16 +1,9 @@
 package entity
 
 import (
-	"errors"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
-)
-
-var (
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrUserNotFound      = errors.New("user not found")
-	ErrUserInvalidData   = errors.New("invalid user data")
 )
 
 type User struct {
@@ -22,20 +15,20 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-func NewUser(Name, email string) (User, error) {
+func NewUser(name, email string) (User, error) {
 	id, err := vo.NewID()
 	if err != nil {
 		return User{}, err
 	}
 
-	validName, err := vo.NewName(Name)
+	validName, err := vo.NewName(name)
 	if err != nil {
-		return User{}, err
+		return User{}, NewUserError("name", err)
 	}
 
 	validEmail, err := vo.NewEmail(email)
 	if err != nil {
-		return User{}, err
+		return User{}, NewUserError("email", err)
 	}
 
 	return User{
