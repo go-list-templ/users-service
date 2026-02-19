@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-list-templ/grpc/pkg/pagination"
 
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/grpc/pkg/paginate"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
@@ -46,7 +46,9 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(err)
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]entity.User, error) {
+func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
+	var args []any
+
 	query := `
 		SELECT id, name, email, avatar, created_at, updated_at 
 	   	FROM users
@@ -55,18 +57,32 @@ func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]ent
 	   	LIMIT $2
 	`
 
-	rows, err := u.Query(ctx, query, paginate.Cursor(), paginate.Limit())
-	if err != nil {
-		u.logger.Warn("query", zap.Error(err))
+	cursor := paginate.Cursor()
+	limit := paginate.Limit()
 
-		return nil, err
+	args = []any{cursor, limit}
+
+	if len(cursor) == 0 {
+		query = `
+		SELECT id, name, email, avatar, created_at, updated_at 
+	   	FROM users
+	   	ORDER BY id DESC 
+	   	LIMIT $1
+		`
+
+		args = []any{limit}
+	}
+
+	u.logger.Info("query", zap.String("query", query), zap.Any("args", args))
+
+	rows, err := u.Query(ctx, query, args...)
+	if err != nil {
+		return nil, u.toPostgresError(err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		u.logger.Warn("mapping", zap.Error(err))
-
-		return nil, err
+		return nil, u.toPostgresError(err)
 	}
 
 	return users, nil

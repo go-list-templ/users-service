@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/go-list-templ/grpc/pkg/pagination"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/event"
 	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port"
+	"github.com/go-list-templ/grpc/pkg/paginate"
 )
 
 type User struct {
@@ -49,15 +49,19 @@ func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (dto.UserC
 }
 
 func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListOutput, error) {
-	paginate := pagination.New(input.PageSize, input.PageToken)
+	pagination := paginate.NewUUIDPaginate(input.PageSize, input.PageToken)
 
-	users, err := s.userRepo.All(ctx, *paginate)
+	users, err := s.userRepo.All(ctx, pagination)
 	if err != nil {
 		return dto.UserListOutput{}, err
 	}
 
-	lastUser := users[len(users)-1]
-	pageToken := paginate.GenerateToken(lastUser.ID.Value().String())
+	pageToken := ""
+
+	if len(users) > 0 {
+		lastUser := users[len(users)-1]
+		pageToken = pagination.GenerateToken(lastUser.ID.Value().String())
+	}
 
 	return dto.UserListOutput{
 		Users:         dto.UsersFromEntity(users),

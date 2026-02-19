@@ -3,13 +3,13 @@ package repo
 import (
 	"context"
 	"errors"
-	"github.com/go-list-templ/grpc/pkg/pagination"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis/repo/dao"
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/port"
+	"github.com/go-list-templ/grpc/pkg/paginate"
 	"go.uber.org/zap"
 	"golang.org/x/sync/singleflight"
 )
@@ -29,9 +29,9 @@ func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *Us
 	return &UserRepo{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]entity.User, error) {
+func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
 	var cachedUsers []dao.User
-	cacheKey := paginate.Token
+	cacheKey := paginate.Cursor()
 
 	err := u.redis.GetCache(ctx, cacheKey, &cachedUsers)
 	if err == nil && len(cachedUsers) > 0 {
@@ -51,10 +51,7 @@ func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]ent
 			return nil, err
 		}
 
-		err = u.cacheAllUsers(ctx, cacheKey, users)
-		if err != nil {
-			u.logger.Warn("redis set error", zap.Error(err))
-		}
+		go u.cacheAllUsers(cacheKey, users)
 
 		return users, nil
 	})
@@ -72,17 +69,19 @@ func (u *UserRepo) All(ctx context.Context, paginate pagination.Paginate) ([]ent
 	return users, nil
 }
 
-func (u *UserRepo) cacheAllUsers(ctx context.Context, cacheKey string, users []entity.User) error {
+func (u *UserRepo) cacheAllUsers(cacheKey string, users []entity.User) {
 	cacheUsers := make([]dao.User, len(users))
 
 	for i, user := range users {
 		cacheUsers[i] = dao.FromEntity(user)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, DefaultContextTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()
 
-	return u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour)
+	if err := u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour); err != nil {
+		u.logger.Warn("redis set error", zap.Error(err))
+	}
 }
 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
