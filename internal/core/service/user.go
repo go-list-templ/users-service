@@ -58,7 +58,7 @@ func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListO
 
 	pageToken := ""
 
-	if len(users) > 0 {
+	if len(users) >= pagination.Limit() {
 		lastUser := users[len(users)-1]
 		pageToken = pagination.GenerateToken(lastUser.ID.Value().String())
 	}
