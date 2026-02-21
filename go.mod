@@ -3,7 +3,7 @@ module github.com/go-list-templ/grpc
 go 1.26
 
 require (
-	github.com/go-list-templ/proto v0.0.7
+	github.com/go-list-templ/proto v0.0.8
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
