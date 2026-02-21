@@ -6,26 +6,15 @@ import (
 )
 
 type UUIDPaginate struct {
-	PageSize int64
-	Token    string
+	Token string
 }
 
-func NewUUIDPaginate(pageSize int64, token string) *UUIDPaginate {
-	return &UUIDPaginate{PageSize: pageSize, Token: token}
+func NewUUIDPaginate(token string) *UUIDPaginate {
+	return &UUIDPaginate{Token: token}
 }
 
 func (u *UUIDPaginate) Limit() int {
-	limit := int(u.PageSize)
-
-	if limit <= 0 {
-		limit = DefaultLimitList
-	}
-
-	if limit >= MaxLimitList {
-		limit = MaxLimitList
-	}
-
-	return limit
+	return DefaultLimit
 }
 
 func (u *UUIDPaginate) Cursor() string {

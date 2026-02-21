@@ -48,7 +48,6 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 
 func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
 	input := dto.UserListInput{
-		PageSize:  request.GetPageSize(),
 		PageToken: request.GetPageToken(),
 	}
 

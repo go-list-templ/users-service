@@ -1,9 +1,6 @@
 package paginate
 
-const (
-	DefaultLimitList = 10
-	MaxLimitList     = 100
-)
+const DefaultLimit = 30
 
 type Paginate interface {
 	Limit() int

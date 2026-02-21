@@ -26,7 +26,6 @@ type (
 	}
 
 	UserListInput struct {
-		PageSize  int64
 		PageToken string
 	}
 

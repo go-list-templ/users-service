@@ -49,7 +49,7 @@ func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (dto.UserC
 }
 
 func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListOutput, error) {
-	pagination := paginate.NewUUIDPaginate(input.PageSize, input.PageToken)
+	pagination := paginate.NewUUIDPaginate(input.PageToken)
 
 	users, err := s.userRepo.All(ctx, pagination)
 	if err != nil {
