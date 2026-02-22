@@ -33,8 +33,8 @@ func New(cfg *config.Redis) (*Redis, error) {
 	return &Redis{client}, nil
 }
 
-func (r *Redis) DeleteCache(ctx context.Context, key string) error {
-	return r.Del(ctx, key).Err()
+func (r *Redis) DeleteCache(ctx context.Context, keys ...string) error {
+	return r.Del(ctx, keys...).Err()
 }
 
 func (r *Redis) GetCache(ctx context.Context, key string, pointer any) error {
@@ -53,4 +53,35 @@ func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Dur
 	}
 
 	return r.Set(ctx, key, data, ttl).Err()
+}
+
+func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Duration, tags ...string) error {
+	pipe := r.TxPipeline()
+
+	for _, tag := range tags {
+		pipe.SAdd(ctx, tag, key)
+		pipe.Expire(ctx, tag, ttl)
+	}
+
+	data, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	pipe.Set(ctx, key, data, ttl)
+
+	_, errExec := pipe.Exec(ctx)
+	return errExec
+}
+
+func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
+	keys := make([]string, 0)
+
+	for _, tag := range tags {
+		k, _ := r.SMembers(ctx, tag).Result()
+		keys = append(keys, tag)
+		keys = append(keys, k...)
+	}
+
+	return r.DeleteCache(ctx, keys...)
 }

@@ -73,8 +73,6 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		args = []any{limit}
 	}
 
-	u.logger.Info("query", zap.String("query", query), zap.Any("args", args))
-
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
 		return nil, u.toPostgresError(err)
