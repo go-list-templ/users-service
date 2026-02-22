@@ -16,7 +16,13 @@ import (
 
 var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
-const DefaultContextTimeout = 5 * time.Second
+const (
+	DefaultContextTimeout = 5 * time.Second
+
+	TTL = 10 * time.Minute
+
+	TagAllUsers = "allUsers"
+)
 
 type UserRepo struct {
 	repo   port.UserRepo
@@ -44,14 +50,15 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		return users, nil
 	}
 
-	// todo check what working
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
 			return nil, err
 		}
 
-		go u.cacheAllUsers(cacheKey, users)
+		if err = u.cacheAllUsers(ctx, cacheKey, users); err != nil {
+			u.logger.Warn("redis set error", zap.Error(err))
+		}
 
 		return users, nil
 	})
@@ -69,19 +76,17 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	return users, nil
 }
 
-func (u *UserRepo) cacheAllUsers(cacheKey string, users []entity.User) {
+func (u *UserRepo) cacheAllUsers(ctx context.Context, key string, users []entity.User) error {
 	cacheUsers := make([]dao.User, len(users))
 
 	for i, user := range users {
 		cacheUsers[i] = dao.FromEntity(user)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DefaultContextTimeout)
 	defer cancel()
 
-	if err := u.redis.SetCache(ctx, cacheKey, cacheUsers, time.Hour); err != nil {
-		u.logger.Warn("redis set error", zap.Error(err))
-	}
+	return u.redis.SetByTags(ctx, key, cacheUsers, TTL, TagAllUsers)
 }
 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
@@ -90,9 +95,9 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 		return err
 	}
 
-	//if err = u.redis.DeleteCache(ctx, KeyAllUsers); err != nil {
-	//	u.logger.Error("redis del error", zap.String("key", KeyAllUsers), zap.Error(err))
-	//}
+	if err = u.redis.InvalidateTags(ctx, TagAllUsers); err != nil {
+		u.logger.Warn("redis invalidate error", zap.Error(err))
+	}
 
 	return nil
 }
