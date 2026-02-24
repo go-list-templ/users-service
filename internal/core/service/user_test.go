@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/go-list-templ/grpc/internal/core/dto"
+	"github.com/google/uuid"
 	"testing"
 	"time"
 
@@ -45,7 +47,7 @@ func TestUser_List(t *testing.T) {
 
 	users := []entity.User{
 		{
-			ID:        vo.NewID(),
+			ID:        vo.UnsafeID(uuid.New()),
 			Name:      vo.UnsafeName("test"),
 			Email:     vo.UnsafeEmail("example@example.com"),
 			Avatar:    vo.NewAvatar(),
@@ -55,43 +57,62 @@ func TestUser_List(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		mock func()
-		want []entity.User
-		err  error
+		name   string
+		mock   func()
+		input  dto.UserListInput
+		output dto.UserListOutput
+		err    error
 	}{
 		{
 			name: "success - get all users",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any()).Return(users, nil)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(users, nil)
 			},
-			want: users,
-			err:  nil,
+			input: dto.UserListInput{
+				PageToken: "",
+			},
+			output: dto.UserListOutput{
+				Users:         dto.UsersFromEntity(users),
+				NextPageToken: "",
+			},
+			err: nil,
 		},
 		{
 			name: "success - get empty users",
 			mock: func() {
-				ur.EXPECT().All(context.Background()).Return([]entity.User{}, nil)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return([]entity.User{}, nil)
 			},
-			want: []entity.User{},
-			err:  nil,
+			input: dto.UserListInput{
+				PageToken: "",
+			},
+			output: dto.UserListOutput{
+				Users:         dto.UsersFromEntity(users),
+				NextPageToken: "",
+			},
+			err: nil,
 		},
 		{
 			name: "fail - err user repo",
 			mock: func() {
-				ur.EXPECT().All(context.Background()).Return([]entity.User{}, errSome)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return([]entity.User{}, errSome)
 			},
-			want: []entity.User{},
-			err:  errSome,
+			input: dto.UserListInput{
+				PageToken: "",
+			},
+			output: dto.UserListOutput{
+				Users:         dto.UsersFromEntity(users),
+				NextPageToken: "",
+			},
+			err: errSome,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.List(context.Background())
+			got, err := userService.List(context.Background(), tt.input)
 
-			require.Equal(t, tt.want, got)
+			require.Equal(t, tt.output, got)
 			require.ErrorIs(t, err, tt.err)
 		})
 	}
@@ -102,7 +123,7 @@ func TestUser_Create(t *testing.T) {
 	userService := NewUser(ur, or, tm)
 
 	user := entity.User{
-		ID:        vo.NewID(),
+		ID:        vo.UnsafeID(uuid.New()),
 		Name:      vo.UnsafeName("test"),
 		Email:     vo.UnsafeEmail("example@example.com"),
 		Avatar:    vo.NewAvatar(),
