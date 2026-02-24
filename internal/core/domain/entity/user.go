@@ -3,6 +3,8 @@ package entity
 import (
 	"time"
 
+	entityErr "github.com/go-list-templ/grpc/internal/core/domain/error"
+
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 )
 
@@ -23,12 +25,12 @@ func NewUser(name, email string) (User, error) {
 
 	validName, err := vo.NewName(name)
 	if err != nil {
-		return User{}, NewUserError("name", err)
+		return User{}, entityErr.NewUserError("name", err)
 	}
 
 	validEmail, err := vo.NewEmail(email)
 	if err != nil {
-		return User{}, NewUserError("email", err)
+		return User{}, entityErr.NewUserError("email", err)
 	}
 
 	return User{

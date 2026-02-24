@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	entityErr "github.com/go-list-templ/grpc/internal/core/domain/error"
+
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/repo/dao"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
@@ -100,11 +102,11 @@ func (u *UserRepo) toPostgresError(err error) error {
 
 	switch pgErr.Code {
 	case postgres.ErrCodeAlreadyExists:
-		return entity.ErrUserAlreadyExists
+		return entityErr.ErrUserAlreadyExists
 	case postgres.ErrCodeNotFound:
-		return entity.ErrUserNotFound
+		return entityErr.ErrUserNotFound
 	case postgres.ErrCodeInvalidData:
-		return entity.ErrUserInvalidData
+		return entityErr.ErrUserInvalidData
 	default:
 		infraErr := fmt.Errorf("code %s: %w", pgErr.Code, err)
 
