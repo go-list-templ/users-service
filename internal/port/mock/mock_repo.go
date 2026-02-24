@@ -15,6 +15,7 @@ import (
 
 	entity "github.com/go-list-templ/grpc/internal/core/domain/entity"
 	event "github.com/go-list-templ/grpc/internal/core/domain/event"
+	paginate "github.com/go-list-templ/grpc/pkg/paginate"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -43,18 +44,18 @@ func (m *MockUserRepo) EXPECT() *MockUserRepoMockRecorder {
 }
 
 // All mocks base method.
-func (m *MockUserRepo) All(arg0 context.Context) ([]entity.User, error) {
+func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) ([]entity.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "All", arg0)
+	ret := m.ctrl.Call(m, "All", arg0, arg1)
 	ret0, _ := ret[0].([]entity.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // All indicates an expected call of All.
-func (mr *MockUserRepoMockRecorder) All(arg0 any) *gomock.Call {
+func (mr *MockUserRepoMockRecorder) All(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockUserRepo)(nil).All), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockUserRepo)(nil).All), arg0, arg1)
 }
 
 // Store mocks base method.

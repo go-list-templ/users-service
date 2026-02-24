@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	entity "github.com/go-list-templ/grpc/internal/core/domain/entity"
+	dto "github.com/go-list-templ/grpc/internal/core/dto"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,10 +42,10 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUserService) Create(arg0 context.Context, arg1 entity.User) (entity.User, error) {
+func (m *MockUserService) Create(arg0 context.Context, arg1 dto.UserCreateInput) (dto.UserCreateOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(entity.User)
+	ret0, _ := ret[0].(dto.UserCreateOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,16 +57,16 @@ func (mr *MockUserServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockUserService) List(arg0 context.Context) ([]entity.User, error) {
+func (m *MockUserService) List(arg0 context.Context, arg1 dto.UserListInput) (dto.UserListOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0)
-	ret0, _ := ret[0].([]entity.User)
+	ret := m.ctrl.Call(m, "List", arg0, arg1)
+	ret0, _ := ret[0].(dto.UserListOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockUserServiceMockRecorder) List(arg0 any) *gomock.Call {
+func (mr *MockUserServiceMockRecorder) List(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserService)(nil).List), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserService)(nil).List), arg0, arg1)
 }
