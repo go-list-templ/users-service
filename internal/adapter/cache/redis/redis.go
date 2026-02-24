@@ -3,13 +3,19 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"math/rand"
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"github.com/redis/go-redis/v9"
 )
 
-const DefaultContextTimeout = 5 * time.Second
+const (
+	DefaultCtx = 5 * time.Second
+
+	JitterMinFactor = 1.1
+	JitterMaxFactor = 1.3
+)
 
 type Redis struct {
 	*redis.Client
@@ -22,7 +28,7 @@ func New(cfg *config.Redis) (*Redis, error) {
 		DB:       0,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultCtx)
 	defer cancel()
 
 	_, err := client.Ping(ctx).Result()
@@ -47,6 +53,8 @@ func (r *Redis) GetCache(ctx context.Context, key string, pointer any) error {
 }
 
 func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Duration) error {
+	ttl = r.generateJitter(ttl)
+
 	data, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -57,6 +65,7 @@ func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Dur
 
 func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Duration, tags ...string) error {
 	pipe := r.TxPipeline()
+	ttl = r.generateJitter(ttl)
 
 	for _, tag := range tags {
 		pipe.SAdd(ctx, tag, key)
@@ -84,4 +93,12 @@ func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
 	}
 
 	return r.DeleteCache(ctx, keys...)
+}
+
+func (r *Redis) generateJitter(ttl time.Duration) time.Duration {
+	randomMultiplier := JitterMinFactor + rand.Float64()*(JitterMaxFactor-JitterMinFactor)
+
+	jitter := time.Duration(float64(ttl) * randomMultiplier)
+
+	return jitter
 }
