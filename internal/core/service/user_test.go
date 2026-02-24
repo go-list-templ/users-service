@@ -3,14 +3,15 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/go-list-templ/grpc/internal/core/dto"
-	"github.com/google/uuid"
+	"github.com/go-list-templ/grpc/pkg/paginate"
 	"testing"
 	"time"
 
 	"github.com/go-list-templ/grpc/internal/core/domain/entity"
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port/mock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
@@ -45,16 +46,23 @@ func TestUser_List(t *testing.T) {
 	ur, or, tm := mocks(t)
 	userService := NewUser(ur, or, tm)
 
-	users := []entity.User{
-		{
-			ID:        vo.UnsafeID(uuid.New()),
-			Name:      vo.UnsafeName("test"),
-			Email:     vo.UnsafeEmail("example@example.com"),
-			Avatar:    vo.NewAvatar(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+	user := entity.User{
+		ID:        vo.UnsafeID(uuid.New()),
+		Name:      vo.UnsafeName("test"),
+		Email:     vo.UnsafeEmail("example@example.com"),
+		Avatar:    vo.NewAvatar(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
+
+	users := make([]entity.User, 15)
+
+	for i := 0; i < 15; i++ {
+		users[i] = user
+	}
+
+	pg := paginate.NewUUIDPaginate("")
+	pageToken := pg.GenerateToken(user.ID.Value().String())
 
 	tests := []struct {
 		name   string
@@ -73,7 +81,7 @@ func TestUser_List(t *testing.T) {
 			},
 			output: dto.UserListOutput{
 				Users:         dto.UsersFromEntity(users),
-				NextPageToken: "",
+				NextPageToken: pageToken,
 			},
 			err: nil,
 		},
@@ -86,7 +94,7 @@ func TestUser_List(t *testing.T) {
 				PageToken: "",
 			},
 			output: dto.UserListOutput{
-				Users:         dto.UsersFromEntity(users),
+				Users:         []dto.User{},
 				NextPageToken: "",
 			},
 			err: nil,
@@ -99,11 +107,8 @@ func TestUser_List(t *testing.T) {
 			input: dto.UserListInput{
 				PageToken: "",
 			},
-			output: dto.UserListOutput{
-				Users:         dto.UsersFromEntity(users),
-				NextPageToken: "",
-			},
-			err: errSome,
+			output: dto.UserListOutput{},
+			err:    errSome,
 		},
 	}
 	for _, tt := range tests {
@@ -131,26 +136,26 @@ func TestUser_Create(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	type args struct {
-		user entity.User
-	}
 	tests := []struct {
-		name string
-		mock func()
-		args args
-		want entity.User
-		err  error
+		name   string
+		mock   func()
+		input  dto.UserCreateInput
+		output dto.UserCreateOutput
+		err    error
 	}{
 		{
 			name: "success - create user",
 			mock: func() {
 				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(nil)
 			},
-			args: args{
-				user: user,
+			input: dto.UserCreateInput{
+				Name:  "test",
+				Email: "example@example.com",
 			},
-			want: user,
-			err:  nil,
+			output: dto.UserCreateOutput{
+				User: dto.UserFromEntity(user),
+			},
+			err: nil,
 		},
 		{
 			name: "fail - err in user repo",
@@ -161,11 +166,12 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			args: args{
-				user: user,
+			input: dto.UserCreateInput{
+				Name:  "test",
+				Email: "example@example.com",
 			},
-			want: entity.User{},
-			err:  errSome,
+			output: dto.UserCreateOutput{},
+			err:    errSome,
 		},
 		{
 			name: "fail - err in outbox repo",
@@ -178,20 +184,23 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			args: args{
-				user: user,
+			input: dto.UserCreateInput{
+				Name:  "test",
+				Email: "example@example.com",
 			},
-			want: entity.User{},
-			err:  errSome,
+			output: dto.UserCreateOutput{},
+			err:    errSome,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.Create(context.Background(), tt.args.user)
+			got, err := userService.Create(context.Background(), tt.input)
 			require.ErrorIs(t, err, tt.err)
-			require.Equal(t, tt.want, got)
+
+			require.Equal(t, tt.output.User.Name, got.User.Name)
+			require.Equal(t, tt.output.User.Email, got.User.Email)
 		})
 	}
 }
