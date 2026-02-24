@@ -7,5 +7,7 @@ exclude:
   paths:
     - ^internal/adapter
     - ^internal/port
+    - ^internal/core/dto
+    - ^internal/core/domain/error
     - ^internal/core/domain/event
     - ^internal/core/domain/vo
