@@ -17,9 +17,9 @@ import (
 var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
 const (
-	DefaultContextTimeout = 5 * time.Second
+	DefaultCtx = 5 * time.Second
 
-	TTL = 10 * time.Minute
+	TTLAllUsers = 10 * time.Minute
 
 	TagAllUsers = "allUsers"
 )
@@ -83,10 +83,10 @@ func (u *UserRepo) cacheAllUsers(ctx context.Context, key string, users []entity
 		cacheUsers[i] = dao.FromEntity(user)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, DefaultContextTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DefaultCtx)
 	defer cancel()
 
-	return u.redis.SetByTags(ctx, key, cacheUsers, TTL, TagAllUsers)
+	return u.redis.SetByTags(ctx, key, cacheUsers, TTLAllUsers, TagAllUsers)
 }
 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
