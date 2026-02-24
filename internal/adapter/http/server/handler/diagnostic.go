@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
@@ -10,38 +11,53 @@ import (
 )
 
 type Diagnostic struct {
-	pg     *postgres.Postgres
-	rd     *redis.Redis
-	logger *zap.Logger
+	postgres *postgres.Postgres
+	redis    *redis.Redis
+	logger   *zap.Logger
 }
 
-func RegisterDiagnostic(pg *postgres.Postgres, rd *redis.Redis, l *zap.Logger) {
-	d := &Diagnostic{pg, rd, l}
+func RegisterDiagnostic(postgres *postgres.Postgres, redis *redis.Redis, l *zap.Logger) {
+	d := &Diagnostic{postgres, redis, l}
 
 	http.HandleFunc("/healthz", d.HealthZ())
 }
 
 func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, _ *http.Request) {
-		status := http.StatusOK
+		var status int
 
-		ctx := context.Background()
+		cacheKey := "healthz"
+		ttl := 30 * time.Second
 
-		err := d.pg.Ping(ctx)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		err := d.redis.GetCache(ctx, cacheKey, &status)
+		if err == nil {
+			w.WriteHeader(status)
+			return
+		}
+
+		status = http.StatusOK
+
+		err = d.postgres.Ping(ctx)
 		if err != nil {
 			status = http.StatusServiceUnavailable
 
 			d.logger.Warn("error pinging postgres", zap.Error(err))
 		}
 
-		_, err = d.rd.Ping(ctx).Result()
+		_, err = d.redis.Ping(ctx).Result()
 		if err != nil {
 			status = http.StatusServiceUnavailable
 
 			d.logger.Warn("error pinging redis", zap.Error(err))
 		}
 
-		d.logger.Info("status", zap.Int("status", status))
+		err = d.redis.SetCache(ctx, cacheKey, status, ttl)
+		if err != nil {
+			d.logger.Warn("set cache", zap.Error(err))
+		}
 
 		w.WriteHeader(status)
 	}
