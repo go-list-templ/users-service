@@ -35,6 +35,7 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 		err := d.redis.GetCache(ctx, cacheKey, &status)
 		if err == nil {
 			w.WriteHeader(status)
+
 			return
 		}
 

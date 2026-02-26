@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/go-list-templ/grpc/pkg/paginate"
 	"testing"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port/mock"
+	"github.com/go-list-templ/grpc/pkg/paginate"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"

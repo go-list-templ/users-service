@@ -80,6 +80,7 @@ func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Du
 	pipe.Set(ctx, key, data, ttl)
 
 	_, errExec := pipe.Exec(ctx)
+
 	return errExec
 }
 
