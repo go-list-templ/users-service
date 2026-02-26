@@ -101,6 +101,7 @@ func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
 }
 
 func (r *Redis) generateJitter(ttl time.Duration) time.Duration {
+	//nolint:gosec
 	randomMultiplier := JitterMinFactor + rand.Float64()*(JitterMaxFactor-JitterMinFactor)
 
 	jitter := time.Duration(float64(ttl) * randomMultiplier)

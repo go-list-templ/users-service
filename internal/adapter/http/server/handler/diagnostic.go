@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
+const (
 	TTL            = 30 * time.Second
 	DefaultCtxTime = 5 * time.Second
 )
