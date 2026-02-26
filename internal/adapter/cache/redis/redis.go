@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
@@ -88,7 +88,11 @@ func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
 	keys := make([]string, 0)
 
 	for _, tag := range tags {
-		k, _ := r.SMembers(ctx, tag).Result()
+		k, err := r.SMembers(ctx, tag).Result()
+		if err != nil {
+			return err
+		}
+
 		keys = append(keys, tag)
 		keys = append(keys, k...)
 	}

@@ -10,6 +10,11 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	TTL            = 30 * time.Second
+	DefaultCtxTime = 5 * time.Second
+)
+
 type Diagnostic struct {
 	postgres *postgres.Postgres
 	redis    *redis.Redis
@@ -27,9 +32,8 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 		var status int
 
 		cacheKey := "healthz"
-		ttl := 30 * time.Second
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultCtxTime)
 		defer cancel()
 
 		err := d.redis.GetCache(ctx, cacheKey, &status)
@@ -55,7 +59,7 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 			d.logger.Warn("error pinging redis", zap.Error(err))
 		}
 
-		err = d.redis.SetCache(ctx, cacheKey, status, ttl)
+		err = d.redis.SetCache(ctx, cacheKey, status, TTL)
 		if err != nil {
 			d.logger.Warn("set cache", zap.Error(err))
 		}

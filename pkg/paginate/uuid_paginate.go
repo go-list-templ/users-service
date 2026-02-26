@@ -23,7 +23,11 @@ func (u *UUIDPaginate) Cursor() string {
 		return ""
 	}
 
-	decodedBytes, _ := base64.URLEncoding.DecodeString(u.Token)
+	decodedBytes, err := base64.URLEncoding.DecodeString(u.Token)
+	if err != nil {
+		return ""
+	}
+
 	decodedCursor := string(decodedBytes)
 	if err := uuid.Validate(decodedCursor); err != nil {
 		return ""
