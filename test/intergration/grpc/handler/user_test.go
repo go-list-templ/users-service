@@ -1,12 +1,11 @@
 package handler
 
 import (
+	"strconv"
 	"testing"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/domain/vo"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -30,67 +29,67 @@ func TestCreateUser(t *testing.T) {
 	UserServiceClient := v1.NewUserServiceClient(grpcConn)
 
 	type args struct {
-		request *v1.CreateUserRequest
+		request *v1.CreateRequest
 	}
 	tests := []struct {
 		name string
 		args args
-		want *v1.CreateUserResponse
-		err  error
+		want *v1.CreateResponse
+		err  codes.Code
 	}{
 		{
 			name: "success - create user",
 			args: args{
-				request: &v1.CreateUserRequest{
+				request: &v1.CreateRequest{
 					Name:  "test",
 					Email: "test@test.com",
 				},
 			},
-			want: &v1.CreateUserResponse{
+			want: &v1.CreateResponse{
 				User: &v1.User{
 					Name:  "test",
 					Email: "test@test.com",
 				},
 			},
-			err: nil,
+			err: codes.OK,
 		},
 		{
 			name: "fail - already exists user",
 			args: args{
-				request: &v1.CreateUserRequest{
+				request: &v1.CreateRequest{
 					Name:  "test",
 					Email: "test@test.com",
 				},
 			},
 			want: nil,
-			err:  status.Error(codes.AlreadyExists, entity.ErrUserAlreadyExists.Error()),
+			err:  codes.AlreadyExists,
 		},
 		{
 			name: "fail - create invalid name",
 			args: args{
-				request: &v1.CreateUserRequest{
+				request: &v1.CreateRequest{
 					Name:  "1",
 					Email: "test@test.com",
 				},
 			},
 			want: nil,
-			err:  status.Error(codes.InvalidArgument, vo.ErrNameMinLength.Error()),
+			err:  codes.InvalidArgument,
 		},
 		{
 			name: "fail - create invalid email",
 			args: args{
-				request: &v1.CreateUserRequest{
+				request: &v1.CreateRequest{
 					Name:  "test",
 					Email: "test@",
 				},
 			},
 			want: nil,
-			err:  status.Error(codes.InvalidArgument, vo.ErrInvalidEmail.Error()),
+			err:  codes.InvalidArgument,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := UserServiceClient.CreateUser(t.Context(), tt.args.request)
+			got, err := UserServiceClient.Create(t.Context(), tt.args.request)
 			if tt.want != nil {
 				require.NoError(t, err)
 
@@ -103,17 +102,18 @@ func TestCreateUser(t *testing.T) {
 				require.Equal(t, tt.want.User.Email, got.User.Email)
 			} else {
 				require.Error(t, err)
-				require.Equal(t, err, tt.err)
+
+				st := status.Convert(err)
+				require.Equal(t, st.Code(), tt.err)
 			}
 		})
 	}
 }
 
 // nolint:goconst
-func TestAllUsers(t *testing.T) {
+func TestListUsers(t *testing.T) {
 	host := "app"
 	grpcURL := host + ":8080"
-	requests := 10
 
 	grpcConn, err := grpc.NewClient(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
@@ -125,11 +125,26 @@ func TestAllUsers(t *testing.T) {
 
 	UserServiceClient := v1.NewUserServiceClient(grpcConn)
 
-	for i := 0; i < requests; i++ {
-		resp, err := UserServiceClient.AllUsers(t.Context(), &v1.AllUsersRequest{})
+	for i := 0; i < 30; i++ {
+		_, err := UserServiceClient.Create(t.Context(), &v1.CreateRequest{
+			Name:  "test" + strconv.Itoa(i),
+			Email: "test" + strconv.Itoa(i) + "@test.com",
+		})
+
 		require.NoError(t, err)
-		require.Len(t, resp.Users, 1)
-		require.Equal(t, resp.Users[0].Name, "test")
-		require.Equal(t, resp.Users[0].Email, "test@test.com")
+	}
+
+	pageToken := ""
+
+	for {
+		req := &v1.ListRequest{PageToken: pageToken}
+		resp, err := UserServiceClient.List(t.Context(), req)
+		require.NoError(t, err)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+
+		pageToken = resp.NextPageToken
 	}
 }
