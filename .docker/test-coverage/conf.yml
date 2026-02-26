@@ -8,6 +8,6 @@ exclude:
     - ^internal/adapter
     - ^internal/port
     - ^internal/core/dto
-    - ^internal/core/domain/error
+    - ^internal/core/domain/entityerr
     - ^internal/core/domain/event
     - ^internal/core/domain/vo
