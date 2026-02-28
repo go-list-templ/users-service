@@ -1,13 +1,15 @@
-import grpc from 'k6/net/grpc';
-import {check} from 'k6';
-import {create, list} from './grpc/user.js';
-import {healthz} from "./http/healthz.js";
+import grpc from 'k6/net/grpc'
+import {check} from 'k6'
+import {create, list} from './grpc/user.js'
+import {healthz} from "./http/healthz.js"
 
 const grpcUrl = 'app:8080'
 const diagnosticUrl = 'http://app:8081'
 
-const client = new grpc.Client();
-client.load(['/src/proto/api/user/v1'], 'user.proto');
+const client = new grpc.Client()
+client.load(['/src/proto/api/user/v1'], 'user.proto')
+
+const tokens = {};
 
 export const options = {
     scenarios: {
@@ -51,42 +53,42 @@ export const options = {
         'checks': ['rate >= 0.9']
     },
     summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(95)', 'p(99)', 'count'],
-};
-
-//todo добавить подключение только 1 раз на 1 итерации запроса
-//
+}
 
 export function runCreate() {
-    client.connect(grpcUrl, {plaintext: true});
+    client.connect(grpcUrl, {plaintext: true})
 
     const payload = {
-        name: `User_${__ITER}`,
+        name: `user_${__ITER}`,
         email: `mail${__VU}_${__ITER}@example.com`,
     };
 
-    const response = create(client, payload);
+    const response = create(client, payload)
 
     check(response, {
         'create_user status is OK': (r) => r && r.status === grpc.StatusOK,
-    });
+    })
 
-    client.close();
+    client.close()
 }
 
 export function runList() {
-    client.connect(grpcUrl, {plaintext: true});
+    client.connect(grpcUrl, {plaintext: true})
 
-    const payload = {
-        page_token: '',
-    };
-
-    const response = list(client, payload);
+    const vu = __VU;
+    const payload = {page_token: tokens[vu]};
+    console.log("VU: ", vu, " Page Token: ", payload.page_token)
+    const response = list(client, payload)
 
     check(response, {
         'list_users status is OK': (r) => r && r.status === grpc.StatusOK,
-    });
+    })
 
-    client.close();
+    if (response && response.status === grpc.StatusOK) {
+        tokens[vu] = JSON.parse(JSON.stringify(response.message)).nextPageToken
+    }
+
+    client.close()
 }
 
 export function runHealthz() {
@@ -94,5 +96,5 @@ export function runHealthz() {
 
     check(response, {
         'healthz is 200': (r) => r.status === 200,
-    });
+    })
 }
