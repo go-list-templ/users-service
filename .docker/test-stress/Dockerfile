@@ -1,4 +1,4 @@
-FROM alpine/git:latest AS loader
+FROM alpine/git:v2.30.2 AS loader
 WORKDIR /app
 
 RUN git clone https://github.com/go-list-templ/proto.git
