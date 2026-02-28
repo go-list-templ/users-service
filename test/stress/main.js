@@ -52,7 +52,7 @@ export const options = {
         'http_req_duration{scenario:healthz_http}': ['p(95) < 500'],
         'checks': ['rate >= 0.9']
     },
-    summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(95)', 'p(99)', 'count'],
+    summaryTrendStats: ['min', 'max', 'p(95)', 'p(99)', 'count'],
 }
 
 export function runCreate() {
