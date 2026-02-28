@@ -53,7 +53,7 @@ test-integration:
 	$(COMPOSE_CMD) down
 	$(COMPOSE_TEST_CMD) down -v
 	$(COMPOSE_TEST_STRESS_CMD) down -v
-	$(COMPOSE_TEST_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test --attach test
+	$(COMPOSE_TEST_CMD) up --build -V --abort-on-container-exit --exit-code-from test --attach test
 
 test-integration-cmd:
 	go test -v -count=1 ./test/intergration/...
@@ -62,4 +62,4 @@ test-stress:
 	$(COMPOSE_CMD) down
 	$(COMPOSE_TEST_CMD) down -v
 	$(COMPOSE_TEST_STRESS_CMD) down -v
-	$(COMPOSE_TEST_STRESS_CMD) up --build --renew-anon-volumes --abort-on-container-exit --exit-code-from test-stress --attach test-stress
+	$(COMPOSE_TEST_STRESS_CMD) up --build -V --abort-on-container-exit --exit-code-from test-stress --attach test-stress
