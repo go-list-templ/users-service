@@ -1,8 +1,7 @@
 import grpc from 'k6/net/grpc';
 import {check} from 'k6';
-import {createUserTest} from './grpc/user/create.js';
-import {allUsersTest} from './grpc/user/all.js';
-import {healthz} from "./http/diagnostic/healthz.js";
+import {create, list} from './grpc/user.js';
+import {healthz} from "./http/healthz.js";
 
 const grpcUrl = 'app:8080'
 const diagnosticUrl = 'http://app:8081'
@@ -21,9 +20,9 @@ export const options = {
             stages: [
                 {target: 100, duration: '1m'},
             ],
-            exec: 'runCreateUser',
+            exec: 'runCreate',
         },
-        all_users_grpc: {
+        list_users_grpc: {
             executor: 'ramping-arrival-rate',
             startRate: 50,
             timeUnit: '1s',
@@ -33,7 +32,7 @@ export const options = {
                 {target: 100, duration: '30s'},
                 {target: 500, duration: '30s'},
             ],
-            exec: 'runAllUsers',
+            exec: 'runList',
         },
         healthz_http: {
             executor: 'constant-arrival-rate',
@@ -47,38 +46,47 @@ export const options = {
     },
     thresholds: {
         'grpc_req_duration{scenario:create_user_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:all_users_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:list_users_grpc}': ['p(95) < 100'],
         'http_req_duration{scenario:healthz_http}': ['p(95) < 500'],
+        'checks': ['rate >= 0.9']
     },
     summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(95)', 'p(99)', 'count'],
 };
 
-function ensureConnected(grpcClient) {
-    try {
-        grpcClient.connect(grpcUrl, { plaintext: true });
-    } catch (e) {
-        if (!e.message.includes('already connected')) {
-            console.error(`Connection error: ${e.message}`);
-        }
-    }
-}
+//todo добавить подключение только 1 раз на 1 итерации запроса
+//
 
-export function runCreateUser() {
-    ensureConnected(client);
-    const response = createUserTest(client);
+export function runCreate() {
+    client.connect(grpcUrl, {plaintext: true});
+
+    const payload = {
+        name: `User_${__ITER}`,
+        email: `mail${__VU}_${__ITER}@example.com`,
+    };
+
+    const response = create(client, payload);
 
     check(response, {
         'create_user status is OK': (r) => r && r.status === grpc.StatusOK,
-    }, {scenario: 'create_user'});
+    });
+
+    client.close();
 }
 
-export function runAllUsers() {
-    ensureConnected(client);
-    const response = allUsersTest(client);
+export function runList() {
+    client.connect(grpcUrl, {plaintext: true});
+
+    const payload = {
+        page_token: '',
+    };
+
+    const response = list(client, payload);
 
     check(response, {
-        'all_users status is OK': (r) => r && r.status === grpc.StatusOK,
-    }, {scenario: 'all_users'});
+        'list_users status is OK': (r) => r && r.status === grpc.StatusOK,
+    });
+
+    client.close();
 }
 
 export function runHealthz() {
@@ -86,5 +94,5 @@ export function runHealthz() {
 
     check(response, {
         'healthz is 200': (r) => r.status === 200,
-    }, {scenario: 'healthz'});
+    });
 }
