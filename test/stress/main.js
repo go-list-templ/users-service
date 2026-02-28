@@ -77,7 +77,7 @@ export function runList() {
 
     const vu = __VU;
     const payload = {page_token: tokens[vu]};
-    console.log("VU: ", vu, " Page Token: ", payload.page_token)
+
     const response = list(client, payload)
 
     check(response, {
