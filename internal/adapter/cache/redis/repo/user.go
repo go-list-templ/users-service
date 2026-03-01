@@ -56,8 +56,14 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 			return nil, err
 		}
 
-		if err = u.cacheAllUsers(ctx, cacheKey, users); err != nil {
-			u.logger.Warn("redis set error", zap.Error(err))
+		cacheUsers := make([]dao.User, len(users))
+
+		for i, user := range users {
+			cacheUsers[i] = dao.FromEntity(user)
+		}
+
+		if err = u.redis.SetByTags(ctx, cacheKey, cacheUsers, TTLAllUsers, TagAllUsers); err != nil {
+			u.logger.Warn("redis set failed", zap.Error(err))
 		}
 
 		return users, nil
@@ -74,19 +80,6 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	}
 
 	return users, nil
-}
-
-func (u *UserRepo) cacheAllUsers(ctx context.Context, key string, users []entity.User) error {
-	cacheUsers := make([]dao.User, len(users))
-
-	for i, user := range users {
-		cacheUsers[i] = dao.FromEntity(user)
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, DefaultCtx)
-	defer cancel()
-
-	return u.redis.SetByTags(ctx, key, cacheUsers, TTLAllUsers, TagAllUsers)
 }
 
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
