@@ -17,8 +17,6 @@ import (
 var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
 const (
-	DefaultCtx = 5 * time.Second
-
 	TTLAllUsers = 10 * time.Minute
 
 	TagAllUsers = "allUsers"
