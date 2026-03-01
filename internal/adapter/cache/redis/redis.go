@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/klauspost/compress/s2"
 	"github.com/redis/go-redis/v9"
+	"github.com/vmihailenco/msgpack/v5"
 )
 
 const (
@@ -49,18 +51,25 @@ func (r *Redis) GetCache(ctx context.Context, key string, pointer any) error {
 		return err
 	}
 
-	return json.Unmarshal(data, pointer)
+	decompress, err := s2.Decode(nil, data)
+	if err != nil {
+		return err
+	}
+
+	return msgpack.Unmarshal(decompress, pointer)
 }
 
 func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Duration) error {
 	ttl = r.generateJitter(ttl)
 
-	data, err := json.Marshal(data)
+	pack, err := msgpack.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	return r.Set(ctx, key, data, ttl).Err()
+	compress := s2.Encode(nil, pack)
+
+	return r.Set(ctx, key, compress, ttl).Err()
 }
 
 func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Duration, tags ...string) error {
