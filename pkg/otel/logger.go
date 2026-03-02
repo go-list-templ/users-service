@@ -40,13 +40,16 @@ func NewLogger(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*
 	return &Logger{logger, provider}, nil
 }
 
-// NewLoggerProvider todo delete or auto set WithInsecure()
 func NewLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*log.LoggerProvider, error) {
-	exporter, err := otlploggrpc.New(
-		ctx,
+	options := []otlploggrpc.Option{
 		otlploggrpc.WithEndpoint(cfg.Endpoint),
-		otlploggrpc.WithInsecure(),
-	)
+	}
+
+	if cfg.IsTLS {
+		options = append(options, otlploggrpc.WithInsecure())
+	}
+
+	exporter, err := otlploggrpc.New(ctx, options...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OTLP log exporter: %w", err)
 	}

@@ -24,13 +24,16 @@ func NewTrace(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*T
 	return &Trace{provider}, nil
 }
 
-// NewTraceProvider todo delete or auto set WithInsecure()
 func NewTraceProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*trace.TracerProvider, error) {
-	exporter, err := otlptracegrpc.New(
-		ctx,
+	options := []otlptracegrpc.Option{
 		otlptracegrpc.WithEndpoint(cfg.Endpoint),
-		otlptracegrpc.WithInsecure(),
-	)
+	}
+
+	if cfg.IsTLS {
+		options = append(options, otlptracegrpc.WithInsecure())
+	}
+
+	exporter, err := otlptracegrpc.New(ctx, options...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OTLP trace exporter: %w", err)
 	}

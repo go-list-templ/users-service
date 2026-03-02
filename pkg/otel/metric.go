@@ -24,13 +24,16 @@ func NewMetric(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*
 	return &Metric{provider}, nil
 }
 
-// NewMetricProvider todo delete or auto set WithInsecure()
 func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*metric.MeterProvider, error) {
-	exporter, err := otlpmetricgrpc.New(
-		ctx,
+	options := []otlpmetricgrpc.Option{
 		otlpmetricgrpc.WithEndpoint(cfg.Endpoint),
-		otlpmetricgrpc.WithInsecure(),
-	)
+	}
+
+	if cfg.IsTLS {
+		options = append(options, otlpmetricgrpc.WithInsecure())
+	}
+
+	exporter, err := otlpmetricgrpc.New(ctx, options...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OTLP metric exporter: %w", err)
 	}
