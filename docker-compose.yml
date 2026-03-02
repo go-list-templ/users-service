@@ -20,6 +20,7 @@ services:
     environment:
       - DB_URL=${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}?sslmode=disable
       - REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
+      - OTEL_ENDPOINT=${OTEL_HOST}:${OTEL_GRPC_PORT}
     depends_on:
       - db
       - redis
