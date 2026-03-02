@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/go-list-templ/grpc/pkg/config"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
@@ -21,8 +22,12 @@ func New(cfg *config.Server) *GRPC {
 	group, ctx := errgroup.WithContext(context.Background())
 	group.SetLimit(1)
 
+	server := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
+
 	return &GRPC{
-		Server: grpc.NewServer(),
+		Server: server,
 		ctx:    ctx,
 		eg:     group,
 		config: cfg,
