@@ -33,11 +33,16 @@ type (
 		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
 	}
 
+	Otel struct {
+		Endpoint string `envconfig:"OTEL_ENDPOINT"`
+	}
+
 	Config struct {
 		App    App
 		Server Server
 		DB     DB
 		Redis  Redis
+		Otel   Otel
 	}
 )
 
