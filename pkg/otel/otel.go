@@ -2,11 +2,11 @@ package otel
 
 import (
 	"context"
-	"os"
+
+	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/semconv/v1.39.0"
 )
 
 type Telemetry struct {
@@ -18,13 +18,10 @@ type Telemetry struct {
 func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 	ctx := context.Background()
 
-	hostName, _ := os.Hostname()
-
 	res := resource.NewWithAttributes(
 		semconv.SchemaURL,
 		semconv.ServiceName(cfg.App.Name),
 		semconv.ServiceVersion(cfg.App.Version),
-		semconv.HostName(hostName),
 	)
 
 	loggerProvider, err := NewLogger(ctx, res, &cfg.Otel)
@@ -50,11 +47,20 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 }
 
 func (t *Telemetry) Shutdown(ctx context.Context) error {
-	var err error
+	err := t.MetricProvider.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
 
-	err = t.MetricProvider.Shutdown(ctx)
 	err = t.TracerProvider.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
+
 	err = t.LoggerProvider.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
 
 	return err
 }
