@@ -3,6 +3,9 @@ package otel
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -12,17 +15,14 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv/v1.39.0"
-	"os"
 )
-
-const otelEndpoint = "otel:4317"
 
 // todo delete or auto set WithInsecure()
 // newLoggerProvider creates a new logger provider with the OTLP gRPC exporter.
-func newLoggerProvider(ctx context.Context, res *resource.Resource) (*log.LoggerProvider, error) {
+func newLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*log.LoggerProvider, error) {
 	exporter, err := otlploggrpc.New(
 		ctx,
-		otlploggrpc.WithEndpoint(otelEndpoint),
+		otlploggrpc.WithEndpoint(cfg.Endpoint),
 		otlploggrpc.WithInsecure(), // for dev
 	)
 	if err != nil {
@@ -40,10 +40,10 @@ func newLoggerProvider(ctx context.Context, res *resource.Resource) (*log.Logger
 
 // todo delete or auto set WithInsecure()
 // newMeterProvider creates a new meter provider with the OTLP gRPC exporter.
-func newMeterProvider(ctx context.Context, res *resource.Resource) (*metric.MeterProvider, error) {
+func newMeterProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*metric.MeterProvider, error) {
 	exporter, err := otlpmetricgrpc.New(
 		ctx,
-		otlpmetricgrpc.WithEndpoint(otelEndpoint),
+		otlpmetricgrpc.WithEndpoint(cfg.Endpoint),
 		otlpmetricgrpc.WithInsecure(), // for dev
 	)
 	if err != nil {
@@ -61,10 +61,10 @@ func newMeterProvider(ctx context.Context, res *resource.Resource) (*metric.Mete
 
 // todo delete or auto set WithInsecure()
 // newTracerProvider creates a new tracer provider with the OTLP gRPC exporter.
-func newTracerProvider(ctx context.Context, res *resource.Resource) (*trace.TracerProvider, error) {
+func newTracerProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*trace.TracerProvider, error) {
 	exporter, err := otlptracegrpc.New(
 		ctx,
-		otlptracegrpc.WithEndpoint(otelEndpoint),
+		otlptracegrpc.WithEndpoint(cfg.Endpoint),
 		otlptracegrpc.WithInsecure(), // for dev
 	)
 	if err != nil {
@@ -82,13 +82,13 @@ func newTracerProvider(ctx context.Context, res *resource.Resource) (*trace.Trac
 }
 
 // newResource creates a new OTEL resource with the service name and version.
-func newResource(serviceName string, serviceVersion string) *resource.Resource {
+func newResource(cfg *config.App) *resource.Resource {
 	hostName, _ := os.Hostname()
 
 	return resource.NewWithAttributes(
 		semconv.SchemaURL,
-		semconv.ServiceName(serviceName),
-		semconv.ServiceVersion(serviceVersion),
+		semconv.ServiceName(cfg.Name),
+		semconv.ServiceVersion(cfg.Version),
 		semconv.HostName(hostName),
 	)
 }
