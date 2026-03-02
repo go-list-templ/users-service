@@ -35,13 +35,14 @@ func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.
 		return nil, fmt.Errorf("failed to create OTLP metric exporter: %w", err)
 	}
 
-	mp := metric.NewMeterProvider(
+	provider := metric.NewMeterProvider(
 		metric.WithReader(metric.NewPeriodicReader(exporter)),
 		metric.WithResource(res),
 	)
-	otel.SetMeterProvider(mp)
 
-	return mp, nil
+	otel.SetMeterProvider(provider)
+
+	return provider, nil
 }
 
 func (t *Metric) Shutdown(ctx context.Context) error {

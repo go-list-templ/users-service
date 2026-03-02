@@ -52,12 +52,13 @@ func NewLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	}
 
 	processor := log.NewBatchProcessor(exporter)
-	lp := log.NewLoggerProvider(
+
+	provider := log.NewLoggerProvider(
 		log.WithProcessor(processor),
 		log.WithResource(res),
 	)
 
-	return lp, nil
+	return provider, nil
 }
 
 func (t *Logger) Shutdown(ctx context.Context) error {
