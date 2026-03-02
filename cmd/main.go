@@ -32,31 +32,17 @@ func main() {
 
 // nolint:errcheck,gocyclo,cyclop
 func run() error {
-	ctx := context.Background()
-
 	cfg, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	otelRes := otel.NewResource(&cfg.App)
-
-	otelLogger, err := otel.NewLogger(ctx, otelRes, &cfg.Otel)
+	telemetry, err := otel.NewTelemetry(cfg)
 	if err != nil {
 		return err
 	}
 
-	otelMetric, err := otel.NewMetric(ctx, otelRes, &cfg.Otel)
-	if err != nil {
-		return err
-	}
-
-	otelTrace, err := otel.NewTrace(ctx, otelRes, &cfg.Otel)
-	if err != nil {
-		return err
-	}
-
-	logger := otelLogger.Logger
+	logger := telemetry.LoggerProvider.Logger
 
 	logger.Info("starting app")
 
@@ -127,7 +113,7 @@ func run() error {
 	case x := <-interrupt:
 		logger.Info("Received a signal.", zap.String("signal", x.String()))
 	case err = <-httpServer.Notify():
-		logger.Error("Received an error from the health server", zap.Error(err))
+		logger.Error("Received an error from the http server", zap.Error(err))
 	case err = <-grpcServer.Notify():
 		logger.Error("Received an error from the grpc server", zap.Error(err))
 	}
@@ -149,16 +135,8 @@ func run() error {
 
 	pg.Close()
 
-	if err = otelMetric.Shutdown(ctx); err != nil {
-		logger.Error("failed to shutdown metric", zap.Error(err))
-	}
-
-	if err = otelTrace.Shutdown(ctx); err != nil {
-		logger.Error("failed to shutdown trace", zap.Error(err))
-	}
-
-	if err = otelLogger.Shutdown(ctx); err != nil {
-		logger.Error("failed to shutdown logger", zap.Error(err))
+	if err = telemetry.Shutdown(ctx); err != nil {
+		logger.Error("failed telemetry shutdown", zap.Error(err))
 	}
 
 	maxProcsShowdown()
