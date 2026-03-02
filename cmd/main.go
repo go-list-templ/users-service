@@ -19,6 +19,7 @@ import (
 	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/grpc/internal/core/service"
 	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/grpc/pkg/otel"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
 )
@@ -31,8 +32,15 @@ func main() {
 
 // nolint:errcheck,gocyclo,cyclop
 func run() error {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+	ctx := context.Background()
+
+	//todo set in arg init zap logger
+	telemetry, err := otel.NewTelemetry(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := telemetry.Logger
 
 	logger.Info("starting app")
 
@@ -50,10 +58,6 @@ func run() error {
 	if err != nil {
 		logger.Panic("cant init config", zap.Error(err))
 	}
-
-	logger.Info("named logger")
-
-	logger = logger.Named(cfg.App.Name)
 
 	logger.Info("initializing postgres")
 
@@ -130,6 +134,8 @@ func run() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
+
+	telemetry.Shutdown(ctx)
 
 	grpcServer.Stop()
 
