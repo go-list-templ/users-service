@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 
+	oteltrace "go.opentelemetry.io/otel/trace"
+
+	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -21,18 +23,19 @@ type TelemetryProvider interface {
 
 // Telemetry is a wrapper around the OpenTelemetry logger, meter, and tracer.
 type Telemetry struct {
+	Logger *zap.Logger
+
 	lp     *log.LoggerProvider
 	mp     *metric.MeterProvider
 	tp     *trace.TracerProvider
-	Logger *zap.Logger
 	tracer oteltrace.Tracer
 }
 
 // NewTelemetry creates a new telemetry instance.
-func NewTelemetry(ctx context.Context) (*Telemetry, error) {
-	rp := newResource("service-name-grpc", "1")
+func NewTelemetry(ctx context.Context, cfg *config.Config) (*Telemetry, error) {
+	rp := newResource(&cfg.App)
 
-	lp, err := newLoggerProvider(ctx, rp)
+	lp, err := newLoggerProvider(ctx, rp, &cfg.Otel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
@@ -44,12 +47,12 @@ func NewTelemetry(ctx context.Context) (*Telemetry, error) {
 		),
 	)
 
-	mp, err := newMeterProvider(ctx, rp)
+	mp, err := newMeterProvider(ctx, rp, &cfg.Otel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create meter: %w", err)
 	}
 
-	tp, err := newTracerProvider(ctx, rp)
+	tp, err := newTracerProvider(ctx, rp, &cfg.Otel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tracer: %w", err)
 	}
@@ -65,8 +68,7 @@ func NewTelemetry(ctx context.Context) (*Telemetry, error) {
 }
 
 // TraceStart starts a new span with the given name. The span must be ended by calling End.
-func (t *Telemetry) TraceStart(ctx context.Context, name string) (context.Context, oteltrace.Span) { //nolint:ireturn
-	//nolint: spancheck
+func (t *Telemetry) TraceStart(ctx context.Context, name string) (context.Context, oteltrace.Span) {
 	return t.tracer.Start(ctx, name)
 }
 
