@@ -35,6 +35,7 @@ type (
 
 	Otel struct {
 		Endpoint string `envconfig:"OTEL_ENDPOINT"`
+		IsTLS    bool   `envconfig:"OTEL_IS_TLS"`
 	}
 
 	Config struct {
