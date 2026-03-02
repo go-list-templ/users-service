@@ -32,18 +32,31 @@ func main() {
 
 // nolint:errcheck,gocyclo,cyclop
 func run() error {
+	ctx := context.Background()
+
 	cfg, err := config.Load()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	//todo set in arg init zap logger
-	telemetry, err := otel.NewTelemetry(context.Background(), cfg)
+	otelRes := otel.NewResource(&cfg.App)
+
+	otelLogger, err := otel.NewLogger(ctx, otelRes, &cfg.Otel)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	logger := telemetry.Logger
+	otelMetric, err := otel.NewMetric(ctx, otelRes, &cfg.Otel)
+	if err != nil {
+		return err
+	}
+
+	otelTrace, err := otel.NewTrace(ctx, otelRes, &cfg.Otel)
+	if err != nil {
+		return err
+	}
+
+	logger := otelLogger.Logger
 
 	logger.Info("starting app")
 
@@ -136,11 +149,19 @@ func run() error {
 
 	pg.Close()
 
-	telemetry.Shutdown(ctx)
+	if err = otelMetric.Shutdown(ctx); err != nil {
+		logger.Error("failed to shutdown metric", zap.Error(err))
+	}
+
+	if err = otelTrace.Shutdown(ctx); err != nil {
+		logger.Error("failed to shutdown trace", zap.Error(err))
+	}
+
+	if err = otelLogger.Shutdown(ctx); err != nil {
+		logger.Error("failed to shutdown logger", zap.Error(err))
+	}
 
 	maxProcsShowdown()
-
-	logger.Info("successfully stopped app")
 
 	return nil
 }
