@@ -32,10 +32,13 @@ func main() {
 
 // nolint:errcheck,gocyclo,cyclop
 func run() error {
-	ctx := context.Background()
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 
 	//todo set in arg init zap logger
-	telemetry, err := otel.NewTelemetry(ctx)
+	telemetry, err := otel.NewTelemetry(context.Background(), cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -44,19 +47,11 @@ func run() error {
 
 	logger.Info("starting app")
 
-	undo, err := maxprocs.Set(maxprocs.Logger(func(_ string, args ...interface{}) {
+	maxProcsShowdown, err := maxprocs.Set(maxprocs.Logger(func(_ string, args ...interface{}) {
 		logger.Info("auto max procs", zap.Any("count", args))
 	}))
 	if err != nil {
 		logger.Error("failed to set auto max procs", zap.Error(err))
-	}
-	defer undo()
-
-	logger.Info("initializing config")
-
-	cfg, err := config.Load()
-	if err != nil {
-		logger.Panic("cant init config", zap.Error(err))
 	}
 
 	logger.Info("initializing postgres")
@@ -65,7 +60,6 @@ func run() error {
 	if err != nil {
 		logger.Panic("cant init postgres", zap.Error(err))
 	}
-	defer pg.Close()
 
 	logger.Info("postgres migration")
 
@@ -80,11 +74,6 @@ func run() error {
 	if err != nil {
 		logger.Panic("cant init redis", zap.Error(err))
 	}
-	defer func() {
-		if err = rd.Close(); err != nil {
-			logger.Error("redis close failed", zap.Error(err))
-		}
-	}()
 
 	logger.Info("initializing transaction manager")
 
@@ -130,12 +119,10 @@ func run() error {
 		logger.Error("Received an error from the grpc server", zap.Error(err))
 	}
 
-	logger.Info("stopping servers")
+	logger.Info("stopping app")
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
-
-	telemetry.Shutdown(ctx)
 
 	grpcServer.Stop()
 
@@ -143,7 +130,17 @@ func run() error {
 		logger.Error("server stopped with error", zap.Error(err))
 	}
 
-	logger.Info("The app is calling the last defers and will be stopped")
+	if err = rd.Close(); err != nil {
+		logger.Error("redis close failed", zap.Error(err))
+	}
+
+	pg.Close()
+
+	telemetry.Shutdown(ctx)
+
+	maxProcsShowdown()
+
+	logger.Info("successfully stopped app")
 
 	return nil
 }
