@@ -45,7 +45,7 @@ func NewLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.
 		otlploggrpc.WithEndpoint(cfg.Endpoint),
 	}
 
-	if cfg.IsTLS {
+	if !cfg.IsTLS {
 		options = append(options, otlploggrpc.WithInsecure())
 	}
 

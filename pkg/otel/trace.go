@@ -29,7 +29,7 @@ func NewTraceProvider(ctx context.Context, res *resource.Resource, cfg *config.O
 		otlptracegrpc.WithEndpoint(cfg.Endpoint),
 	}
 
-	if cfg.IsTLS {
+	if !cfg.IsTLS {
 		options = append(options, otlptracegrpc.WithInsecure())
 	}
 
