@@ -49,6 +49,8 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	}
 
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
+		u.logger.Info("get all users from db")
+
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
 			return nil, err
