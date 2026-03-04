@@ -1,14 +1,6 @@
 services:
   app:
     container_name: app.${APP_NAME}
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 1024M
-        reservations:
-          cpus: '0.5'
-          memory: 256M
     build:
       context: .
       dockerfile: .docker/app/Dockerfile
@@ -17,10 +9,6 @@ services:
       - "${DIAGNOSTIC_PORT}:${DIAGNOSTIC_PORT}"
     env_file:
       - .env
-    environment:
-      - DB_URL=${DB_DRIVER}://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}?sslmode=disable
-      - REDIS_ADDRESS=${REDIS_HOST}:${REDIS_PORT}
-      - OTEL_ENDPOINT=${OTEL_HOST}:${OTEL_GRPC_PORT}
     depends_on:
       - db
       - redis
