@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/exaring/otelpgx"
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
@@ -35,6 +36,8 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	connAttempts := DefaultConnAttempts
 	connTimeout := DefaultConnTimeout
 
+	conf.ConnConfig.Tracer = otelpgx.NewTracer()
+
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()
 
@@ -58,6 +61,10 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("end attempts exceeded: %w", err)
+	}
+
+	if err = otelpgx.RecordStats(pg.Pool); err != nil {
+		return nil, fmt.Errorf("unable to record database stats: %w", err)
 	}
 
 	return pg, nil
