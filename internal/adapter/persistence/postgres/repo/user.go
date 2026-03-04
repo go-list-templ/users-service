@@ -44,7 +44,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 
 	_, err := u.getter.TrOrDB(ctx, u.Postgres).Exec(ctx, query, args)
 
-	return u.toPostgresError(err)
+	return u.toPostgresError(ctx, err)
 }
 
 func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
@@ -76,25 +76,25 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
-		return nil, u.toPostgresError(err)
+		return nil, u.toPostgresError(ctx, err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		return nil, u.toPostgresError(err)
+		return nil, u.toPostgresError(ctx, err)
 	}
 
 	return users, nil
 }
 
-func (u *UserRepo) toPostgresError(err error) error {
+func (u *UserRepo) toPostgresError(ctx context.Context, err error) error {
 	if err == nil {
 		return nil
 	}
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
-		u.logger.Warn("operation", zap.Error(err))
+		u.logger.Warn("operation", zap.Any("context", ctx), zap.Error(err))
 
 		return fmt.Errorf("operation: %w", err)
 	}
@@ -109,7 +109,7 @@ func (u *UserRepo) toPostgresError(err error) error {
 	default:
 		infraErr := fmt.Errorf("code %s: %w", pgErr.Code, err)
 
-		u.logger.Warn("postgres", zap.Error(infraErr))
+		u.logger.Warn("postgres", zap.Any("context", ctx), zap.Error(infraErr))
 
 		return infraErr
 	}

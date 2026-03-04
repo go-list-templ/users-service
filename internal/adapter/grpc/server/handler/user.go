@@ -38,7 +38,7 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 
 	output, err := u.userService.Create(ctx, input)
 	if err != nil {
-		u.logger.Warn("user service create", zap.Error(err))
+		u.logger.Warn("user service create", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, u.toGRPCError(err)
 	}
@@ -53,7 +53,7 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 
 	output, err := u.userService.List(ctx, input)
 	if err != nil {
-		u.logger.Warn("all user", zap.Error(err))
+		u.logger.Warn("all user", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, u.toGRPCError(err)
 	}

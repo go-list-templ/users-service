@@ -49,7 +49,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	}
 
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
-		u.logger.Info("get all users from db")
+		u.logger.Info("get all users from db", zap.Any("context", ctx))
 
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
@@ -63,7 +63,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		}
 
 		if err = u.redis.SetByTags(ctx, cacheKey, cacheUsers, TTLAllUsers, TagAllUsers); err != nil {
-			u.logger.Warn("redis set failed", zap.Error(err))
+			u.logger.Warn("redis set failed", zap.Any("context", ctx), zap.Error(err))
 		}
 
 		return users, nil
@@ -74,7 +74,12 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 
 	users, ok := v.([]entity.User)
 	if !ok {
-		u.logger.Error("singleflight typed", zap.Error(err), zap.Any("value", v))
+		u.logger.Error(
+			"singleflight typed",
+			zap.Any("context", ctx),
+			zap.Error(err),
+			zap.Any("value", v),
+		)
 
 		return nil, ErrTypedSingleflight
 	}
@@ -89,7 +94,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	}
 
 	if err = u.redis.InvalidateTags(ctx, TagAllUsers); err != nil {
-		u.logger.Warn("redis invalidate error", zap.Error(err))
+		u.logger.Warn("redis invalidate error", zap.Any("context", ctx), zap.Error(err))
 	}
 
 	return nil
