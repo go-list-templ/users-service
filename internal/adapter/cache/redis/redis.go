@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"github.com/klauspost/compress/s2"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/vmihailenco/msgpack/v5"
 )
@@ -35,6 +36,14 @@ func New(cfg *config.Redis) (*Redis, error) {
 
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
+		return nil, err
+	}
+
+	if err = redisotel.InstrumentTracing(client); err != nil {
+		return nil, err
+	}
+
+	if err = redisotel.InstrumentMetrics(client); err != nil {
 		return nil, err
 	}
 
