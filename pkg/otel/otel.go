@@ -10,9 +10,9 @@ import (
 )
 
 type Telemetry struct {
-	LoggerProvider *Logger
-	TracerProvider *Trace
-	MetricProvider *Metric
+	Logger *Logger
+	Tracer *Trace
+	Metric *Metric
 }
 
 func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
@@ -24,40 +24,40 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 		semconv.ServiceVersion(cfg.App.Version),
 	)
 
-	metricProvider, err := NewMetric(ctx, res, &cfg.Otel)
+	metric, err := NewMetric(ctx, res, &cfg.Otel)
 	if err != nil {
 		return nil, err
 	}
 
-	tracerProvider, err := NewTrace(ctx, res, &cfg.Otel)
+	tracer, err := NewTrace(ctx, res, &cfg.Otel)
 	if err != nil {
 		return nil, err
 	}
 
-	loggerProvider, err := NewLogger(ctx, res, cfg)
+	logger, err := NewLogger(ctx, res, cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Telemetry{
-		LoggerProvider: loggerProvider,
-		TracerProvider: tracerProvider,
-		MetricProvider: metricProvider,
+		Logger: logger,
+		Tracer: tracer,
+		Metric: metric,
 	}, nil
 }
 
 func (t *Telemetry) Shutdown(ctx context.Context) error {
-	err := t.MetricProvider.Shutdown(ctx)
+	err := t.Metric.Shutdown(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = t.TracerProvider.Shutdown(ctx)
+	err = t.Tracer.Shutdown(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = t.LoggerProvider.Shutdown(ctx)
+	err = t.Logger.Shutdown(ctx)
 	if err != nil {
 		return err
 	}

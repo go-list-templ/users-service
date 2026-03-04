@@ -64,6 +64,6 @@ func NewLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	return provider, nil
 }
 
-func (t *Logger) Shutdown(ctx context.Context) error {
-	return t.provider.Shutdown(ctx)
+func (l *Logger) Shutdown(ctx context.Context) error {
+	return l.provider.Shutdown(ctx)
 }
