@@ -20,8 +20,8 @@ type Logger struct {
 	provider *log.LoggerProvider
 }
 
-func NewLogger(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*Logger, error) {
-	provider, err := NewLoggerProvider(ctx, res, cfg)
+func NewLogger(ctx context.Context, res *resource.Resource, cfg *config.Config) (*Logger, error) {
+	provider, err := NewLoggerProvider(ctx, res, &cfg.Otel)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func NewLogger(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*
 				zapcore.AddSync(os.Stdout),
 				zapcore.InfoLevel,
 			),
-			otelzap.NewCore("name", otelzap.WithLoggerProvider(provider)),
+			otelzap.NewCore(cfg.App.Name, otelzap.WithLoggerProvider(provider)),
 		),
 	)
 

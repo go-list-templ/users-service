@@ -34,7 +34,7 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 		return nil, err
 	}
 
-	loggerProvider, err := NewLogger(ctx, res, &cfg.Otel)
+	loggerProvider, err := NewLogger(ctx, res, cfg)
 	if err != nil {
 		return nil, err
 	}
