@@ -3,9 +3,9 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/exaring/otelpgx"
 	"time"
 
+	"github.com/exaring/otelpgx"
 	"github.com/go-list-templ/grpc/pkg/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
