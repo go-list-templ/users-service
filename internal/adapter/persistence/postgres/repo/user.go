@@ -94,7 +94,7 @@ func (u *UserRepo) toPostgresError(ctx context.Context, err error) error {
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
-		u.logger.Warn("operation", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("operation", zap.Any("context", ctx), zap.Error(err))
 
 		return fmt.Errorf("operation: %w", err)
 	}
@@ -109,7 +109,7 @@ func (u *UserRepo) toPostgresError(ctx context.Context, err error) error {
 	default:
 		infraErr := fmt.Errorf("code %s: %w", pgErr.Code, err)
 
-		u.logger.Warn("postgres", zap.Any("context", ctx), zap.Error(infraErr))
+		u.logger.Error("postgres", zap.Any("context", ctx), zap.Error(infraErr))
 
 		return infraErr
 	}

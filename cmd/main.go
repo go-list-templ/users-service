@@ -44,7 +44,10 @@ func run() error {
 
 	logger := telemetry.LoggerProvider.Logger
 
-	logger.Info("starting app")
+	logger.Info("starting app",
+		zap.String("name", cfg.App.Name),
+		zap.String("version", cfg.App.Version),
+	)
 
 	maxProcsShowdown, err := maxprocs.Set(maxprocs.Logger(func(_ string, args ...interface{}) {
 		logger.Info("auto max procs", zap.Any("count", args))

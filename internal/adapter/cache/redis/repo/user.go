@@ -45,11 +45,13 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 			users[i] = user.ToEntity()
 		}
 
+		u.logger.Info("get from redis", zap.Any("context", ctx))
+
 		return users, nil
 	}
 
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
-		u.logger.Info("get all users from db", zap.Any("context", ctx))
+		u.logger.Info("get from db", zap.Any("context", ctx))
 
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
@@ -63,7 +65,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		}
 
 		if err = u.redis.SetByTags(ctx, cacheKey, cacheUsers, TTLAllUsers, TagAllUsers); err != nil {
-			u.logger.Warn("redis set failed", zap.Any("context", ctx), zap.Error(err))
+			u.logger.Warn("set by tag", zap.Any("context", ctx), zap.Error(err))
 		}
 
 		return users, nil
@@ -90,11 +92,13 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
+		u.logger.Error("redis store", zap.Any("context", ctx), zap.Error(err))
+
 		return err
 	}
 
 	if err = u.redis.InvalidateTags(ctx, TagAllUsers); err != nil {
-		u.logger.Warn("redis invalidate error", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Warn("invalidate tag", zap.Any("context", ctx), zap.Error(err))
 	}
 
 	return nil
