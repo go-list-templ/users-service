@@ -2,11 +2,11 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"math/rand/v2"
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/grpc/pkg/otel"
 	"github.com/klauspost/compress/s2"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -24,7 +24,7 @@ type Redis struct {
 	*redis.Client
 }
 
-func New(cfg *config.Redis) (*Redis, error) {
+func New(cfg *config.Redis, otel *otel.Telemetry) (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Address,
 		Password: "",
@@ -39,11 +39,11 @@ func New(cfg *config.Redis) (*Redis, error) {
 		return nil, err
 	}
 
-	if err = redisotel.InstrumentTracing(client); err != nil {
+	if err = redisotel.InstrumentTracing(client, redisotel.WithTracerProvider(otel.Tracer.Provider)); err != nil {
 		return nil, err
 	}
 
-	if err = redisotel.InstrumentMetrics(client); err != nil {
+	if err = redisotel.InstrumentMetrics(client, redisotel.WithMeterProvider(otel.Metric.Provider)); err != nil {
 		return nil, err
 	}
 
@@ -90,12 +90,14 @@ func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Du
 		pipe.Expire(ctx, tag, ttl)
 	}
 
-	data, err := json.Marshal(data)
+	pack, err := msgpack.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	pipe.Set(ctx, key, data, ttl)
+	compress := s2.Encode(nil, pack)
+
+	pipe.Set(ctx, key, compress, ttl)
 
 	_, errExec := pipe.Exec(ctx)
 
@@ -113,6 +115,10 @@ func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
 
 		keys = append(keys, tag)
 		keys = append(keys, k...)
+	}
+
+	if len(keys) <= 0 {
+		return nil
 	}
 
 	return r.DeleteCache(ctx, keys...)
