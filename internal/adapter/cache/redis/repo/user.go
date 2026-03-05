@@ -92,7 +92,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
-		u.logger.Error("redis store", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("persistent store", zap.Any("context", ctx), zap.Error(err))
 
 		return err
 	}
