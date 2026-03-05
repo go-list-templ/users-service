@@ -72,7 +72,7 @@ func run() error {
 
 	logger.Info("initializing redis")
 
-	rd, err := redis.New(&cfg.Redis, telemetry)
+	rd, err := redis.New(&cfg.Redis)
 	if err != nil {
 		logger.Panic("cant init redis", zap.Error(err))
 	}

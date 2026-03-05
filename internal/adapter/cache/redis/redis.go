@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
-	"github.com/go-list-templ/grpc/pkg/otel"
 	"github.com/klauspost/compress/s2"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -24,7 +23,7 @@ type Redis struct {
 	*redis.Client
 }
 
-func New(cfg *config.Redis, otel *otel.Telemetry) (*Redis, error) {
+func New(cfg *config.Redis) (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Address,
 		Password: "",
@@ -39,11 +38,11 @@ func New(cfg *config.Redis, otel *otel.Telemetry) (*Redis, error) {
 		return nil, err
 	}
 
-	if err = redisotel.InstrumentTracing(client, redisotel.WithTracerProvider(otel.Tracer.Provider)); err != nil {
+	if err = redisotel.InstrumentTracing(client); err != nil {
 		return nil, err
 	}
 
-	if err = redisotel.InstrumentMetrics(client, redisotel.WithMeterProvider(otel.Metric.Provider)); err != nil {
+	if err = redisotel.InstrumentMetrics(client); err != nil {
 		return nil, err
 	}
 
