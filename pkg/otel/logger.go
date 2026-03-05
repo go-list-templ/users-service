@@ -17,7 +17,7 @@ import (
 type Logger struct {
 	*zap.Logger
 
-	provider *log.LoggerProvider
+	Provider *log.LoggerProvider
 }
 
 func NewLogger(ctx context.Context, res *resource.Resource, cfg *config.Config) (*Logger, error) {
@@ -65,5 +65,5 @@ func NewLoggerProvider(ctx context.Context, res *resource.Resource, cfg *config.
 }
 
 func (l *Logger) Shutdown(ctx context.Context) error {
-	return l.provider.Shutdown(ctx)
+	return l.Provider.Shutdown(ctx)
 }

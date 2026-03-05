@@ -12,7 +12,7 @@ import (
 )
 
 type Trace struct {
-	provider *trace.TracerProvider
+	Provider *trace.TracerProvider
 }
 
 func NewTrace(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*Trace, error) {
@@ -49,5 +49,5 @@ func NewTraceProvider(ctx context.Context, res *resource.Resource, cfg *config.O
 }
 
 func (t *Trace) Shutdown(ctx context.Context) error {
-	return t.provider.Shutdown(ctx)
+	return t.Provider.Shutdown(ctx)
 }
