@@ -42,7 +42,7 @@ func run() error {
 		return err
 	}
 
-	logger := telemetry.LoggerProvider.Logger
+	logger := telemetry.Logger.Logger
 
 	logger.Info("starting app",
 		zap.String("name", cfg.App.Name),

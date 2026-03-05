@@ -3,6 +3,7 @@ package otel
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/otel"
@@ -13,15 +14,6 @@ import (
 
 type Metric struct {
 	provider *metric.MeterProvider
-}
-
-func NewMetric(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*Metric, error) {
-	provider, err := NewMetricProvider(ctx, res, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create meter: %w", err)
-	}
-
-	return &Metric{provider}, nil
 }
 
 func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*metric.MeterProvider, error) {
@@ -39,7 +31,7 @@ func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	}
 
 	provider := metric.NewMeterProvider(
-		metric.WithReader(metric.NewPeriodicReader(exporter)),
+		metric.WithReader(metric.NewPeriodicReader(exporter, metric.WithInterval(10*time.Second))),
 		metric.WithResource(res),
 	)
 
@@ -48,6 +40,15 @@ func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	return provider, nil
 }
 
-func (t *Metric) Shutdown(ctx context.Context) error {
-	return t.provider.Shutdown(ctx)
+func NewMetric(ctx context.Context, res *resource.Resource, cfg *config.Config) (*Metric, error) {
+	provider, err := NewMetricProvider(ctx, res, &cfg.Otel)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create meter: %w", err)
+	}
+
+	return &Metric{provider}, nil
+}
+
+func (m *Metric) Shutdown(ctx context.Context) error {
+	return m.provider.Shutdown(ctx)
 }
