@@ -40,8 +40,8 @@ func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	return provider, nil
 }
 
-func NewMetric(ctx context.Context, res *resource.Resource, cfg *config.Config) (*Metric, error) {
-	provider, err := NewMetricProvider(ctx, res, &cfg.Otel)
+func NewMetric(ctx context.Context, res *resource.Resource, cfg *config.Otel) (*Metric, error) {
+	provider, err := NewMetricProvider(ctx, res, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create meter: %w", err)
 	}

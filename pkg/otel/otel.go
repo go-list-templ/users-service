@@ -24,7 +24,7 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 		semconv.ServiceVersion(cfg.App.Version),
 	)
 
-	metric, err := NewMetric(ctx, res, cfg)
+	metric, err := NewMetric(ctx, res, &cfg.Otel)
 	if err != nil {
 		return nil, err
 	}
