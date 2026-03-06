@@ -14,6 +14,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 
+const MetricInterval = time.Second * 10
+
 type Metric struct {
 	otelmetric.Meter
 
@@ -35,7 +37,7 @@ func NewMetricProvider(ctx context.Context, res *resource.Resource, cfg *config.
 	}
 
 	provider := metric.NewMeterProvider(
-		metric.WithReader(metric.NewPeriodicReader(exporter, metric.WithInterval(10*time.Second))),
+		metric.WithReader(metric.NewPeriodicReader(exporter, metric.WithInterval(MetricInterval))),
 		metric.WithResource(res),
 	)
 
