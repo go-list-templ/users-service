@@ -116,7 +116,7 @@ services:
     networks:
       - app
     volumes:
-      - otel_data:/data
+      - ./.docker/otel/data:/data
     environment:
       - ENABLE_LOGS_ALL=true
     healthcheck:
@@ -130,7 +130,6 @@ volumes:
   db_data:
   redis_data:
   rabbitmq_data:
-  otel_data:
 
 networks:
   app:

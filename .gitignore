@@ -31,3 +31,5 @@ go.work.sum
 .vscode/
 
 *schema.sql
+
+.docker/otel
