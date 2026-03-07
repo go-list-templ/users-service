@@ -48,7 +48,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		}
 
 		u.logger.Info(
-			"get from redis",
+			"get from cache",
 			zap.Any("context", ctx),
 			zap.Any("page token", pageToken),
 		)
@@ -58,7 +58,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 
 	if !u.redis.ErrIsNil(err) {
 		u.logger.Error(
-			"get from redis",
+			"get from cache",
 			zap.Any("context", ctx),
 			zap.Any("page token", pageToken),
 			zap.Error(err),
@@ -120,7 +120,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	}
 
 	if err = u.redis.InvalidateTags(ctx, TagAllUsers); err != nil {
-		u.logger.Warn("invalidate tag", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("invalidate tag", zap.Any("context", ctx), zap.Error(err))
 	}
 
 	return nil
