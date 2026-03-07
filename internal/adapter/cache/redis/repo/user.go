@@ -35,23 +35,42 @@ func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *Us
 
 func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
 	var cachedUsers []dao.User
+
 	cacheKey := paginate.Cursor()
+	pageToken := paginate.Token()
 
 	err := u.redis.GetCache(ctx, cacheKey, &cachedUsers)
-	if err == nil && len(cachedUsers) > 0 {
+	if err == nil {
 		users := make([]entity.User, len(cachedUsers))
 
 		for i, user := range cachedUsers {
 			users[i] = user.ToEntity()
 		}
 
-		u.logger.Info("get from redis", zap.Any("context", ctx))
+		u.logger.Info(
+			"get from redis",
+			zap.Any("context", ctx),
+			zap.Any("page token", pageToken),
+		)
 
 		return users, nil
 	}
 
+	if !u.redis.ErrIsNil(err) {
+		u.logger.Error(
+			"get from redis",
+			zap.Any("context", ctx),
+			zap.Any("page token", pageToken),
+			zap.Error(err),
+		)
+	}
+
 	v, err, _ := u.sf.Do(cacheKey, func() (interface{}, error) {
-		u.logger.Info("get from db", zap.Any("context", ctx))
+		u.logger.Info(
+			"get from persistent",
+			zap.Any("context", ctx),
+			zap.Any("page token", pageToken),
+		)
 
 		users, err := u.repo.All(ctx, paginate)
 		if err != nil {
@@ -65,7 +84,12 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		}
 
 		if err = u.redis.SetByTags(ctx, cacheKey, cacheUsers, TTLAllUsers, TagAllUsers); err != nil {
-			u.logger.Warn("set by tag", zap.Any("context", ctx), zap.Error(err))
+			u.logger.Warn(
+				"set by tag",
+				zap.Any("context", ctx),
+				zap.Any("page token", pageToken),
+				zap.Error(err),
+			)
 		}
 
 		return users, nil
@@ -79,8 +103,8 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		u.logger.Error(
 			"singleflight typed",
 			zap.Any("context", ctx),
+			zap.Any("page token", pageToken),
 			zap.Error(err),
-			zap.Any("value", v),
 		)
 
 		return nil, ErrTypedSingleflight
@@ -92,8 +116,6 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
-		u.logger.Error("persistent store", zap.Any("context", ctx), zap.Error(err))
-
 		return err
 	}
 
