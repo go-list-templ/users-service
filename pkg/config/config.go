@@ -18,6 +18,18 @@ type (
 
 	Redis struct {
 		Address string `envconfig:"REDIS_ADDRESS"`
+
+		DialTimeout  time.Duration `envconfig:"REDIS_DIAL_TIMEOUT"`
+		ReadTimeout  time.Duration `envconfig:"REDIS_READ_TIMEOUT"`
+		WriteTimeout time.Duration `envconfig:"REDIS_WRITE_TIMEOUT"`
+
+		MaxRetries      int           `envconfig:"REDIS_MAX_RETRIES"`
+		MinRetryBackoff time.Duration `envconfig:"REDIS_MIN_RETRY_BACKOFF"`
+		MaxRetryBackoff time.Duration `envconfig:"REDIS_MAX_RETRY_BACKOFF"`
+
+		PoolSize    int           `envconfig:"REDIS_POOL_SIZE"`
+		MinIdleCons int           `envconfig:"REDIS_MIN_IDLE_CONS"`
+		PoolTimeout time.Duration `envconfig:"REDIS_POOL_TIMEOUT"`
 	}
 
 	App struct {
