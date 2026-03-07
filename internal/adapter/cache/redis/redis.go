@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"math/rand/v2"
 	"time"
 
@@ -47,6 +48,10 @@ func New(cfg *config.Redis) (*Redis, error) {
 	}
 
 	return &Redis{client}, nil
+}
+
+func (r *Redis) ErrIsNil(err error) bool {
+	return errors.Is(err, redis.Nil)
 }
 
 func (r *Redis) DeleteCache(ctx context.Context, keys ...string) error {
