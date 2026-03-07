@@ -7,11 +7,15 @@ import (
 )
 
 type UUIDPaginate struct {
-	Token string
+	token string
 }
 
 func NewUUIDPaginate(token string) *UUIDPaginate {
-	return &UUIDPaginate{Token: token}
+	return &UUIDPaginate{token: token}
+}
+
+func (u *UUIDPaginate) Token() string {
+	return u.token
 }
 
 func (u *UUIDPaginate) Limit() int {
@@ -19,11 +23,11 @@ func (u *UUIDPaginate) Limit() int {
 }
 
 func (u *UUIDPaginate) Cursor() string {
-	if u.Token == "" {
+	if u.token == "" {
 		return ""
 	}
 
-	decodedBytes, err := base64.URLEncoding.DecodeString(u.Token)
+	decodedBytes, err := base64.URLEncoding.DecodeString(u.token)
 	if err != nil {
 		return ""
 	}
