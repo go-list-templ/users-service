@@ -29,6 +29,18 @@ func New(cfg *config.Redis) (*Redis, error) {
 		Addr:     cfg.Address,
 		Password: "",
 		DB:       0,
+
+		DialTimeout:  cfg.DialTimeout,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+
+		MaxRetries:      cfg.MaxRetries,
+		MinRetryBackoff: cfg.MinRetryBackoff,
+		MaxRetryBackoff: cfg.MaxRetryBackoff,
+
+		PoolSize:     cfg.PoolSize,
+		MinIdleConns: cfg.MinIdleCons,
+		PoolTimeout:  cfg.PoolTimeout,
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultCtx)
