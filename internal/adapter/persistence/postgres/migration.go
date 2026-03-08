@@ -22,7 +22,7 @@ func NewMigration(postgres *Postgres, logger *zap.Logger) *Migration {
 }
 
 func (m Migration) Up() error {
-	sqlDB := stdlib.OpenDBFromPool(m.Pool)
+	sqlDB := stdlib.OpenDBFromPool(m.Master)
 
 	goose.SetBaseFS(embedMigrations)
 
