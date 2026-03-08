@@ -43,6 +43,11 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	}, nil
 }
 
+func (p *Postgres) Shutdown() {
+	p.Master.Close()
+	p.Replica.Close()
+}
+
 func initMaster(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
 	confMaster, err := pgxpool.ParseConfig(cfg.WriteURL)
 	if err != nil {

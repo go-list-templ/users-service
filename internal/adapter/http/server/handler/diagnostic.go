@@ -45,11 +45,18 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 
 		status = http.StatusOK
 
-		err = d.postgres.Ping(ctx)
+		err = d.postgres.Master.Ping(ctx)
 		if err != nil {
 			status = http.StatusServiceUnavailable
 
-			d.logger.Warn("error pinging postgres", zap.Error(err))
+			d.logger.Warn("error pinging master postgres", zap.Error(err))
+		}
+
+		err = d.postgres.Replica.Ping(ctx)
+		if err != nil {
+			status = http.StatusServiceUnavailable
+
+			d.logger.Warn("error pinging replica postgres", zap.Error(err))
 		}
 
 		_, err = d.redis.Ping(ctx).Result()

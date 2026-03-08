@@ -26,5 +26,5 @@ func (c *TrmGetter) TrOrDB(ctx context.Context, db *postgres.Postgres) Tr {
 		return *tx
 	}
 
-	return db
+	return db.Master
 }

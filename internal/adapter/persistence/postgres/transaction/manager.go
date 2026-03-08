@@ -18,7 +18,7 @@ func NewManager(p *postgres.Postgres, l *zap.Logger) *Manager {
 }
 
 func (m *Manager) Do(ctx context.Context, fn func(ctx context.Context) error) error {
-	tx, err := m.Begin(ctx)
+	tx, err := m.Master.Begin(ctx)
 	if err != nil {
 		return err
 	}
