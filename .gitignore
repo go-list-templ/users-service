@@ -32,4 +32,4 @@ go.work.sum
 
 *schema.sql
 
-.docker/otel
+.docker/otel/data
