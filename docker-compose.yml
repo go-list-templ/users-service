@@ -10,10 +10,16 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
-      - redis
-      - rabbitmq
-      - sequin
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      sequin:
+        condition: service_started
+      pg-1:
+        condition: service_healthy
+      pg-2:
+        condition: service_healthy
     networks:
       - app
 
@@ -52,27 +58,73 @@ services:
       timeout: 5s
       retries: 30
 
-  db:
-    container_name: db.${APP_NAME}
-    image: postgres:18
-    environment:
-      POSTGRES_USER: '${DB_USERNAME}'
-      POSTGRES_PASSWORD: '${DB_PASSWORD}'
-      POSTGRES_DB: '${DB_DATABASE}'
-    command: [ "postgres", "-c", "wal_level=logical" ]
-    volumes:
-      - db_data:/var/lib/postgresql
-      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
+  pg-1:
+    container_name: postgres_1
+    image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
     ports:
-      - '${DB_PORT}:5432'
-    networks:
-      - app
+      - "5432:5432"
+    volumes:
+      - pg_1_data:/bitnami/postgresql
+      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_USERNAME=${DB_USERNAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_DATABASE=${DB_DATABASE}
+      - REPMGR_PASSWORD=repmgrpassword
+      - REPMGR_PRIMARY_HOST=pg-1
+      - REPMGR_PRIMARY_PORT=5432
+      - REPMGR_PARTNER_NODES=pg-1,pg-2:5432
+      - REPMGR_NODE_NAME=pg-1
+      - REPMGR_NODE_NETWORK_NAME=pg-1
+      - REPMGR_PORT_NUMBER=5432
+      - REPMGR_CONNECT_TIMEOUT=1
+      - REPMGR_RECONNECT_ATTEMPTS=2
+      - REPMGR_RECONNECT_INTERVAL=1
+      - REPMGR_MASTER_RESPONSE_TIMEOUT=5
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
-      interval: 1s
-      timeout: 2s
-      retries: 5
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - app
+
+  pg-2:
+    container_name: postgres_2
+    image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_2_data:/bitnami/postgresql
+      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_USERNAME=${DB_USERNAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_DATABASE=${DB_DATABASE}
+      - REPMGR_PASSWORD=repmgrpassword
+      - REPMGR_PRIMARY_HOST=pg-1
+      - REPMGR_PRIMARY_PORT=5432
+      - REPMGR_PARTNER_NODES=pg-1,pg-2:5432
+      - REPMGR_NODE_NAME=pg-2
+      - REPMGR_NODE_NETWORK_NAME=pg-2
+      - REPMGR_PORT_NUMBER=5432
+      - REPMGR_CONNECT_TIMEOUT=1
+      - REPMGR_RECONNECT_ATTEMPTS=2
+      - REPMGR_RECONNECT_INTERVAL=1
+      - REPMGR_MASTER_RESPONSE_TIMEOUT=5
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      - pg-1
+    networks:
+      - app
 
   sequin:
     container_name: sequin.${APP_NAME}
@@ -102,8 +154,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      db:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
 
@@ -127,9 +177,10 @@ services:
     restart: unless-stopped
 
 volumes:
-  db_data:
   redis_data:
   rabbitmq_data:
+  pg_1_data:
+  pg_2_data:
 
 networks:
   app:
