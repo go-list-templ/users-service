@@ -10,6 +10,8 @@ import (
 type (
 	DB struct {
 		URL         string        `envconfig:"DB_URL"`
+		ReadURL     string        `envconfig:"DB_READ_URL"`
+		WriteURL    string        `envconfig:"DB_WRITE_URL"`
 		Driver      string        `envconfig:"DB_DRIVER"`
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
 		MaxConnTime time.Duration `envconfig:"DB_MAX_CONN_TIME"`
