@@ -136,7 +136,7 @@ func run() error {
 		logger.Error("redis close failed", zap.Error(err))
 	}
 
-	pg.Shutdown()
+	pg.Close()
 
 	if err = telemetry.Shutdown(ctx); err != nil {
 		logger.Error("failed telemetry shutdown", zap.Error(err))

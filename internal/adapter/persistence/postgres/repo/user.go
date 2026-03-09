@@ -74,7 +74,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		args = []any{limit}
 	}
 
-	rows, err := u.Replica.Query(ctx, query, args...)
+	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
 		return nil, u.toPostgresError(ctx, err)
 	}

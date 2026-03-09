@@ -45,25 +45,17 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 
 		status = http.StatusOK
 
-		err = d.postgres.Master.Ping(ctx)
+		err = d.postgres.Ping(ctx)
 		if err != nil {
 			status = http.StatusServiceUnavailable
 
-			d.logger.Warn("error pinging master postgres", zap.Error(err))
+			d.logger.Warn("pinging postgres", zap.Error(err))
 		}
-
-		err = d.postgres.Replica.Ping(ctx)
-		if err != nil {
-			status = http.StatusServiceUnavailable
-
-			d.logger.Warn("error pinging replica postgres", zap.Error(err))
-		}
-
 		_, err = d.redis.Ping(ctx).Result()
 		if err != nil {
 			status = http.StatusServiceUnavailable
 
-			d.logger.Warn("error pinging redis", zap.Error(err))
+			d.logger.Warn("pinging redis", zap.Error(err))
 		}
 
 		err = d.redis.SetCache(ctx, cacheKey, status, TTL)

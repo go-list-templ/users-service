@@ -12,11 +12,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      master:
-        condition: service_healthy
-      replica1:
-        condition: service_healthy
-      replica2:
+      db:
         condition: service_healthy
     networks:
       - app
@@ -38,63 +34,17 @@ services:
     expose:
       - '${REDIS_PORT}'
 
-  master:
-    build: .docker/pg-master
-    container_name: master
+  db:
+    container_name: db.${APP_NAME}
+    image: postgres:17
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE}
-    ports:
-      - "6000:5432"
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB_DATABASE}'
     volumes:
-      - master-data:/var/lib/postgresql/data
-    networks:
-      - app
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
-      interval: 1s
-      timeout: 2s
-      retries: 5
-    restart: unless-stopped
-
-  replica1:
-    build: .docker/pg-replica
-    container_name: replica1
-    depends_on:
-      - master
-    environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      PGPASSWORD: root
-      REPLICA_NAME: replica1
+      - db_data:/var/lib/postgresql/data
     ports:
-      - "6001:5432"
-    volumes:
-      - replica1-data:/var/lib/postgresql/data
-    networks:
-      - app
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
-      interval: 1s
-      timeout: 2s
-      retries: 5
-    restart: unless-stopped
-
-  replica2:
-    build: .docker/pg-replica
-    container_name: replica2
-    depends_on:
-      - master
-    environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      PGPASSWORD: root
-      REPLICA_NAME: replica2
-    ports:
-      - "6002:5432"
-    volumes:
-      - replica2-data:/var/lib/postgresql/data
+      - '${DB_PORT}:5432'
     networks:
       - app
     healthcheck:
@@ -125,9 +75,7 @@ services:
 
 volumes:
   redis_data:
-  master-data:
-  replica1-data:
-  replica2-data:
+  db_data:
 
 networks:
   app:

@@ -18,91 +18,54 @@ const (
 )
 
 type Postgres struct {
-	Master  *pgxpool.Pool
-	Replica *pgxpool.Pool
+	*pgxpool.Pool
 }
 
 func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
-	master, err := initMaster(cfg, logger)
-	if err != nil {
-		logger.Error("init master", zap.Error(err))
+	pg := &Postgres{}
 
-		return nil, err
-	}
-
-	replica, err := initReplica(cfg, logger)
-	if err != nil {
-		logger.Error("init replica", zap.Error(err))
-
-		return nil, err
-	}
-
-	return &Postgres{
-		Master:  master,
-		Replica: replica,
-	}, nil
-}
-
-func (p *Postgres) Shutdown() {
-	p.Master.Close()
-	p.Replica.Close()
-}
-
-func initMaster(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
-	confMaster, err := pgxpool.ParseConfig(cfg.MasterURL)
+	conf, err := pgxpool.ParseConfig(cfg.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	confMaster.MaxConns = cfg.MaxConn
-	confMaster.MaxConnLifetime = cfg.MaxConnTime
-	confMaster.MaxConnIdleTime = cfg.MaxIdleTime
+	conf.MaxConns = cfg.MaxConn
+	conf.MaxConnLifetime = cfg.MaxConnTime
+	conf.MaxConnIdleTime = cfg.MaxIdleTime
 
-	confMaster.ConnConfig.Tracer = otelpgx.NewTracer()
+	connAttempts := DefaultConnAttempts
+	connTimeout := DefaultConnTimeout
 
-	return initPool(confMaster, logger)
-}
+	conf.ConnConfig.Tracer = otelpgx.NewTracer()
 
-func initReplica(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
-	confMaster, err := pgxpool.ParseConfig(cfg.ReplicaURL)
-	if err != nil {
-		return nil, err
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
+	defer cancel()
 
-	confMaster.MaxConns = cfg.MaxConn
-	confMaster.MaxConnLifetime = cfg.MaxConnTime
-	confMaster.MaxConnIdleTime = cfg.MaxIdleTime
-
-	confMaster.ConnConfig.Tracer = otelpgx.NewTracer()
-
-	return initPool(confMaster, logger)
-}
-
-func initPool(conf *pgxpool.Config, logger *zap.Logger) (*pgxpool.Pool, error) {
-	attempts := DefaultConnAttempts
-
-	for attempts > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
-
-		pool, err := pgxpool.NewWithConfig(ctx, conf)
-		if err == nil {
-			err = pool.Ping(ctx)
-		}
-		cancel()
-
-		if err == nil {
-			if err = otelpgx.RecordStats(pool); err != nil {
-				return nil, err
-			}
-
-			return pool, nil
+	for connAttempts > 0 {
+		pg.Pool, err = pgxpool.NewWithConfig(ctx, conf)
+		if err != nil {
+			logger.Info("postgres err config", zap.Error(err))
 		}
 
-		logger.Warn("Postgres is trying to connect", zap.Int("attempts", attempts), zap.Error(err))
+		err = pg.Ping(ctx)
+		if err == nil {
+			break
+		}
 
-		attempts--
-		time.Sleep(DefaultConnTimeout)
+		logger.Warn("Postgres is trying to connect", zap.Int("attempts", connAttempts), zap.Error(err))
+
+		time.Sleep(connTimeout)
+
+		connAttempts--
 	}
 
-	return nil, fmt.Errorf("all attempts failed")
+	if err != nil {
+		return nil, fmt.Errorf("end attempts exceeded: %w", err)
+	}
+
+	if err = otelpgx.RecordStats(pg.Pool); err != nil {
+		return nil, fmt.Errorf("unable to record database stats: %w", err)
+	}
+
+	return pg, nil
 }

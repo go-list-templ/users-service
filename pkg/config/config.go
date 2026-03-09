@@ -22,8 +22,7 @@ type (
 	}
 
 	DB struct {
-		ReplicaURL string `envconfig:"DB_REPLICA_URL"`
-		MasterURL  string `envconfig:"DB_MASTER_URL"`
+		URL string `envconfig:"DB_URL"`
 
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
 		MaxConnTime time.Duration `envconfig:"DB_MAX_CONN_TIME"`
