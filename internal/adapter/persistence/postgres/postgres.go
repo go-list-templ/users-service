@@ -49,7 +49,7 @@ func (p *Postgres) Shutdown() {
 }
 
 func initMaster(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
-	confMaster, err := pgxpool.ParseConfig(cfg.WriteURL)
+	confMaster, err := pgxpool.ParseConfig(cfg.MasterURL)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func initMaster(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
 }
 
 func initReplica(cfg *config.DB, logger *zap.Logger) (*pgxpool.Pool, error) {
-	confMaster, err := pgxpool.ParseConfig(cfg.ReadURL)
+	confMaster, err := pgxpool.ParseConfig(cfg.ReplicaURL)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func initPool(conf *pgxpool.Config, logger *zap.Logger) (*pgxpool.Pool, error) {
 			return pool, nil
 		}
 
-		logger.Warn("Postgres is trying to connect", zap.Int("attempts", attempts))
+		logger.Warn("Postgres is trying to connect", zap.Int("attempts", attempts), zap.Error(err))
 
 		attempts--
 		time.Sleep(DefaultConnTimeout)
