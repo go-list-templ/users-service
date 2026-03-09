@@ -32,11 +32,13 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	conf.MaxConns = cfg.MaxConn
 	conf.MaxConnLifetime = cfg.MaxConnTime
 	conf.MaxConnIdleTime = cfg.MaxIdleTime
+	conf.MinConns = cfg.MinConn
+	conf.HealthCheckPeriod = cfg.HealthCheckTime
+	conf.ConnConfig.ConnectTimeout = cfg.ConnTime
+	conf.ConnConfig.Tracer = otelpgx.NewTracer()
 
 	connAttempts := DefaultConnAttempts
 	connTimeout := DefaultConnTimeout
-
-	conf.ConnConfig.Tracer = otelpgx.NewTracer()
 
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultContextTimeout)
 	defer cancel()

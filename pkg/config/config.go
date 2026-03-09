@@ -15,9 +15,15 @@ type (
 
 	Server struct {
 		GRPCPort        string        `envconfig:"GRPC_PORT"`
-		DiagnosticPort  string        `envconfig:"DIAGNOSTIC_PORT"`
-		HTTPTimeout     time.Duration `envconfig:"HTTP_TIMEOUT"`
-		IdleTimeout     time.Duration `envconfig:"IDLE_TIMEOUT"`
+		GRPCTime        time.Duration `envconfig:"GRPC_TIME"`
+		GRPCTimeout     time.Duration `envconfig:"GRPC_TIMEOUT"`
+		GRPCMaxConnIdle time.Duration `envconfig:"GRPC_MAX_CONN_IDLE"`
+		GRPCMaxConnAge  time.Duration `envconfig:"GRPC_MAX_CONN_AGE"`
+
+		DiagnosticPort string        `envconfig:"DIAGNOSTIC_PORT"`
+		HTTPTimeout    time.Duration `envconfig:"HTTP_TIMEOUT"`
+		IdleTimeout    time.Duration `envconfig:"IDLE_TIMEOUT"`
+
 		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
 	}
 
@@ -25,8 +31,12 @@ type (
 		URL string `envconfig:"DB_URL"`
 
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
+		MinConn     int32         `envconfig:"DB_MIN_CONN"`
+		ConnTime    time.Duration `envconfig:"DB_CONN_TIMEOUT"`
 		MaxConnTime time.Duration `envconfig:"DB_MAX_CONN_TIME"`
 		MaxIdleTime time.Duration `envconfig:"DB_MAX_CONN_IDLE_TIME"`
+
+		HealthCheckTime time.Duration `envconfig:"DB_HEALTH_CHECK_PERIOD"`
 	}
 
 	Redis struct {

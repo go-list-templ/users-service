@@ -8,6 +8,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type GRPC struct {
@@ -19,16 +20,26 @@ type GRPC struct {
 }
 
 func New(cfg *config.Server) *GRPC {
-	group, ctx := errgroup.WithContext(context.Background())
-	group.SetLimit(1)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+
+	group, serverCtx := errgroup.WithContext(ctx)
+
+	ka := keepalive.ServerParameters{
+		MaxConnectionIdle: cfg.GRPCMaxConnIdle,
+		MaxConnectionAge:  cfg.GRPCMaxConnAge,
+		Time:              cfg.GRPCTime,
+		Timeout:           cfg.GRPCTimeout,
+	}
 
 	server := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.KeepaliveParams(ka),
 	)
 
 	return &GRPC{
 		Server: server,
-		ctx:    ctx,
+		ctx:    serverCtx,
 		eg:     group,
 		config: cfg,
 		errors: make(chan error, 1),
