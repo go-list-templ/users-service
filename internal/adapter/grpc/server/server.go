@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"net"
-	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -32,7 +31,6 @@ func New(cfg *config.Server) *GRPC {
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.KeepaliveParams(ka),
 		grpc.ConnectionTimeout(cfg.GRPCTimeout),
-		grpc.UnaryInterceptor(timeoutInterceptor(5*time.Second)),
 	)
 
 	return &GRPC{
@@ -41,21 +39,6 @@ func New(cfg *config.Server) *GRPC {
 		eg:     &errgroup.Group{},
 		config: cfg,
 		errors: make(chan error, 1),
-	}
-}
-
-func timeoutInterceptor(timeout time.Duration) grpc.UnaryServerInterceptor {
-	return func(
-		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (interface{}, error) {
-		// Создаем новый контекст с таймаутом для каждого вызова
-		ctx, cancel := context.WithTimeout(ctx, timeout)
-		defer cancel()
-
-		return handler(ctx, req)
 	}
 }
 
