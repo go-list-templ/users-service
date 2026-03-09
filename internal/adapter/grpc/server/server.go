@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net"
+	"time"
 
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -20,11 +21,6 @@ type GRPC struct {
 }
 
 func New(cfg *config.Server) *GRPC {
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
-	defer cancel()
-
-	group, serverCtx := errgroup.WithContext(ctx)
-
 	ka := keepalive.ServerParameters{
 		MaxConnectionIdle: cfg.GRPCMaxConnIdle,
 		MaxConnectionAge:  cfg.GRPCMaxConnAge,
@@ -35,14 +31,31 @@ func New(cfg *config.Server) *GRPC {
 	server := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.KeepaliveParams(ka),
+		grpc.ConnectionTimeout(cfg.GRPCTimeout),
+		grpc.UnaryInterceptor(timeoutInterceptor(5*time.Second)),
 	)
 
 	return &GRPC{
 		Server: server,
-		ctx:    serverCtx,
-		eg:     group,
+		ctx:    context.Background(),
+		eg:     &errgroup.Group{},
 		config: cfg,
 		errors: make(chan error, 1),
+	}
+}
+
+func timeoutInterceptor(timeout time.Duration) grpc.UnaryServerInterceptor {
+	return func(
+		ctx context.Context,
+		req interface{},
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler,
+	) (interface{}, error) {
+		// Создаем новый контекст с таймаутом для каждого вызова
+		ctx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		return handler(ctx, req)
 	}
 }
 
