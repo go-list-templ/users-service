@@ -12,9 +12,11 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      pg-1:
+      master:
         condition: service_healthy
-      pg-2:
+      replica1:
+        condition: service_healthy
+      replica2:
         condition: service_healthy
     networks:
       - app
@@ -36,71 +38,71 @@ services:
     expose:
       - '${REDIS_PORT}'
 
-  pg-1:
-    container_name: pg-1.${APP_NAME}
-    image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg-1_data:/bitnami/postgresql
+  master:
+    build: .docker/pg-master
+    container_name: master
     environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_USERNAME=${DB_USERNAME}
-      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_DATABASE=${DB_DATABASE}
-      - REPMGR_PASSWORD=repmgrpassword
-      - REPMGR_PRIMARY_HOST=pg-1
-      - REPMGR_PRIMARY_PORT=5432
-      - REPMGR_PARTNER_NODES=pg-1,pg-2:5432
-      - REPMGR_NODE_NAME=pg-1
-      - REPMGR_NODE_NETWORK_NAME=pg-1
-      - REPMGR_PORT_NUMBER=5432
-      - REPMGR_CONNECT_TIMEOUT=1
-      - REPMGR_RECONNECT_ATTEMPTS=2
-      - REPMGR_RECONNECT_INTERVAL=1
-      - REPMGR_MASTER_RESPONSE_TIMEOUT=5
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "6000:5432"
+    volumes:
+      - master-data:/var/lib/postgresql/data
     networks:
       - app
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+      interval: 1s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
 
-  pg-2:
-    container_name: pg-2.${APP_NAME}
-    image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
-    ports:
-      - "5433:5432"
-    volumes:
-      - pg-2_data:/bitnami/postgresql
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_USERNAME=${DB_USERNAME}
-      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
-      - POSTGRESQL_DATABASE=${DB_DATABASE}
-      - REPMGR_PASSWORD=repmgrpassword
-      - REPMGR_PRIMARY_HOST=pg-1
-      - REPMGR_PRIMARY_PORT=5432
-      - REPMGR_PARTNER_NODES=pg-1,pg-2:5432
-      - REPMGR_NODE_NAME=pg-2
-      - REPMGR_NODE_NETWORK_NAME=pg-2
-      - REPMGR_PORT_NUMBER=5432
-      - REPMGR_CONNECT_TIMEOUT=1
-      - REPMGR_RECONNECT_ATTEMPTS=2
-      - REPMGR_RECONNECT_INTERVAL=1
-      - REPMGR_MASTER_RESPONSE_TIMEOUT=5
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+  replica1:
+    build: .docker/pg-replica
+    container_name: replica1
     depends_on:
-      - pg-1
+      - master
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGPASSWORD: root
+      REPLICA_NAME: replica1
+    ports:
+      - "6001:5432"
+    volumes:
+      - replica1-data:/var/lib/postgresql/data
     networks:
       - app
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+      interval: 1s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  replica2:
+    build: .docker/pg-replica
+    container_name: replica2
+    depends_on:
+      - master
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGPASSWORD: root
+      REPLICA_NAME: replica2
+    ports:
+      - "6002:5432"
+    volumes:
+      - replica2-data:/var/lib/postgresql/data
+    networks:
+      - app
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+      interval: 1s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
 
   otel:
     container_name: otel.${APP_NAME}
@@ -123,8 +125,9 @@ services:
 
 volumes:
   redis_data:
-  pg-1_data:
-  pg-2_data:
+  master-data:
+  replica1-data:
+  replica2-data:
 
 networks:
   app:
