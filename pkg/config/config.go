@@ -8,11 +8,23 @@ import (
 )
 
 type (
+	App struct {
+		Name    string `envconfig:"APP_NAME"`
+		Version string `envconfig:"APP_VERSION"`
+	}
+
+	Server struct {
+		GRPCPort        string        `envconfig:"GRPC_PORT"`
+		DiagnosticPort  string        `envconfig:"DIAGNOSTIC_PORT"`
+		HTTPTimeout     time.Duration `envconfig:"HTTP_TIMEOUT"`
+		IdleTimeout     time.Duration `envconfig:"IDLE_TIMEOUT"`
+		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
+	}
+
 	DB struct {
-		URL         string        `envconfig:"DB_URL"`
-		ReadURL     string        `envconfig:"DB_READ_URL"`
-		WriteURL    string        `envconfig:"DB_WRITE_URL"`
-		Driver      string        `envconfig:"DB_DRIVER"`
+		ReplicaURL string `envconfig:"DB_REPLICA_URL"`
+		MasterURL  string `envconfig:"DB_MASTER_URL"`
+
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
 		MaxConnTime time.Duration `envconfig:"DB_MAX_CONN_TIME"`
 		MaxIdleTime time.Duration `envconfig:"DB_MAX_CONN_IDLE_TIME"`
@@ -32,19 +44,6 @@ type (
 		PoolSize    int           `envconfig:"REDIS_POOL_SIZE"`
 		MinIdleCons int           `envconfig:"REDIS_MIN_IDLE_CONS"`
 		PoolTimeout time.Duration `envconfig:"REDIS_POOL_TIMEOUT"`
-	}
-
-	App struct {
-		Name    string `envconfig:"APP_NAME"`
-		Version string `envconfig:"APP_VERSION"`
-	}
-
-	Server struct {
-		GRPCPort        string        `envconfig:"GRPC_PORT"`
-		DiagnosticPort  string        `envconfig:"DIAGNOSTIC_PORT"`
-		HTTPTimeout     time.Duration `envconfig:"HTTP_TIMEOUT"`
-		IdleTimeout     time.Duration `envconfig:"IDLE_TIMEOUT"`
-		ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT"`
 	}
 
 	Otel struct {
