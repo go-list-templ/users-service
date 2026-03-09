@@ -12,10 +12,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      sequin:
-        condition: service_started
       pg-1:
         condition: service_healthy
       pg-2:
@@ -40,32 +36,13 @@ services:
     expose:
       - '${REDIS_PORT}'
 
-  rabbitmq:
-    container_name: rabbitmq.${APP_NAME}
-    image: rabbitmq:4.2.0-management
-    ports:
-      - '${MQ_PORT}:5672'
-      - '${MQ_ADMIN_PORT}:15672'
-    networks:
-      - app
-    volumes:
-      - ./.docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-      - ./.docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 5s
-      timeout: 5s
-      retries: 30
-
   pg-1:
-    container_name: postgres_1
+    container_name: pg-1.${APP_NAME}
     image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
     ports:
       - "5432:5432"
     volumes:
-      - pg_1_data:/bitnami/postgresql
-      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
+      - pg-1_data:/bitnami/postgresql
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRESQL_USERNAME=${DB_USERNAME}
@@ -92,13 +69,12 @@ services:
       - app
 
   pg-2:
-    container_name: postgres_2
+    container_name: pg-2.${APP_NAME}
     image: bitnamilegacy/postgresql-repmgr:17.6.0-debian-12-r2
     ports:
       - "5433:5432"
     volumes:
-      - pg_2_data:/bitnami/postgresql
-      - ./internal/adapter/persistence/postgres/init/:/docker-entrypoint-initdb.d/
+      - pg-2_data:/bitnami/postgresql
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRESQL_USERNAME=${DB_USERNAME}
@@ -126,37 +102,6 @@ services:
     networks:
       - app
 
-  sequin:
-    container_name: sequin.${APP_NAME}
-    image: sequin/sequin:latest
-    ports:
-      - '${SEQUIN_PORT}:7376'
-    networks:
-      - app
-    environment:
-      - PG_HOSTNAME=db
-      - PG_DATABASE=${DB_DATABASE}
-      - PG_PORT=${DB_PORT}
-      - PG_USERNAME=${DB_USERNAME}
-      - PG_PASSWORD=${DB_PASSWORD}
-      - PG_POOL_SIZE=${DB_MAX_CONN}
-      - SECRET_KEY_BASE=wDPLYus0pvD6qJhKJICO4dauYPXfO/Yl782Zjtpew5qRBDp7CZvbWtQmY0eB13If
-      - VAULT_KEY=2Sig69bIpuSm2kv0VQfDekET2qy8qUZGI8v3/h3ASiY=
-      - REDIS_URL=redis://redis:${REDIS_PORT}
-      - CONFIG_FILE_PATH=/config/main.yml
-      - SEQUIN_EMAIL=${SEQUIN_EMAIL}
-      - SEQUIN_PASSWORD=${SEQUIN_PASSWORD}
-      - MQ_USERNAME=${MQ_USERNAME}
-      - MQ_PASSWORD=${MQ_PASSWORD}
-      - MQ_PORT=${MQ_PORT}
-    volumes:
-      - ./.docker/sequin/sequin.yml:/config/main.yml
-    depends_on:
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
   otel:
     container_name: otel.${APP_NAME}
     image: grafana/otel-lgtm:latest
@@ -178,9 +123,8 @@ services:
 
 volumes:
   redis_data:
-  rabbitmq_data:
-  pg_1_data:
-  pg_2_data:
+  pg-1_data:
+  pg-2_data:
 
 networks:
   app:
