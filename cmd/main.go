@@ -126,9 +126,11 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.ShutdownTimeout)
 	defer cancel()
 
-	grpcServer.Stop()
+	if err = grpcServer.Shutdown(); err != nil {
+		logger.Error("grpc shutdown", zap.Error(err))
+	}
 
-	if err = httpServer.Stop(ctx); err != nil {
+	if err = httpServer.Shutdown(ctx); err != nil {
 		logger.Error("server stopped with error", zap.Error(err))
 	}
 
