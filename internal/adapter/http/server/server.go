@@ -38,6 +38,6 @@ func (s *HTTP) Start() {
 	}()
 }
 
-func (s *HTTP) Stop(ctx context.Context) error {
+func (s *HTTP) Shutdown(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }
