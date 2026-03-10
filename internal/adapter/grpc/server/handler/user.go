@@ -2,17 +2,13 @@ package handler
 
 import (
 	"context"
-	"errors"
 
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entityerr"
 	"github.com/go-list-templ/grpc/internal/core/dto"
 	"github.com/go-list-templ/grpc/internal/port"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -38,9 +34,9 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 
 	output, err := u.userService.Create(ctx, input)
 	if err != nil {
-		u.logger.Warn("user service create", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Warn("user create", zap.Any("context", ctx), zap.Error(err))
 
-		return nil, u.toGRPCError(err)
+		return nil, err
 	}
 
 	return u.createToProto(output), nil
@@ -53,9 +49,9 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 
 	output, err := u.userService.List(ctx, input)
 	if err != nil {
-		u.logger.Warn("all user", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Warn("user list", zap.Any("context", ctx), zap.Error(err))
 
-		return nil, u.toGRPCError(err)
+		return nil, err
 	}
 
 	return u.listToProto(output), nil
@@ -88,18 +84,5 @@ func (u *User) listToProto(output dto.UserListOutput) *v1.ListResponse {
 	return &v1.ListResponse{
 		Users:         users,
 		NextPageToken: output.NextPageToken,
-	}
-}
-
-func (u *User) toGRPCError(err error) error {
-	switch {
-	case errors.Is(err, entityerr.ErrUserAlreadyExists):
-		return status.Error(codes.AlreadyExists, err.Error())
-	case errors.Is(err, entityerr.ErrUserNotFound):
-		return status.Error(codes.NotFound, err.Error())
-	case errors.Is(err, entityerr.ErrUserInvalidData):
-		return status.Error(codes.InvalidArgument, err.Error())
-	default:
-		return status.Error(codes.Internal, "internal error")
 	}
 }
