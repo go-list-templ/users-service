@@ -129,7 +129,6 @@ func (r *Redis) InvalidateTags(ctx context.Context, tags ...string) error {
 			return err
 		}
 
-		keys = append(keys, tag)
 		keys = append(keys, k...)
 	}
 
