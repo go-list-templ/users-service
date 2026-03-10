@@ -7,7 +7,7 @@ import (
 
 	otelmetric "go.opentelemetry.io/otel/metric"
 
-	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/users-service/pkg/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/sdk/metric"

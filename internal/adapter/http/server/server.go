@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/users-service/pkg/config"
 )
 
 type HTTP struct {

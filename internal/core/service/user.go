@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/domain/event"
-	"github.com/go-list-templ/grpc/internal/core/dto"
-	"github.com/go-list-templ/grpc/internal/port"
-	"github.com/go-list-templ/grpc/pkg/paginate"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/internal/core/dto"
+	"github.com/go-list-templ/users-service/internal/port"
+	"github.com/go-list-templ/users-service/pkg/paginate"
 )
 
 type User struct {

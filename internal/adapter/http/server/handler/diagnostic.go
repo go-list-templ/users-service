@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
-	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
+	"github.com/go-list-templ/users-service/internal/adapter/cache/redis"
+	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres"
 	"go.uber.org/zap"
 )
 

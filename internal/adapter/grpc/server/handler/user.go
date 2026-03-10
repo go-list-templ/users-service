@@ -6,8 +6,8 @@ import (
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
-	"github.com/go-list-templ/grpc/internal/core/dto"
-	"github.com/go-list-templ/grpc/internal/port"
+	"github.com/go-list-templ/users-service/internal/core/dto"
+	"github.com/go-list-templ/users-service/internal/port"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

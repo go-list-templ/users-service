@@ -1,4 +1,4 @@
-module github.com/go-list-templ/grpc
+module github.com/go-list-templ/users-service
 
 go 1.26
 

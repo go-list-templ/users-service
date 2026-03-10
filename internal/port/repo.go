@@ -3,9 +3,9 @@ package port
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/domain/event"
-	"github.com/go-list-templ/grpc/pkg/paginate"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/pkg/paginate"
 )
 
 //go:generate mockgen -source=repo.go -destination=mock/mock_repo.go -package=mock

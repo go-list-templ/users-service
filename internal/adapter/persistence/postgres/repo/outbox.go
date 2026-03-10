@@ -3,9 +3,9 @@ package repo
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
-	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres/transaction"
-	"github.com/go-list-templ/grpc/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres"
+	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
+	"github.com/go-list-templ/users-service/internal/core/domain/event"
 )
 
 type OutboxRepo struct {

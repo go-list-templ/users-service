@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 )
 
 type (

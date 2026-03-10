@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entityerr"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

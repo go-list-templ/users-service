@@ -3,8 +3,8 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/domain/event/dao"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/event/dao"
 )
 
 const AggregateUserCreated = "user_created"

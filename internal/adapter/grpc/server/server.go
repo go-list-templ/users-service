@@ -4,8 +4,8 @@ import (
 	"context"
 	"net"
 
-	"github.com/go-list-templ/grpc/internal/adapter/grpc/server/interceptor"
-	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/users-service/internal/adapter/grpc/server/interceptor"
+	"github.com/go-list-templ/users-service/pkg/config"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"

@@ -3,8 +3,8 @@ package entity
 import (
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entityerr"
-	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 )
 
 type User struct {

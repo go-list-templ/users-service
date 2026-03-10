@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/core/dto"
+	"github.com/go-list-templ/users-service/internal/core/dto"
 )
 
 //go:generate mockgen -source=service.go -destination=mock/mock_service.go -package=mock

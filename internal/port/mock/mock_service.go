@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dto "github.com/go-list-templ/grpc/internal/core/dto"
+	dto "github.com/go-list-templ/users-service/internal/core/dto"
 	gomock "go.uber.org/mock/gomock"
 )
 

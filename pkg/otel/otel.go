@@ -5,7 +5,7 @@ import (
 
 	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
 
-	"github.com/go-list-templ/grpc/pkg/config"
+	"github.com/go-list-templ/users-service/pkg/config"
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 

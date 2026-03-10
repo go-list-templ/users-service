@@ -3,8 +3,8 @@ package dao
 import (
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/core/domain/vo"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

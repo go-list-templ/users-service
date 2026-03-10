@@ -3,7 +3,7 @@ package transaction
 import (
 	"context"
 
-	"github.com/go-list-templ/grpc/internal/adapter/persistence/postgres"
+	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres"
 	"github.com/jackc/pgx/v5"
 )
 

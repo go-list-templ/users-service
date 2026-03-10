@@ -13,9 +13,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	entity "github.com/go-list-templ/grpc/internal/core/domain/entity"
-	event "github.com/go-list-templ/grpc/internal/core/domain/event"
-	paginate "github.com/go-list-templ/grpc/pkg/paginate"
+	entity "github.com/go-list-templ/users-service/internal/core/domain/entity"
+	event "github.com/go-list-templ/users-service/internal/core/domain/event"
+	paginate "github.com/go-list-templ/users-service/pkg/paginate"
 	gomock "go.uber.org/mock/gomock"
 )
 

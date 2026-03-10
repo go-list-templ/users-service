@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-list-templ/grpc/internal/adapter/cache/redis"
-	"github.com/go-list-templ/grpc/internal/adapter/cache/redis/repo/dao"
-	"github.com/go-list-templ/grpc/internal/core/domain/entity"
-	"github.com/go-list-templ/grpc/internal/port"
-	"github.com/go-list-templ/grpc/pkg/paginate"
+	"github.com/go-list-templ/users-service/internal/adapter/cache/redis"
+	"github.com/go-list-templ/users-service/internal/adapter/cache/redis/repo/dao"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/port"
+	"github.com/go-list-templ/users-service/pkg/paginate"
 	"go.uber.org/zap"
 	"golang.org/x/sync/singleflight"
 )
