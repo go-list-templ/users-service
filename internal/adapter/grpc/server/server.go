@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 
+	"github.com/go-list-templ/grpc/internal/adapter/grpc/server/interceptor"
 	"github.com/go-list-templ/grpc/pkg/config"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
@@ -20,6 +21,8 @@ type GRPC struct {
 }
 
 func New(cfg *config.Server) *GRPC {
+	group, ctx := errgroup.WithContext(context.Background())
+
 	ka := keepalive.ServerParameters{
 		MaxConnectionIdle: cfg.GRPCMaxConnIdle,
 		MaxConnectionAge:  cfg.GRPCMaxConnAge,
@@ -31,12 +34,16 @@ func New(cfg *config.Server) *GRPC {
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.KeepaliveParams(ka),
 		grpc.ConnectionTimeout(cfg.GRPCTimeout),
+		grpc.ChainUnaryInterceptor(
+			interceptor.ServerTimeout(cfg.GRPCTimeout),
+			interceptor.ErrorHandling(),
+		),
 	)
 
 	return &GRPC{
 		Server: server,
-		ctx:    context.Background(),
-		eg:     &errgroup.Group{},
+		ctx:    ctx,
+		eg:     group,
 		config: cfg,
 		errors: make(chan error, 1),
 	}
@@ -72,6 +79,13 @@ func (s *GRPC) Start() {
 	})
 }
 
-func (s *GRPC) Stop() {
+func (s *GRPC) Shutdown() error {
 	s.Server.GracefulStop()
+
+	err := s.eg.Wait()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
