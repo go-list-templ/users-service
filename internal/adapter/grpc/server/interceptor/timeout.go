@@ -10,10 +10,10 @@ import (
 func ServerTimeout(timeout time.Duration) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
+		req any,
+		_ *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
-	) (interface{}, error) {
+	) (any, error) {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
