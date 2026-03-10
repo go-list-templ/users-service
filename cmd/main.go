@@ -53,28 +53,28 @@ func run() error {
 		logger.Info("auto max procs", zap.Any("count", args))
 	}))
 	if err != nil {
-		logger.Error("failed to set auto max procs", zap.Error(err))
+		logger.Error("set auto max procs", zap.Error(err))
 	}
 
 	logger.Info("initializing postgres")
 
 	pg, err := postgres.New(&cfg.DB, logger.With(zap.String("module", "postgres")))
 	if err != nil {
-		logger.Panic("cant init postgres", zap.Error(err))
+		logger.Panic("init postgres", zap.Error(err))
 	}
 
 	logger.Info("postgres migration")
 
 	migration := postgres.NewMigration(pg, logger.With(zap.String("module", "migration")))
 	if err = migration.Up(); err != nil {
-		logger.Panic("migration failed", zap.Error(err))
+		logger.Panic("migration", zap.Error(err))
 	}
 
 	logger.Info("initializing redis")
 
 	rd, err := redis.New(&cfg.Redis)
 	if err != nil {
-		logger.Panic("cant init redis", zap.Error(err))
+		logger.Panic("init redis", zap.Error(err))
 	}
 
 	logger.Info("initializing transaction manager")
@@ -116,9 +116,9 @@ func run() error {
 	case x := <-interrupt:
 		logger.Info("Received a signal.", zap.String("signal", x.String()))
 	case err = <-httpServer.Notify():
-		logger.Error("Received an error from the http server", zap.Error(err))
+		logger.Error("Received from the http server", zap.Error(err))
 	case err = <-grpcServer.Notify():
-		logger.Error("Received an error from the grpc server", zap.Error(err))
+		logger.Error("Received from the grpc server", zap.Error(err))
 	}
 
 	logger.Info("stopping app")
@@ -131,17 +131,17 @@ func run() error {
 	}
 
 	if err = httpServer.Shutdown(ctx); err != nil {
-		logger.Error("server stopped with error", zap.Error(err))
+		logger.Error("http shutdown", zap.Error(err))
 	}
 
 	if err = rd.Close(); err != nil {
-		logger.Error("redis close failed", zap.Error(err))
+		logger.Error("redis close", zap.Error(err))
 	}
 
 	pg.Close()
 
 	if err = telemetry.Shutdown(ctx); err != nil {
-		logger.Error("failed telemetry shutdown", zap.Error(err))
+		logger.Error("telemetry shutdown", zap.Error(err))
 	}
 
 	maxProcsShowdown()
