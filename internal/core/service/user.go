@@ -49,22 +49,15 @@ func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (dto.UserC
 }
 
 func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListOutput, error) {
-	pagination := paginate.NewUUIDPaginate(input.PageToken)
+	pagination := paginate.NewUserPaginate(input.PageToken)
 
 	users, err := s.userRepo.All(ctx, pagination)
 	if err != nil {
 		return dto.UserListOutput{}, err
 	}
 
-	pageToken := ""
-
-	if len(users) >= pagination.Limit() {
-		lastUser := users[len(users)-1]
-		pageToken = pagination.GenerateToken(lastUser.ID.Value().String())
-	}
-
 	return dto.UserListOutput{
 		Users:         dto.UsersFromEntity(users),
-		NextPageToken: pageToken,
+		NextPageToken: pagination.NextPageToken(users),
 	}, nil
 }

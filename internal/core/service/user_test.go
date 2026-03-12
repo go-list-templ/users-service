@@ -55,13 +55,13 @@ func TestUser_List(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	users := make([]entity.User, 15)
+	users := make([]entity.User, 16)
 
-	for i := 0; i < 15; i++ {
+	for i := 0; i <= 15; i++ {
 		users[i] = user
 	}
 
-	pg := paginate.NewUUIDPaginate("")
+	pg := paginate.NewUserPaginate("")
 	pageToken := pg.GenerateToken(user.ID.Value().String())
 
 	tests := []struct {
