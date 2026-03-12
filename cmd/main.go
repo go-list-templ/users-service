@@ -94,7 +94,7 @@ func run() error {
 
 	logger.Info("initializing servers")
 
-	grpcServer := grpcserver.New(&cfg.Server)
+	grpcServer := grpcserver.New(&cfg.Server, logger.With(zap.String("module", "grpc server")))
 	grpcServer.Start()
 
 	httpServer := httpserver.NewHTTP(&cfg.Server)

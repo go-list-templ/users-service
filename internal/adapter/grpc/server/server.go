@@ -7,6 +7,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/grpc/server/interceptor"
 	"github.com/go-list-templ/users-service/pkg/config"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -20,10 +21,10 @@ type GRPC struct {
 	errors chan error
 }
 
-func New(cfg *config.Server) *GRPC {
+func New(cfg *config.Server, logger *zap.Logger) *GRPC {
 	group, ctx := errgroup.WithContext(context.Background())
 
-	ka := keepalive.ServerParameters{
+	keepaliveConf := keepalive.ServerParameters{
 		MaxConnectionIdle: cfg.GRPCMaxConnIdle,
 		MaxConnectionAge:  cfg.GRPCMaxConnAge,
 		Time:              cfg.GRPCTime,
@@ -32,9 +33,10 @@ func New(cfg *config.Server) *GRPC {
 
 	server := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		grpc.KeepaliveParams(ka),
+		grpc.KeepaliveParams(keepaliveConf),
 		grpc.ConnectionTimeout(cfg.GRPCTimeout),
 		grpc.ChainUnaryInterceptor(
+			interceptor.Recovery(logger),
 			interceptor.ServerTimeout(cfg.GRPCTimeout),
 			interceptor.ErrorHandling(),
 		),
