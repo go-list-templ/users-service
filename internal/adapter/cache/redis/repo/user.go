@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-list-templ/users-service/internal/adapter/cache/redis"
-	"github.com/go-list-templ/users-service/internal/adapter/cache/redis/repo/dao"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"go.uber.org/zap"
@@ -33,30 +33,21 @@ func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *Us
 	return &UserRepo{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
-	var cachedUsers []dao.User
+func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
+	var cached dto.UserListOutput
 
 	cacheKey := paginate.Cursor()
 	pageToken := paginate.Token()
 
-	err := u.redis.GetCache(ctx, cacheKey, &cachedUsers)
-	if err == nil {
-		users := make([]entity.User, len(cachedUsers))
-
-		for i, user := range cachedUsers {
-			users[i] = user.ToEntity()
-		}
-
+	if err := u.redis.GetCache(ctx, cacheKey, &cached); err == nil {
 		u.logger.Info(
 			"get from cache",
 			zap.Any("context", ctx),
 			zap.Any("page token", pageToken),
 		)
 
-		return users, nil
-	}
-
-	if !u.redis.ErrIsNil(err) {
+		return cached, nil
+	} else if !u.redis.ErrIsNil(err) {
 		u.logger.Error(
 			"get from cache",
 			zap.Any("context", ctx),
@@ -77,13 +68,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 			return nil, err
 		}
 
-		cacheUsers := make([]dao.User, len(users))
-
-		for i, user := range users {
-			cacheUsers[i] = dao.FromEntity(user)
-		}
-
-		if err = u.redis.SetByTags(ctx, cacheKey, cacheUsers, TTLAllUsers, TagAllUsers); err != nil {
+		if err = u.redis.SetByTags(ctx, cacheKey, users, TTLAllUsers, TagAllUsers); err != nil {
 			u.logger.Warn(
 				"set by tag",
 				zap.Any("context", ctx),
@@ -95,10 +80,10 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 		return users, nil
 	})
 	if err != nil {
-		return nil, err
+		return dto.UserListOutput{}, err
 	}
 
-	users, ok := v.([]entity.User)
+	users, ok := v.(dto.UserListOutput)
 	if !ok {
 		u.logger.Error(
 			"singleflight typed",
@@ -107,7 +92,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 			zap.Error(err),
 		)
 
-		return nil, ErrTypedSingleflight
+		return dto.UserListOutput{}, ErrTypedSingleflight
 	}
 
 	return users, nil

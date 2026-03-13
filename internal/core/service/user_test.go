@@ -61,7 +61,7 @@ func TestUser_List(t *testing.T) {
 		users[i] = user
 	}
 
-	pg := paginate.NewUserPaginate("")
+	pg := paginate.NewUUIDPaginate("")
 	pageToken := pg.GenerateToken(user.ID.Value().String())
 
 	tests := []struct {
@@ -80,7 +80,7 @@ func TestUser_List(t *testing.T) {
 				PageToken: "",
 			},
 			output: dto.UserListOutput{
-				Users:         dto.UsersFromEntity(users),
+				Users:         users,
 				NextPageToken: pageToken,
 			},
 			err: nil,
@@ -94,7 +94,7 @@ func TestUser_List(t *testing.T) {
 				PageToken: "",
 			},
 			output: dto.UserListOutput{
-				Users:         []dto.User{},
+				Users:         []entity.User{},
 				NextPageToken: "",
 			},
 			err: nil,
@@ -140,7 +140,7 @@ func TestUser_Create(t *testing.T) {
 		name   string
 		mock   func()
 		input  dto.UserCreateInput
-		output dto.UserCreateOutput
+		output entity.User
 		err    error
 	}{
 		{
@@ -152,10 +152,8 @@ func TestUser_Create(t *testing.T) {
 				Name:  "test",
 				Email: "example@example.com",
 			},
-			output: dto.UserCreateOutput{
-				User: dto.UserFromEntity(user),
-			},
-			err: nil,
+			output: user,
+			err:    nil,
 		},
 		{
 			name: "fail - err in user repo",
@@ -170,7 +168,7 @@ func TestUser_Create(t *testing.T) {
 				Name:  "test",
 				Email: "example@example.com",
 			},
-			output: dto.UserCreateOutput{},
+			output: entity.User{},
 			err:    errSome,
 		},
 		{
@@ -188,7 +186,7 @@ func TestUser_Create(t *testing.T) {
 				Name:  "test",
 				Email: "example@example.com",
 			},
-			output: dto.UserCreateOutput{},
+			output: entity.User{},
 			err:    errSome,
 		},
 	}
@@ -199,8 +197,8 @@ func TestUser_Create(t *testing.T) {
 			got, err := userService.Create(context.Background(), tt.input)
 			require.ErrorIs(t, err, tt.err)
 
-			require.Equal(t, tt.output.User.Name, got.User.Name)
-			require.Equal(t, tt.output.User.Email, got.User.Email)
+			require.Equal(t, tt.output.Name.Value(), got.Name.Value())
+			require.Equal(t, tt.output.Email.Value(), got.Email.Value())
 		})
 	}
 }

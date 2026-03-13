@@ -6,6 +6,7 @@ import (
 	v1 "github.com/go-list-templ/proto/gen/api/user/v1"
 	pbgrpc "google.golang.org/grpc"
 
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port"
 	"go.uber.org/zap"
@@ -32,14 +33,16 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 		Email: request.GetEmail(),
 	}
 
-	output, err := u.userService.Create(ctx, input)
+	user, err := u.userService.Create(ctx, input)
 	if err != nil {
 		u.logger.Warn("user create", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, err
 	}
 
-	return u.createToProto(output), nil
+	return &v1.CreateResponse{
+		User: u.userToProto(user),
+	}, nil
 }
 
 func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
@@ -54,27 +57,6 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 		return nil, err
 	}
 
-	return u.listToProto(output), nil
-}
-
-func (u *User) userToProto(user dto.User) *v1.User {
-	return &v1.User{
-		Id:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Avatar:    user.Avatar,
-		CreatedAt: timestamppb.New(user.CreatedAt),
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
-	}
-}
-
-func (u *User) createToProto(output dto.UserCreateOutput) *v1.CreateResponse {
-	return &v1.CreateResponse{
-		User: u.userToProto(output.User),
-	}
-}
-
-func (u *User) listToProto(output dto.UserListOutput) *v1.ListResponse {
 	users := make([]*v1.User, len(output.Users))
 
 	for i, user := range output.Users {
@@ -84,5 +66,16 @@ func (u *User) listToProto(output dto.UserListOutput) *v1.ListResponse {
 	return &v1.ListResponse{
 		Users:         users,
 		NextPageToken: output.NextPageToken,
+	}, nil
+}
+
+func (u *User) userToProto(user entity.User) *v1.User {
+	return &v1.User{
+		Id:        user.ID.Value().String(),
+		Name:      user.Name.Value(),
+		Email:     user.Email.Value(),
+		Avatar:    user.Avatar.Value(),
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
 }

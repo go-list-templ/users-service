@@ -10,6 +10,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
+	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -47,7 +48,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(ctx, err)
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entity.User, error) {
+func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
 	var args []any
 
 	query := `
@@ -59,9 +60,11 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	`
 
 	cursor := paginate.Cursor()
-	limit := paginate.Limit()
 
-	args = []any{cursor, limit}
+	limit := paginate.Limit()
+	queryLimit := limit + 1
+
+	args = []any{cursor, queryLimit}
 
 	if len(cursor) == 0 {
 		query = `
@@ -71,20 +74,35 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) ([]entit
 	   	LIMIT $1
 		`
 
-		args = []any{limit}
+		args = []any{queryLimit}
 	}
 
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
-		return nil, u.toPostgresError(ctx, err)
+		return dto.UserListOutput{}, u.toPostgresError(ctx, err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		return nil, u.toPostgresError(ctx, err)
+		return dto.UserListOutput{}, u.toPostgresError(ctx, err)
 	}
 
-	return users, nil
+	isNext := len(users) > limit
+	if isNext {
+		users = users[:limit]
+	}
+
+	pageToken := ""
+
+	if isNext {
+		last := users[len(users)-1]
+		pageToken = paginate.GenerateToken(last.ID.Value().String())
+	}
+
+	return dto.UserListOutput{
+		Users:         users,
+		NextPageToken: pageToken,
+	}, nil
 }
 
 func (u *UserRepo) toPostgresError(ctx context.Context, err error) error {
