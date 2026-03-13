@@ -2,10 +2,10 @@ package port
 
 import (
 	"context"
-	"github.com/go-list-templ/users-service/internal/core/dto"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 )
 
