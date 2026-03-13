@@ -27,7 +27,7 @@ func (m Migration) Up() error {
 	goose.SetBaseFS(embedMigrations)
 
 	if err := goose.Up(sqlDB, "migrations"); err != nil {
-		m.logger.Warn("migration up", zap.Error(err))
+		m.logger.Error("migration up", zap.Error(err))
 
 		return err
 	}
