@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const DefaultLimit = 15
+
 type UUIDPaginate struct {
 	token string
 }
@@ -19,7 +21,7 @@ func (u *UUIDPaginate) Token() string {
 }
 
 func (u *UUIDPaginate) Limit() int {
-	return DefaultLimit + LimitOffset
+	return DefaultLimit
 }
 
 func (u *UUIDPaginate) Cursor() string {
