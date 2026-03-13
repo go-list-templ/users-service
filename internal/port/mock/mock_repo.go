@@ -15,6 +15,7 @@ import (
 
 	entity "github.com/go-list-templ/users-service/internal/core/domain/entity"
 	event "github.com/go-list-templ/users-service/internal/core/domain/event"
+	dto "github.com/go-list-templ/users-service/internal/core/dto"
 	paginate "github.com/go-list-templ/users-service/pkg/paginate"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -44,13 +45,12 @@ func (m *MockUserRepo) EXPECT() *MockUserRepoMockRecorder {
 }
 
 // All mocks base method.
-func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) ([]entity.User, string, error) {
+func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) (dto.UserListOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "All", arg0, arg1)
-	ret0, _ := ret[0].([]entity.User)
-	ret1, _ := ret[1].(string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret0, _ := ret[0].(dto.UserListOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // All indicates an expected call of All.

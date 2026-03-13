@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	entity "github.com/go-list-templ/users-service/internal/core/domain/entity"
 	dto "github.com/go-list-templ/users-service/internal/core/dto"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,10 +43,10 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUserService) Create(arg0 context.Context, arg1 dto.UserCreateInput) (dto.UserCreateOutput, error) {
+func (m *MockUserService) Create(arg0 context.Context, arg1 dto.UserCreateInput) (entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(dto.UserCreateOutput)
+	ret0, _ := ret[0].(entity.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

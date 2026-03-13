@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	"github.com/go-list-templ/users-service/internal/core/dto"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
@@ -13,7 +14,7 @@ import (
 type (
 	UserRepo interface {
 		Store(context.Context, entity.User) error
-		All(context.Context, paginate.Paginate) ([]entity.User, error)
+		All(context.Context, paginate.Paginate) (dto.UserListOutput, error)
 	}
 
 	OutboxRepo interface {

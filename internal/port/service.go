@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 
 	"github.com/go-list-templ/users-service/internal/core/dto"
 )
@@ -10,7 +11,7 @@ import (
 
 type (
 	UserService interface {
-		Create(context.Context, dto.UserCreateInput) (dto.UserCreateOutput, error)
+		Create(context.Context, dto.UserCreateInput) (entity.User, error)
 		List(context.Context, dto.UserListInput) (dto.UserListOutput, error)
 	}
 )
