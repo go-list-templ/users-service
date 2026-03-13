@@ -41,7 +41,7 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 	}
 
 	return &v1.CreateResponse{
-		User: u.userToProto(user),
+		User: u.entityToProto(user),
 	}, nil
 }
 
@@ -60,7 +60,7 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 	users := make([]*v1.User, len(output.Users))
 
 	for i, user := range output.Users {
-		users[i] = u.userToProto(user)
+		users[i] = u.dtoToProto(user)
 	}
 
 	return &v1.ListResponse{
@@ -69,7 +69,18 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 	}, nil
 }
 
-func (u *User) userToProto(user entity.User) *v1.User {
+func (u *User) dtoToProto(user dto.User) *v1.User {
+	return &v1.User{
+		Id:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Avatar:    user.Avatar,
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+	}
+}
+
+func (u *User) entityToProto(user entity.User) *v1.User {
 	return &v1.User{
 		Id:        user.ID.Value().String(),
 		Name:      user.Name.Value(),

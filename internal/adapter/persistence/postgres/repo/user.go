@@ -100,7 +100,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.Use
 	}
 
 	return dto.UserListOutput{
-		Users:         users,
+		Users:         dto.FromEntities(users),
 		NextPageToken: pageToken,
 	}, nil
 }
