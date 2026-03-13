@@ -55,70 +55,87 @@ func TestUser_List(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	users := make([]entity.User, 16)
+	generateOutput := func(count int, token string) dto.UserListOutput {
+		users := make([]dto.User, count)
 
-	for i := 0; i <= 15; i++ {
-		users[i] = user
+		for i := 0; i < count; i++ {
+			users[i] = dto.FromEntity(user)
+		}
+
+		return dto.UserListOutput{
+			Users:         users,
+			NextPageToken: token,
+		}
 	}
 
 	pg := paginate.NewUUIDPaginate("")
+
+	limit := pg.Limit()
 	pageToken := pg.GenerateToken(user.ID.Value().String())
 
 	tests := []struct {
-		name   string
-		mock   func()
-		input  dto.UserListInput
-		output dto.UserListOutput
-		err    error
+		name          string
+		mock          func()
+		wantPageToken string
+		wantCount     int
+		err           error
 	}{
 		{
-			name: "success - get all users",
+			name: "success - empty page token len less than 1",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(users, nil)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit-1, ""), nil)
 			},
-			input: dto.UserListInput{
-				PageToken: "",
-			},
-			output: dto.UserListOutput{
-				Users:         users,
-				NextPageToken: pageToken,
-			},
-			err: nil,
+			wantPageToken: "",
+			wantCount:     14,
+			err:           nil,
 		},
 		{
-			name: "success - get empty users",
+			name: "success - empty page token len equal limit",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return([]entity.User{}, nil)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit, ""), nil)
 			},
-			input: dto.UserListInput{
-				PageToken: "",
-			},
-			output: dto.UserListOutput{
-				Users:         []entity.User{},
-				NextPageToken: "",
-			},
-			err: nil,
+			wantPageToken: "",
+			wantCount:     15,
+			err:           nil,
 		},
 		{
-			name: "fail - err user repo",
+			name: "success - get page token len more by 1",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return([]entity.User{}, errSome)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit+1, pageToken), nil)
 			},
-			input: dto.UserListInput{
-				PageToken: "",
+			wantPageToken: pageToken,
+			wantCount:     16,
+			err:           nil,
+		},
+		{
+			name: "success - empty result",
+			mock: func() {
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(0, ""), nil)
 			},
-			output: dto.UserListOutput{},
-			err:    errSome,
+			wantPageToken: "",
+			wantCount:     0,
+			err:           nil,
+		},
+		{
+			name: "fail - err at get list users",
+			mock: func() {
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(dto.UserListOutput{}, errSome)
+			},
+			wantPageToken: "",
+			wantCount:     0,
+			err:           errSome,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.List(context.Background(), tt.input)
-
-			require.Equal(t, tt.output, got)
+			got, err := userService.List(context.Background(), dto.UserListInput{})
 			require.ErrorIs(t, err, tt.err)
+
+			require.Equal(t, tt.wantPageToken, got.NextPageToken)
+			require.Equal(t, tt.wantCount, len(got.Users))
 		})
 	}
 }
@@ -141,7 +158,7 @@ func TestUser_Create(t *testing.T) {
 		mock   func()
 		input  dto.UserCreateInput
 		output entity.User
-		err    error
+		isErr  bool
 	}{
 		{
 			name: "success - create user",
@@ -153,7 +170,27 @@ func TestUser_Create(t *testing.T) {
 				Email: "example@example.com",
 			},
 			output: user,
-			err:    nil,
+			isErr:  false,
+		},
+		{
+			name: "fail - min len name",
+			mock: func() {},
+			input: dto.UserCreateInput{
+				Name:  "t",
+				Email: "example@example.com",
+			},
+			output: user,
+			isErr:  true,
+		},
+		{
+			name: "fail - invalid email",
+			mock: func() {},
+			input: dto.UserCreateInput{
+				Name:  "test",
+				Email: "test",
+			},
+			output: user,
+			isErr:  true,
 		},
 		{
 			name: "fail - err in user repo",
@@ -169,7 +206,7 @@ func TestUser_Create(t *testing.T) {
 				Email: "example@example.com",
 			},
 			output: entity.User{},
-			err:    errSome,
+			isErr:  true,
 		},
 		{
 			name: "fail - err in outbox repo",
@@ -187,7 +224,7 @@ func TestUser_Create(t *testing.T) {
 				Email: "example@example.com",
 			},
 			output: entity.User{},
-			err:    errSome,
+			isErr:  true,
 		},
 	}
 	for _, tt := range tests {
@@ -195,10 +232,14 @@ func TestUser_Create(t *testing.T) {
 			tt.mock()
 
 			got, err := userService.Create(context.Background(), tt.input)
-			require.ErrorIs(t, err, tt.err)
+			if tt.isErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 
-			require.Equal(t, tt.output.Name.Value(), got.Name.Value())
-			require.Equal(t, tt.output.Email.Value(), got.Email.Value())
+				require.Equal(t, tt.output.Name.Value(), got.Name.Value())
+				require.Equal(t, tt.output.Email.Value(), got.Email.Value())
+			}
 		})
 	}
 }
