@@ -1,2 +1,3 @@
-# Grpc
-Template for Golang
+# Users service
+
+Template users service on go
