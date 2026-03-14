@@ -4,7 +4,7 @@ COMPOSE_CMD := docker compose -p ${APP_NAME} --env-file .env
 COMPOSE_TEST_CMD := docker compose -p ${APP_NAME}_tests --env-file .env -f docker-compose.yml -f .docker/test-integration/docker-compose.yml
 COMPOSE_TEST_STRESS_CMD := docker compose -p ${APP_NAME}_tests_stress --env-file .env -f docker-compose.yml -f .docker/test-stress/docker-compose.yml
 
-init: copy build
+init: build
 lint: docker-lint code-lint
 
 build:
@@ -14,9 +14,6 @@ build:
 
 down:
 	$(COMPOSE_CMD) down -v
-
-copy:
-	cp .env.example .env
 
 log:
 	docker logs -f --tail 100 app.${APP_NAME}
