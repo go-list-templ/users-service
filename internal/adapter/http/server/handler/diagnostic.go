@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -11,8 +12,9 @@ import (
 )
 
 const (
-	TTL            = 30 * time.Second
-	DefaultCtxTime = 5 * time.Second
+	TTL              = 30 * time.Second
+	DefaultCtxTime   = 5 * time.Second
+	MessageServerErr = "server error"
 )
 
 type Diagnostic struct {
@@ -38,7 +40,11 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 
 		err := d.redis.GetCache(ctx, cacheKey, &status)
 		if err == nil {
-			w.WriteHeader(status)
+			data := map[string]int{
+				"status": status,
+			}
+
+			d.writeJSON(w, status, data)
 
 			return
 		}
@@ -63,6 +69,28 @@ func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
 			d.logger.Warn("set cache", zap.Error(err))
 		}
 
-		w.WriteHeader(status)
+		data := map[string]int{
+			"status": status,
+		}
+
+		d.writeJSON(w, status, data)
+	}
+}
+
+func (d *Diagnostic) writeJSON(w http.ResponseWriter, code int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+
+	data, err := json.Marshal(v)
+	if err != nil {
+		d.logger.Error("json marshal", zap.Error(err))
+		http.Error(w, MessageServerErr, http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		d.logger.Error("write json", zap.Error(err))
+		http.Error(w, MessageServerErr, http.StatusInternalServerError)
 	}
 }
