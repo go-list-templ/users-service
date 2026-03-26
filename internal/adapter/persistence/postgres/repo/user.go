@@ -17,18 +17,18 @@ import (
 	"go.uber.org/zap"
 )
 
-type UserRepo struct {
+type User struct {
 	*postgres.Postgres
 
 	logger *zap.Logger
 	getter *transaction.TrmGetter
 }
 
-func NewUserRepo(p *postgres.Postgres, l *zap.Logger, g *transaction.TrmGetter) *UserRepo {
-	return &UserRepo{p, l, g}
+func NewUser(p *postgres.Postgres, l *zap.Logger, g *transaction.TrmGetter) *User {
+	return &User{p, l, g}
 }
 
-func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
+func (u *User) Store(ctx context.Context, user entity.User) error {
 	query := `
 		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
        	VALUES (@id, @name, @email, @avatar, @created_at, @updated_at)
@@ -48,7 +48,7 @@ func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(ctx, err)
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
+func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
 	var args []any
 
 	query := `
@@ -105,7 +105,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.Use
 	}, nil
 }
 
-func (u *UserRepo) toPostgresError(ctx context.Context, err error) error {
+func (u *User) toPostgresError(ctx context.Context, err error) error {
 	if err == nil {
 		return nil
 	}

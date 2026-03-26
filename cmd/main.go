@@ -85,10 +85,10 @@ func run() error {
 	logger.Info("initializing repositories")
 
 	outboxPostgresRepo := pgrepo.NewOutboxRepo(pg, trGetter)
-	userPostgresRepo := pgrepo.NewUserRepo(pg, logger.With(zap.String("module", "pg user repo")), trGetter)
-	userRedisRepo := redisrepo.NewUserRepo(userPostgresRepo, rd, logger.With(zap.String("module", "redis user repo")))
+	userPostgresRepo := pgrepo.NewUser(pg, logger.With(zap.String("module", "pg user repo")), trGetter)
+	userRedisRepo := redisrepo.NewUser(userPostgresRepo, rd, logger.With(zap.String("module", "redis user repo")))
 
-	logger.Info("initializing service")
+	logger.Info("initializing services")
 
 	userService := service.NewUser(userRedisRepo, outboxPostgresRepo, trManager)
 

@@ -22,18 +22,18 @@ const (
 	TagAllUsers = "allUsers"
 )
 
-type UserRepo struct {
+type User struct {
 	repo   port.UserRepo
 	redis  *redis.Redis
 	logger *zap.Logger
 	sf     singleflight.Group
 }
 
-func NewUserRepo(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *UserRepo {
-	return &UserRepo{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
+func NewUser(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *User {
+	return &User{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
+func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
 	var cached dto.UserListOutput
 
 	cacheKey := paginate.Cursor()
@@ -98,7 +98,7 @@ func (u *UserRepo) All(ctx context.Context, paginate paginate.Paginate) (dto.Use
 	return users, nil
 }
 
-func (u *UserRepo) Store(ctx context.Context, user entity.User) error {
+func (u *User) Store(ctx context.Context, user entity.User) error {
 	err := u.repo.Store(ctx, user)
 	if err != nil {
 		return err
