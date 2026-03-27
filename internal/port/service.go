@@ -11,7 +11,8 @@ import (
 
 type (
 	UserService interface {
-		Create(context.Context, dto.UserCreateInput) (entity.User, error)
-		List(context.Context, dto.UserListInput) (dto.UserListOutput, error)
+		GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error)
+		Create(context.Context, dto.CreateInput) (entity.User, error)
+		List(context.Context, dto.ListInput) (dto.ListOutput, error)
 	}
 )
