@@ -11,9 +11,9 @@ import (
 )
 
 type User struct {
-	userRepo   port.UserRepo
-	outboxRepo port.OutboxRepo
-	trm        port.TransactionManager
+	user   port.UserRepo
+	outbox port.OutboxRepo
+	trm    port.TransactionManager
 }
 
 func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *User {
@@ -27,7 +27,7 @@ func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, 
 	}
 
 	err = s.trm.Do(ctx, func(ctx context.Context) error {
-		err = s.userRepo.Store(ctx, user)
+		err = s.user.Store(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -37,7 +37,7 @@ func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, 
 			return err
 		}
 
-		return s.outboxRepo.Publish(ctx, userCreated.Event)
+		return s.outbox.Publish(ctx, userCreated.Event)
 	})
 	if err != nil {
 		return entity.User{}, err
@@ -49,5 +49,5 @@ func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, 
 func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, error) {
 	pagination := paginate.NewUUIDPaginate(input.PageToken)
 
-	return s.userRepo.List(ctx, pagination)
+	return s.user.List(ctx, pagination)
 }

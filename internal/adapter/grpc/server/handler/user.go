@@ -16,12 +16,12 @@ import (
 type User struct {
 	v1.UserServiceServer
 
-	userService port.UserService
-	logger      *zap.Logger
+	service port.UserService
+	logger  *zap.Logger
 }
 
 func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
-	service := &User{userService: u, logger: l}
+	service := &User{service: u, logger: l}
 	{
 		v1.RegisterUserServiceServer(s, service)
 	}
@@ -34,7 +34,7 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 		Password: request.GetPassword(),
 	}
 
-	user, err := u.userService.Create(ctx, input)
+	user, err := u.service.Create(ctx, input)
 	if err != nil {
 		u.logger.Warn("user create", zap.Any("context", ctx), zap.Error(err))
 
@@ -51,7 +51,7 @@ func (u *User) GetByEmail(ctx context.Context, request *v1.GetByEmailRequest) (*
 		Email: request.GetEmail(),
 	}
 
-	user, err := u.userService.GetByEmail(ctx, input)
+	user, err := u.service.GetByEmail(ctx, input)
 	if err != nil {
 		u.logger.Warn("user get by email", zap.Any("context", ctx), zap.Error(err))
 
@@ -68,7 +68,7 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 		PageToken: request.GetPageToken(),
 	}
 
-	output, err := u.userService.List(ctx, input)
+	output, err := u.service.List(ctx, input)
 	if err != nil {
 		u.logger.Warn("user list", zap.Any("context", ctx), zap.Error(err))
 
