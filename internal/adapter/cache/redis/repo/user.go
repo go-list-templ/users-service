@@ -63,7 +63,7 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOut
 			zap.Any("page token", pageToken),
 		)
 
-		users, err := u.repo.All(ctx, paginate)
+		users, err := u.repo.List(ctx, paginate)
 		if err != nil {
 			return nil, err
 		}

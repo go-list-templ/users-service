@@ -14,8 +14,7 @@ import (
 type (
 	UserRepo interface {
 		GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error)
-		// All todo rename to List
-		All(context.Context, paginate.Paginate) (dto.ListOutput, error)
+		List(context.Context, paginate.Paginate) (dto.ListOutput, error)
 		Store(context.Context, entity.User) error
 	}
 

@@ -49,5 +49,5 @@ func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, 
 func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, error) {
 	pagination := paginate.NewUUIDPaginate(input.PageToken)
 
-	return s.userRepo.All(ctx, pagination)
+	return s.userRepo.List(ctx, pagination)
 }
