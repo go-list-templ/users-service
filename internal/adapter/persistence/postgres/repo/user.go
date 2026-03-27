@@ -48,7 +48,7 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(ctx, err)
 }
 
-func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
+func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
 	var args []any
 
 	query := `
@@ -79,12 +79,12 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserLis
 
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
-		return dto.UserListOutput{}, u.toPostgresError(ctx, err)
+		return dto.ListOutput{}, u.toPostgresError(ctx, err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		return dto.UserListOutput{}, u.toPostgresError(ctx, err)
+		return dto.ListOutput{}, u.toPostgresError(ctx, err)
 	}
 
 	isNext := len(users) > limit
@@ -99,7 +99,7 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserLis
 		pageToken = paginate.GenerateToken(last.ID.Value().String())
 	}
 
-	return dto.UserListOutput{
+	return dto.ListOutput{
 		Users:         dto.FromEntities(users),
 		NextPageToken: pageToken,
 	}, nil

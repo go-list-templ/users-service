@@ -33,8 +33,8 @@ func NewUser(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *User {
 	return &User{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserListOutput, error) {
-	var cached dto.UserListOutput
+func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
+	var cached dto.ListOutput
 
 	cacheKey := paginate.Cursor()
 	pageToken := paginate.Token()
@@ -80,10 +80,10 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserLis
 		return users, nil
 	})
 	if err != nil {
-		return dto.UserListOutput{}, err
+		return dto.ListOutput{}, err
 	}
 
-	users, ok := v.(dto.UserListOutput)
+	users, ok := v.(dto.ListOutput)
 	if !ok {
 		u.logger.Error(
 			"singleflight typed",
@@ -92,7 +92,7 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.UserLis
 			zap.Error(err),
 		)
 
-		return dto.UserListOutput{}, ErrTypedSingleflight
+		return dto.ListOutput{}, ErrTypedSingleflight
 	}
 
 	return users, nil

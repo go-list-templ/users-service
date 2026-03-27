@@ -43,7 +43,7 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUserService) Create(arg0 context.Context, arg1 dto.UserCreateInput) (entity.User, error) {
+func (m *MockUserService) Create(arg0 context.Context, arg1 dto.CreateInput) (entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(entity.User)
@@ -58,10 +58,10 @@ func (mr *MockUserServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockUserService) List(arg0 context.Context, arg1 dto.UserListInput) (dto.UserListOutput, error) {
+func (m *MockUserService) List(arg0 context.Context, arg1 dto.ListInput) (dto.ListOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", arg0, arg1)
-	ret0, _ := ret[0].(dto.UserListOutput)
+	ret0, _ := ret[0].(dto.ListOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

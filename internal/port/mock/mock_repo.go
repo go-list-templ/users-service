@@ -45,10 +45,10 @@ func (m *MockUserRepo) EXPECT() *MockUserRepoMockRecorder {
 }
 
 // All mocks base method.
-func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) (dto.UserListOutput, error) {
+func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) (dto.ListOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "All", arg0, arg1)
-	ret0, _ := ret[0].(dto.UserListOutput)
+	ret0, _ := ret[0].(dto.ListOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

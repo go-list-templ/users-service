@@ -55,14 +55,14 @@ func TestUser_List(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	generateOutput := func(count int, token string) dto.UserListOutput {
+	generateOutput := func(count int, token string) dto.ListOutput {
 		users := make([]dto.User, count)
 
 		for i := 0; i < count; i++ {
 			users[i] = dto.FromEntity(user)
 		}
 
-		return dto.UserListOutput{
+		return dto.ListOutput{
 			Users:         users,
 			NextPageToken: token,
 		}
@@ -119,7 +119,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "fail - err at get list users",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(dto.UserListOutput{}, errSome)
+				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(dto.ListOutput{}, errSome)
 			},
 			wantPageToken: "",
 			wantCount:     0,
@@ -131,7 +131,7 @@ func TestUser_List(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.List(context.Background(), dto.UserListInput{})
+			got, err := userService.List(context.Background(), dto.ListInput{})
 			require.ErrorIs(t, err, tt.err)
 
 			require.Equal(t, tt.wantPageToken, got.NextPageToken)
@@ -156,7 +156,7 @@ func TestUser_Create(t *testing.T) {
 	tests := []struct {
 		name   string
 		mock   func()
-		input  dto.UserCreateInput
+		input  dto.CreateInput
 		output entity.User
 		isErr  bool
 	}{
@@ -165,7 +165,7 @@ func TestUser_Create(t *testing.T) {
 			mock: func() {
 				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(nil)
 			},
-			input: dto.UserCreateInput{
+			input: dto.CreateInput{
 				Name:  "test",
 				Email: "example@example.com",
 			},
@@ -175,7 +175,7 @@ func TestUser_Create(t *testing.T) {
 		{
 			name: "fail - min len name",
 			mock: func() {},
-			input: dto.UserCreateInput{
+			input: dto.CreateInput{
 				Name:  "t",
 				Email: "example@example.com",
 			},
@@ -185,7 +185,7 @@ func TestUser_Create(t *testing.T) {
 		{
 			name: "fail - invalid email",
 			mock: func() {},
-			input: dto.UserCreateInput{
+			input: dto.CreateInput{
 				Name:  "test",
 				Email: "test",
 			},
@@ -201,7 +201,7 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			input: dto.UserCreateInput{
+			input: dto.CreateInput{
 				Name:  "test",
 				Email: "example@example.com",
 			},
@@ -219,7 +219,7 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			input: dto.UserCreateInput{
+			input: dto.CreateInput{
 				Name:  "test",
 				Email: "example@example.com",
 			},

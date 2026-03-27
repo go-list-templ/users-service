@@ -20,7 +20,7 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 	return &User{u, o, t}
 }
 
-func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (entity.User, error) {
+func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, error) {
 	user, err := entity.NewUser(input.Name, input.Email)
 	if err != nil {
 		return entity.User{}, err
@@ -46,7 +46,7 @@ func (s *User) Create(ctx context.Context, input dto.UserCreateInput) (entity.Us
 	return user, nil
 }
 
-func (s *User) List(ctx context.Context, input dto.UserListInput) (dto.UserListOutput, error) {
+func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, error) {
 	pagination := paginate.NewUUIDPaginate(input.PageToken)
 
 	return s.userRepo.All(ctx, pagination)

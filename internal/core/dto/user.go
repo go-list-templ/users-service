@@ -16,16 +16,21 @@ type (
 		UpdatedAt time.Time
 	}
 
-	UserCreateInput struct {
-		Name  string
+	GetByEmailInput struct {
 		Email string
 	}
 
-	UserListInput struct {
+	CreateInput struct {
+		Name     string
+		Email    string
+		Password string
+	}
+
+	ListInput struct {
 		PageToken string
 	}
 
-	UserListOutput struct {
+	ListOutput struct {
 		Users         []User
 		NextPageToken string
 	}

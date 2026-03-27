@@ -28,9 +28,10 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 }
 
 func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
-	input := dto.UserCreateInput{
-		Name:  request.GetName(),
-		Email: request.GetEmail(),
+	input := dto.CreateInput{
+		Name:     request.GetName(),
+		Email:    request.GetEmail(),
+		Password: request.GetPassword(),
 	}
 
 	user, err := u.userService.Create(ctx, input)
@@ -45,8 +46,25 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 	}, nil
 }
 
+func (u *User) GetByEmail(ctx context.Context, request *v1.GetByEmailRequest) (*v1.GetByEmailResponse, error) {
+	input := dto.GetByEmailInput{
+		Email: request.GetEmail(),
+	}
+
+	user, err := u.userService.GetByEmail(ctx, input)
+	if err != nil {
+		u.logger.Warn("user get by email", zap.Any("context", ctx), zap.Error(err))
+
+		return nil, err
+	}
+
+	return &v1.GetByEmailResponse{
+		User: u.entityToProto(user),
+	}, nil
+}
+
 func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListResponse, error) {
-	input := dto.UserListInput{
+	input := dto.ListInput{
 		PageToken: request.GetPageToken(),
 	}
 
