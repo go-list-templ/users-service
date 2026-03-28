@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
@@ -63,6 +63,16 @@ func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, e
 	return s.repo.List(ctx, paginate.NewUUIDPaginate(input.PageToken))
 }
 
-func (s *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {
-	return entity.User{}, nil
+func (s *User) GetByEmail(ctx context.Context, input dto.GetByEmailInput) (entity.User, error) {
+	validEmail, err := vo.NewEmail(input.Email)
+	if err != nil {
+		return entity.User{}, entityerr.NewUserError("email", err)
+	}
+
+	user, err := s.repo.GetByEmail(ctx, validEmail)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
 }

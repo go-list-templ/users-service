@@ -10,6 +10,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"github.com/jackc/pgx/v5"
@@ -112,8 +113,24 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 	}, nil
 }
 
-func (u *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {
-	return entity.User{}, nil
+func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, error) {
+	query := `
+		SELECT id, name, email, avatar, created_at, updated_at 
+	   	FROM users
+	   	WHERE email = $1
+	`
+
+	row, err := u.Query(ctx, query, email.Value())
+	if err != nil {
+		return entity.User{}, u.toPostgresError(ctx, err)
+	}
+
+	user, err := pgx.CollectOneRow(row, dao.RowToEntity)
+	if err != nil {
+		return entity.User{}, u.toPostgresError(ctx, err)
+	}
+
+	return user, nil
 }
 
 func (u *User) toPostgresError(ctx context.Context, err error) error {
