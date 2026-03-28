@@ -29,11 +29,9 @@ func NewPassword(password string) (Password, error) {
 		return Password{}, ErrPasswordMaxLength
 	}
 
-	return Password{value: password}, nil
-}
+	//todo add hash for pass
 
-func UnsafePassword(password string) Password {
-	return Password{value: password}
+	return Password{value: password}, nil
 }
 
 func (u *Password) Value() string {
