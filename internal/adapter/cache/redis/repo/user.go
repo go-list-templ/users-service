@@ -155,7 +155,7 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 
 		user, err := u.repo.GetByEmail(ctx, email)
 		if errors.Is(err, entityerr.ErrUserNotFound) {
-			if cacheErr := u.redis.SetCache(ctx, cacheKey, cached, TTLNegative); cacheErr != nil {
+			if err = u.redis.SetCache(ctx, cacheKey, cached, TTLNegative); err != nil {
 				u.logger.Warn(
 					"set negative cache",
 					zap.Any("context", ctx),
@@ -164,7 +164,7 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 				)
 			}
 
-			return nil, err
+			return nil, entityerr.ErrUserNotFound
 		}
 		if err != nil {
 			return nil, err
