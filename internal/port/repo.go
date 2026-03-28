@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 )
@@ -13,7 +14,7 @@ import (
 
 type (
 	UserRepo interface {
-		GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error)
+		GetByEmail(context.Context, vo.Email) (entity.User, error)
 		List(context.Context, paginate.Paginate) (dto.ListOutput, error)
 		Store(context.Context, entity.User) error
 	}
