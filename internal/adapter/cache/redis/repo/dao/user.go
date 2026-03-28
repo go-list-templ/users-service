@@ -50,3 +50,7 @@ func (u *User) ToEntity() entity.User {
 		UpdatedAt: u.UpdatedAt,
 	}
 }
+
+func (u *User) IsEmpty() bool {
+	return u.ID == uuid.Nil
+}
