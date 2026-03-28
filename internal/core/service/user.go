@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
@@ -25,7 +26,7 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, error) {
 	password, err := vo.NewPlainPassword(input.Password)
 	if err != nil {
-		return entity.User{}, err
+		return entity.User{}, entityerr.NewUserError("password", err)
 	}
 
 	hash, err := hasher.Hash(password.Value())
