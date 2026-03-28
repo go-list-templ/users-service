@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MinLengthPass = 2
+	MinLengthPass = 8
 	MaxLengthPass = 30
 )
 
