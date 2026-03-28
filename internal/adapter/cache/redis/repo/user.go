@@ -9,6 +9,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/cache/redis"
 	"github.com/go-list-templ/users-service/internal/adapter/cache/redis/repo/dao"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port"
@@ -131,6 +132,10 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 	cacheKey := byEmailKey(hasher.EmailHash(email.Value()))
 
 	if err := u.redis.GetCache(ctx, cacheKey, &cached); err == nil {
+		if cached.IsEmpty() {
+			return entity.User{}, entityerr.ErrUserNotFound
+		}
+
 		return cached.ToEntity(), nil
 	} else if !u.redis.ErrIsNil(err) {
 		u.logger.Error(
@@ -149,8 +154,8 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 		)
 
 		user, err := u.repo.GetByEmail(ctx, email)
-		if err != nil {
-			if err = u.redis.SetNegativeCache(ctx, cacheKey, TTLNegative); err != nil {
+		if errors.Is(err, entityerr.ErrUserNotFound) {
+			if cacheErr := u.redis.SetCache(ctx, cacheKey, cached, TTLNegative); cacheErr != nil {
 				u.logger.Warn(
 					"set negative cache",
 					zap.Any("context", ctx),
@@ -159,6 +164,9 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 				)
 			}
 
+			return nil, err
+		}
+		if err != nil {
 			return nil, err
 		}
 
