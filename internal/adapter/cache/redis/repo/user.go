@@ -33,7 +33,7 @@ func NewUser(repo port.UserRepo, redis *redis.Redis, logger *zap.Logger) *User {
 	return &User{repo: repo, redis: redis, logger: logger, sf: singleflight.Group{}}
 }
 
-func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
+func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
 	var cached dto.ListOutput
 
 	cacheKey := paginate.Cursor()
@@ -109,4 +109,8 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 	}
 
 	return nil
+}
+
+func (u *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {
+	return entity.User{}, nil
 }

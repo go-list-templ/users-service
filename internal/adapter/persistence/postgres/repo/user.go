@@ -10,6 +10,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"github.com/jackc/pgx/v5"
@@ -30,13 +31,18 @@ func NewUser(p *postgres.Postgres, l *zap.Logger, g *transaction.TrmGetter) *Use
 
 func (u *User) Store(ctx context.Context, user entity.User) error {
 	query := `
-		INSERT INTO users (id, name, email, avatar, created_at, updated_at) 
-       	VALUES (@id, @name, @email, @avatar, @created_at, @updated_at)
+		INSERT INTO users (id, name, password, email, avatar, created_at, updated_at) 
+       	VALUES (@id, @name, @password, @email, @avatar, @created_at, @updated_at)
 	`
+
+	test := user.Name.MapValue(func(value vo.Name) vo.Name {
+		return vo.UnsafeName(value.Value())
+	})
 
 	args := pgx.NamedArgs{
 		"id":         user.ID.Value(),
-		"name":       user.Name.Value(),
+		"name":       test,
+		"password":   user.Password.Value(),
 		"email":      user.Email.Value(),
 		"avatar":     user.Avatar.Value(),
 		"created_at": user.CreatedAt,
@@ -48,7 +54,7 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 	return u.toPostgresError(ctx, err)
 }
 
-func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
+func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
 	var args []any
 
 	query := `
@@ -103,6 +109,10 @@ func (u *User) All(ctx context.Context, paginate paginate.Paginate) (dto.ListOut
 		Users:         dto.FromEntities(users),
 		NextPageToken: pageToken,
 	}, nil
+}
+
+func (u *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {
+	return entity.User{}, nil
 }
 
 func (u *User) toPostgresError(ctx context.Context, err error) error {

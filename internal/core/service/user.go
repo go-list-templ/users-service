@@ -55,3 +55,7 @@ func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, e
 
 	return s.repo.List(ctx, pagination)
 }
+
+func (s *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {
+	return entity.User{}, nil
+}
