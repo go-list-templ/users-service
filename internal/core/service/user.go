@@ -5,8 +5,10 @@ import (
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/event"
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port"
+	"github.com/go-list-templ/users-service/pkg/hasher"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 )
 
@@ -21,11 +23,17 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 }
 
 func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, error) {
-	user, err := entity.NewUser(
-		input.Name,
-		input.Email,
-		input.Password,
-	)
+	password, err := vo.NewPlainPassword(input.Password)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	hash, err := hasher.Hash(password.Value())
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	user, err := entity.NewUser(input.Name, input.Email, hash)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -51,9 +59,7 @@ func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, 
 }
 
 func (s *User) List(ctx context.Context, input dto.ListInput) (dto.ListOutput, error) {
-	pagination := paginate.NewUUIDPaginate(input.PageToken)
-
-	return s.repo.List(ctx, pagination)
+	return s.repo.List(ctx, paginate.NewUUIDPaginate(input.PageToken))
 }
 
 func (s *User) GetByEmail(context.Context, dto.GetByEmailInput) (entity.User, error) {

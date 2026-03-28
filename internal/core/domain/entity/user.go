@@ -11,14 +11,14 @@ import (
 type User struct {
 	ID        vo.ID
 	Name      mo.Option[vo.Name]
-	Password  vo.Password
+	Password  vo.PasswordHash
 	Email     vo.Email
 	Avatar    vo.Avatar
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func NewUser(name *string, email, password string) (User, error) {
+func NewUser(name *string, email, passHash string) (User, error) {
 	id, err := vo.NewID()
 	if err != nil {
 		return User{}, err
@@ -29,7 +29,7 @@ func NewUser(name *string, email, password string) (User, error) {
 		return User{}, entityerr.NewUserError("email", err)
 	}
 
-	validPass, err := vo.NewPassword(password)
+	validPass, err := vo.NewPasswordHash(passHash)
 	if err != nil {
 		return User{}, entityerr.NewUserError("password", err)
 	}
