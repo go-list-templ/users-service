@@ -9,7 +9,7 @@ import (
 type (
 	User struct {
 		ID        string
-		Name      string
+		Name      *string
 		Email     string
 		Avatar    string
 		CreatedAt time.Time
@@ -21,7 +21,7 @@ type (
 	}
 
 	CreateInput struct {
-		Name     string
+		Name     *string
 		Email    string
 		Password string
 	}
@@ -39,7 +39,7 @@ type (
 func FromEntity(user entity.User) User {
 	return User{
 		ID:        user.ID.Value().String(),
-		Name:      user.Name.Value(),
+		Name:      nil,
 		Email:     user.Email.Value(),
 		Avatar:    user.Avatar.Value(),
 		CreatedAt: user.CreatedAt,

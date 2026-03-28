@@ -16,7 +16,7 @@ type UserCreated struct {
 func NewUserCreated(user entity.User) (UserCreated, error) {
 	userDAO := dao.User{
 		ID:        user.ID.Value(),
-		Name:      user.Name.Value(),
+		Name:      nil,
 		Email:     user.Email.Value(),
 		Avatar:    user.Avatar.Value(),
 		CreatedAt: user.CreatedAt,

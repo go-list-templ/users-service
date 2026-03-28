@@ -29,9 +29,9 @@ func RegisterUser(s *pbgrpc.Server, u port.UserService, l *zap.Logger) {
 
 func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
 	input := dto.CreateInput{
-		Name:     request.GetName(),
-		Email:    request.GetEmail(),
-		Password: request.GetPassword(),
+		Name:     request.Name,
+		Email:    request.Email,
+		Password: request.Password,
 	}
 
 	user, err := u.service.Create(ctx, input)
@@ -101,7 +101,7 @@ func (u *User) dtoToProto(user dto.User) *v1.User {
 func (u *User) entityToProto(user entity.User) *v1.User {
 	return &v1.User{
 		Id:        user.ID.Value().String(),
-		Name:      user.Name.Value(),
+		Name:      nil,
 		Email:     user.Email.Value(),
 		Avatar:    user.Avatar.Value(),
 		CreatedAt: timestamppb.New(user.CreatedAt),

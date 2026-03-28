@@ -3,6 +3,8 @@ package dao
 import (
 	"time"
 
+	"github.com/samber/mo"
+
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/google/uuid"
@@ -11,7 +13,7 @@ import (
 
 type User struct {
 	ID        uuid.UUID `db:"id"`
-	Name      string    `db:"name"`
+	Name      *string   `db:"name"`
 	Email     string    `db:"email"`
 	Avatar    string    `db:"avatar"`
 	CreatedAt time.Time `db:"created_at"`
@@ -19,9 +21,14 @@ type User struct {
 }
 
 func (u *User) ToEntity() entity.User {
+	unsafeName := mo.None[vo.Name]()
+	if name, ok := mo.PointerToOption(u.Name).Get(); ok {
+		unsafeName = mo.Some(vo.UnsafeName(name))
+	}
+
 	return entity.User{
 		ID:        vo.UnsafeID(u.ID),
-		Name:      vo.UnsafeName(u.Name),
+		Name:      unsafeName,
 		Email:     vo.UnsafeEmail(u.Email),
 		Avatar:    vo.UnsafeAvatar(u.Avatar),
 		CreatedAt: u.CreatedAt,
