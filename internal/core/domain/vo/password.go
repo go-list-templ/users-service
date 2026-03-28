@@ -2,7 +2,6 @@ package vo
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 )
 
@@ -14,9 +13,6 @@ const (
 var (
 	ErrPasswordMinLength = fmt.Errorf("min pass must be at least %v characters", MinLengthPass)
 	ErrPasswordMaxLength = fmt.Errorf("max pass must be at least %v characters", MaxLengthPass)
-	ErrPasswordValidate  = fmt.Errorf("pass can only contain letters, numbers and underscores")
-
-	passRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
 type Password struct {
@@ -31,10 +27,6 @@ func NewPassword(password string) (Password, error) {
 	}
 	if len(password) > MaxLengthPass {
 		return Password{}, ErrPasswordMaxLength
-	}
-
-	if !passRegex.MatchString(password) {
-		return Password{}, ErrPasswordValidate
 	}
 
 	return Password{value: password}, nil
