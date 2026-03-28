@@ -21,14 +21,14 @@ type User struct {
 }
 
 func (u *User) ToEntity() entity.User {
-	unsafeName := mo.None[vo.Name]()
+	username := mo.None[vo.Name]()
 	if name, ok := mo.PointerToOption(u.Name).Get(); ok {
-		unsafeName = mo.Some(vo.UnsafeName(name))
+		username = mo.Some(vo.UnsafeName(name))
 	}
 
 	return entity.User{
 		ID:        vo.UnsafeID(u.ID),
-		Name:      unsafeName,
+		Name:      username,
 		Email:     vo.UnsafeEmail(u.Email),
 		Avatar:    vo.UnsafeAvatar(u.Avatar),
 		CreatedAt: u.CreatedAt,

@@ -34,15 +34,15 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
        	VALUES (@id, @name, @password, @email, @avatar, @created_at, @updated_at)
 	`
 
-	var nameVal *string
+	var username *string
 	if name, ok := user.Name.Get(); ok {
 		str := name.Value()
-		nameVal = &str
+		username = &str
 	}
 
 	args := pgx.NamedArgs{
 		"id":         user.ID.Value(),
-		"name":       nameVal,
+		"name":       username,
 		"password":   user.Password.Value(),
 		"email":      user.Email.Value(),
 		"avatar":     user.Avatar.Value(),
