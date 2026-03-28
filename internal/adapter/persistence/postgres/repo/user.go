@@ -140,6 +140,10 @@ func (u *User) toPostgresError(ctx context.Context, err error) error {
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entityerr.ErrUserNotFound
+		}
+
 		u.logger.Error("operation", zap.Any("context", ctx), zap.Error(err))
 
 		return fmt.Errorf("operation: %w", err)
