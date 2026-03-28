@@ -3,12 +3,11 @@ package dao
 import (
 	"time"
 
-	"github.com/samber/mo"
-
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/mo"
 )
 
 type User struct {
