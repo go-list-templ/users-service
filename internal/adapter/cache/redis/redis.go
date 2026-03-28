@@ -97,12 +97,6 @@ func (r *Redis) SetCache(ctx context.Context, key string, data any, ttl time.Dur
 	return r.Set(ctx, key, compress, ttl).Err()
 }
 
-func (r *Redis) SetNegativeCache(ctx context.Context, key string, ttl time.Duration) error {
-	ttl = r.generateJitter(ttl)
-
-	return r.Set(ctx, key, nil, ttl).Err()
-}
-
 func (r *Redis) SetByTags(ctx context.Context, key string, data any, ttl time.Duration, tags ...string) error {
 	pipe := r.TxPipeline()
 	ttl = r.generateJitter(ttl)
