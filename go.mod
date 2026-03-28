@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/exaring/otelpgx v0.10.0
-	github.com/go-list-templ/proto v0.1.4
+	github.com/go-list-templ/proto v0.1.5
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
 	github.com/jackc/pgx/v5 v5.8.0
@@ -13,6 +13,7 @@ require (
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/redis/go-redis/extra/redisotel/v9 v9.18.0
 	github.com/redis/go-redis/v9 v9.18.0
+	github.com/samber/mo v1.16.0
 	github.com/stretchr/testify v1.11.1
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	go.opentelemetry.io/contrib/bridges/otelzap v0.15.0
