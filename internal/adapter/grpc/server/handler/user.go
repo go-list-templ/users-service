@@ -99,9 +99,15 @@ func (u *User) dtoToProto(user dto.User) *v1.User {
 }
 
 func (u *User) entityToProto(user entity.User) *v1.User {
+	var nameVal *string
+	if name, ok := user.Name.Get(); ok {
+		str := name.Value()
+		nameVal = &str
+	}
+
 	return &v1.User{
 		Id:        user.ID.Value().String(),
-		Name:      nil,
+		Name:      nameVal,
 		Email:     user.Email.Value(),
 		Avatar:    user.Avatar.Value(),
 		CreatedAt: timestamppb.New(user.CreatedAt),

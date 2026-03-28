@@ -10,7 +10,6 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
-	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"github.com/jackc/pgx/v5"
@@ -35,13 +34,15 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
        	VALUES (@id, @name, @password, @email, @avatar, @created_at, @updated_at)
 	`
 
-	test := user.Name.MapValue(func(value vo.Name) vo.Name {
-		return vo.UnsafeName(value.Value())
-	})
+	var nameVal *string
+	if name, ok := user.Name.Get(); ok {
+		str := name.Value()
+		nameVal = &str
+	}
 
 	args := pgx.NamedArgs{
 		"id":         user.ID.Value(),
-		"name":       test,
+		"name":       nameVal,
 		"password":   user.Password.Value(),
 		"email":      user.Email.Value(),
 		"avatar":     user.Avatar.Value(),

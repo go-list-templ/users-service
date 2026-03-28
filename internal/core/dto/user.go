@@ -37,9 +37,15 @@ type (
 )
 
 func FromEntity(user entity.User) User {
+	var nameVal *string
+	if name, ok := user.Name.Get(); ok {
+		str := name.Value()
+		nameVal = &str
+	}
+
 	return User{
 		ID:        user.ID.Value().String(),
-		Name:      nil,
+		Name:      nameVal,
 		Email:     user.Email.Value(),
 		Avatar:    user.Avatar.Value(),
 		CreatedAt: user.CreatedAt,
