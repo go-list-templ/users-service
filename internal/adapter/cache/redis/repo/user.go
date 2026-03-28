@@ -25,6 +25,7 @@ var (
 const (
 	TTLList       = 10 * time.Minute
 	TTLGetByEmail = 15 * time.Minute
+	TTLNegative   = 5 * time.Minute
 
 	TagList    = "user-list"
 	TagByEmail = "user-email"
@@ -149,6 +150,15 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 
 		user, err := u.repo.GetByEmail(ctx, email)
 		if err != nil {
+			if err = u.redis.SetNegativeCache(ctx, cacheKey, TTLNegative); err != nil {
+				u.logger.Warn(
+					"set negative cache",
+					zap.Any("context", ctx),
+					zap.Any("cache key", cacheKey),
+					zap.Error(err),
+				)
+			}
+
 			return nil, err
 		}
 
