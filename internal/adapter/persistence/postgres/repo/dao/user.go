@@ -13,6 +13,7 @@ import (
 type User struct {
 	ID        uuid.UUID `db:"id"`
 	Name      *string   `db:"name"`
+	Password  string    `db:"password"`
 	Email     string    `db:"email"`
 	Avatar    string    `db:"avatar"`
 	CreatedAt time.Time `db:"created_at"`
@@ -28,6 +29,7 @@ func (u *User) ToEntity() entity.User {
 	return entity.User{
 		ID:        vo.UnsafeID(u.ID),
 		Name:      username,
+		Password:  vo.UnsafePasswordHash(u.Password),
 		Email:     vo.UnsafeEmail(u.Email),
 		Avatar:    vo.UnsafeAvatar(u.Avatar),
 		CreatedAt: u.CreatedAt,

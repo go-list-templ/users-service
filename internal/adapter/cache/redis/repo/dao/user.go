@@ -12,6 +12,7 @@ import (
 type User struct {
 	ID        uuid.UUID `json:"id"`
 	Name      *string   `json:"name,omitempty"`
+	Password  string    `json:"password"`
 	Email     string    `json:"email"`
 	Avatar    string    `json:"avatar"`
 	CreatedAt time.Time `json:"created_at"`
@@ -28,6 +29,7 @@ func FromEntity(user entity.User) User {
 	return User{
 		ID:        user.ID.Value(),
 		Name:      username,
+		Password:  user.Password.Value(),
 		Email:     user.Email.Value(),
 		Avatar:    user.Email.Value(),
 		CreatedAt: user.CreatedAt,
@@ -44,6 +46,7 @@ func (u *User) ToEntity() entity.User {
 	return entity.User{
 		ID:        vo.UnsafeID(u.ID),
 		Name:      username,
+		Password:  vo.UnsafePasswordHash(u.Password),
 		Email:     vo.UnsafeEmail(u.Email),
 		Avatar:    vo.UnsafeAvatar(u.Avatar),
 		CreatedAt: u.CreatedAt,

@@ -76,7 +76,7 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 
 	if len(cursor) == 0 {
 		query = `
-		SELECT id, name, email, avatar, created_at, updated_at 
+		SELECT id, name, password, email, avatar, created_at, updated_at 
 	   	FROM users
 	   	ORDER BY id DESC 
 	   	LIMIT $1
@@ -115,7 +115,7 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 
 func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, error) {
 	query := `
-		SELECT id, name, email, avatar, created_at, updated_at 
+		SELECT id, name, password, email, avatar, created_at, updated_at 
 	   	FROM users
 	   	WHERE email = $1
 	`
