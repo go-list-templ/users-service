@@ -119,12 +119,15 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 		return err
 	}
 
-	//todo add optimize for two clear cache
-	if err = u.redis.InvalidateTags(ctx, TagList); err != nil {
-		u.logger.Error("invalidate tag", zap.Any("context", ctx), zap.Error(err))
+	keys := []string{
+		byEmailKey(hasher.EmailHash(user.Email.Value())),
 	}
 
-	if err = u.redis.DeleteCache(ctx, byEmailKey(hasher.EmailHash(user.Email.Value()))); err != nil {
+	if err = u.redis.InvalidateTags(ctx, TagList); err != nil {
+		u.logger.Error("invalidate tags", zap.Any("context", ctx), zap.Error(err))
+	}
+
+	if err = u.redis.DeleteCache(ctx, keys...); err != nil {
 		u.logger.Error("delete cache", zap.Any("context", ctx), zap.Error(err))
 	}
 
