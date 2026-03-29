@@ -18,7 +18,7 @@ type User struct {
 	UpdatedAt time.Time
 }
 
-func NewUser(name *string, email, passHash string) (User, error) {
+func NewUser(name *string, email, password string) (User, error) {
 	id, err := vo.NewID()
 	if err != nil {
 		return User{}, err
@@ -29,7 +29,12 @@ func NewUser(name *string, email, passHash string) (User, error) {
 		return User{}, entityerr.NewUserError("email", err)
 	}
 
-	validPass, err := vo.NewPasswordHash(passHash)
+	validPass, err := vo.NewPlainPassword(password)
+	if err != nil {
+		return User{}, entityerr.NewUserError("password", err)
+	}
+
+	passwordHash, err := vo.NewPasswordHash(validPass)
 	if err != nil {
 		return User{}, entityerr.NewUserError("password", err)
 	}
@@ -48,7 +53,7 @@ func NewUser(name *string, email, passHash string) (User, error) {
 		ID:        id,
 		Name:      validName,
 		Email:     validEmail,
-		Password:  validPass,
+		Password:  passwordHash,
 		Avatar:    vo.NewAvatar(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
