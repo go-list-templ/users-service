@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/samber/mo"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -20,7 +21,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "success - create user",
 			args: args{
-				name:     stringPtr("test"),
+				name:     mo.Some("test").ToPointer(),
 				email:    "test@example.com",
 				password: "password",
 			},
@@ -29,7 +30,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "success - russian domain email",
 			args: args{
-				name:     stringPtr("test"),
+				name:     mo.Some("test").ToPointer(),
 				email:    "пользователь@компания.рф",
 				password: "password",
 			},
@@ -38,7 +39,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "success - email with one domain",
 			args: args{
-				name:     stringPtr("test"),
+				name:     mo.Some("test").ToPointer(),
 				email:    "invalid@email",
 				password: "password",
 			},
@@ -54,9 +55,36 @@ func TestNewUser(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "success - difficult password",
+			args: args{
+				name:     mo.Some("test").ToPointer(),
+				email:    "test@example.com",
+				password: ">pHn=b5G20@d60L~9.4v",
+			},
+			wantErr: false,
+		},
+		{
+			name: "fail - min length pass",
+			args: args{
+				name:     mo.Some("").ToPointer(),
+				email:    "test@example.com",
+				password: "pass",
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - max length pass",
+			args: args{
+				name:     mo.Some("test").ToPointer(),
+				email:    "test@example.com",
+				password: "test1test1test1test1test1test123",
+			},
+			wantErr: true,
+		},
+		{
 			name: "fail - min length name",
 			args: args{
-				name:     stringPtr("t"),
+				name:     mo.Some("t").ToPointer(),
 				email:    "test@example.com",
 				password: "password",
 			},
@@ -65,7 +93,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "fail - max length name",
 			args: args{
-				name:     stringPtr("test1test1test1test1test1test123"),
+				name:     mo.Some("test1test1test1test1test1test123").ToPointer(),
 				email:    "test@example.com",
 				password: "password",
 			},
@@ -74,7 +102,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "fail - empty email",
 			args: args{
-				name:     stringPtr("test"),
+				name:     mo.Some("test").ToPointer(),
 				email:    "",
 				password: "password",
 			},
@@ -83,7 +111,7 @@ func TestNewUser(t *testing.T) {
 		{
 			name: "fail - empty password",
 			args: args{
-				name:     stringPtr("test"),
+				name:     mo.Some("test").ToPointer(),
 				email:    "test@gmail.com",
 				password: "",
 			},
@@ -110,8 +138,4 @@ func TestNewUser(t *testing.T) {
 			}
 		})
 	}
-}
-
-func stringPtr(s string) *string {
-	return &s
 }
