@@ -19,8 +19,8 @@ func (p PasswordHash) Value() string {
 	return p.value
 }
 
-func (p PasswordHash) Compare(password string) bool {
-	return hasher.Compare(p.value, password)
+func (p PasswordHash) Compare(password PlainPassword) bool {
+	return hasher.Compare(p.value, password.Value())
 }
 
 func UnsafePasswordHash(hash string) PasswordHash {
