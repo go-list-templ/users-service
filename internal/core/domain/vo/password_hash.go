@@ -1,20 +1,26 @@
 package vo
 
-import "errors"
+import "github.com/go-list-templ/users-service/pkg/hasher"
 
 type PasswordHash struct {
 	value string
 }
 
-func NewPasswordHash(hash string) (PasswordHash, error) {
-	if hash == "" {
-		return PasswordHash{}, errors.New("password hash is empty")
+func NewPasswordHash(password PlainPassword) (PasswordHash, error) {
+	hash, err := hasher.Hash(password.Value())
+	if err != nil {
+		return PasswordHash{}, err
 	}
+
 	return PasswordHash{value: hash}, nil
 }
 
 func (p PasswordHash) Value() string {
 	return p.value
+}
+
+func (p PasswordHash) Compare(password string) bool {
+	return hasher.Compare(p.value, password)
 }
 
 func UnsafePasswordHash(hash string) PasswordHash {
