@@ -16,3 +16,7 @@ func NewPasswordHash(hash string) (PasswordHash, error) {
 func (p PasswordHash) Value() string {
 	return p.value
 }
+
+func UnsafePasswordHash(hash string) PasswordHash {
+	return PasswordHash{value: hash}
+}
