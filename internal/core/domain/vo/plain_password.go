@@ -35,3 +35,7 @@ func NewPlainPassword(password string) (PlainPassword, error) {
 func (u *PlainPassword) Value() string {
 	return u.value
 }
+
+func UnsafePlainPassword(hash string) PlainPassword {
+	return PlainPassword{value: hash}
+}
