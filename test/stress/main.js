@@ -14,7 +14,7 @@ client.load(['/src/proto/api/user/v1'], 'user.proto')
 
 export const options = {
     scenarios: {
-        create_user_grpc: {
+        create_grpc: {
             executor: 'ramping-arrival-rate',
             startRate: 50,
             timeUnit: '1s',
@@ -25,7 +25,7 @@ export const options = {
             ],
             exec: 'runCreate',
         },
-        verify_cred_user_grpc: {
+        verify_cred_grpc: {
             executor: 'ramping-arrival-rate',
             startRate: 5,
             timeUnit: '1s',
@@ -36,7 +36,7 @@ export const options = {
             ],
             exec: 'runVerifyCred',
         },
-        get_by_email_user_grpc: {
+        get_by_email_grpc: {
             executor: 'ramping-arrival-rate',
             startRate: 5,
             timeUnit: '1s',
@@ -47,7 +47,7 @@ export const options = {
             ],
             exec: 'runGetByEmail',
         },
-        list_users_grpc: {
+        list_grpc: {
             executor: 'ramping-arrival-rate',
             startRate: 50,
             timeUnit: '1s',
@@ -70,10 +70,10 @@ export const options = {
         },
     },
     thresholds: {
-        'grpc_req_duration{scenario:create_user_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:list_users_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:verify_cred_user_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:get_by_email_user_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:create_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:list_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:verify_cred_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:get_by_email_grpc}': ['p(95) < 100'],
         'http_req_duration{scenario:healthz_http}': ['p(95) < 500'],
         'checks': ['rate >= 0.9']
     },
@@ -95,7 +95,7 @@ export function runCreate() {
     const response = create(client, payload)
 
     check(response, {
-        'create_user status is OK': (r) => r && r.status === grpc.StatusOK,
+        'create status is OK': (r) => r && r.status === grpc.StatusOK,
     })
 
     if (usersCred.name === "") {
@@ -115,7 +115,7 @@ export function runList() {
     const response = list(client, payload)
 
     check(response, {
-        'list_users status is OK': (r) => r && r.status === grpc.StatusOK,
+        'list status is OK': (r) => r && r.status === grpc.StatusOK,
     })
 
     if (response && response.status === grpc.StatusOK) {
@@ -133,7 +133,7 @@ export function runGetByEmail() {
     const response = getByEmail(client, payload)
 
     check(response, {
-        'create_user status is OK': (r) => r && r.status === grpc.StatusOK,
+        'get_by_email status is OK': (r) => r && r.status === grpc.StatusOK,
     })
 }
 
@@ -148,7 +148,7 @@ export function runVerifyCred() {
     const response = verifyCred(client, payload)
 
     check(response, {
-        'create_user status is OK': (r) => r && r.status === grpc.StatusOK,
+        'verify_cred status is OK': (r) => r && r.status === grpc.StatusOK,
     })
 }
 
