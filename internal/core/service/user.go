@@ -73,6 +73,11 @@ func (s *User) VerifyCred(ctx context.Context, input dto.VerifyCredInput) (entit
 		return entity.User{}, entityerr.NewUserError("email", err)
 	}
 
+	validPass, err := vo.NewPlainPassword(input.Password)
+	if err != nil {
+		return entity.User{}, entityerr.NewUserError("password", err)
+	}
+
 	user, err := s.repo.GetByEmail(ctx, validEmail)
 	if errors.Is(err, entityerr.ErrUserNotFound) {
 		return entity.User{}, entityerr.ErrUserVerifyCred
@@ -81,7 +86,7 @@ func (s *User) VerifyCred(ctx context.Context, input dto.VerifyCredInput) (entit
 		return entity.User{}, err
 	}
 
-	if !user.Password.Compare(input.Password) {
+	if !user.Password.Compare(validPass) {
 		return entity.User{}, entityerr.ErrUserVerifyCred
 	}
 
