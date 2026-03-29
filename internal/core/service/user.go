@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
 	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
@@ -75,4 +76,25 @@ func (s *User) GetByEmail(ctx context.Context, input dto.GetByEmailInput) (entit
 	}
 
 	return user, nil
+}
+
+func (s *User) VerifyCred(ctx context.Context, input dto.VerifyCredInput) (entity.User, error) {
+	validEmail, err := vo.NewEmail(input.Email)
+	if err != nil {
+		return entity.User{}, entityerr.NewUserError("email", err)
+	}
+
+	user, err := s.repo.GetByEmail(ctx, validEmail)
+	if errors.Is(err, entityerr.ErrUserNotFound) {
+		return entity.User{}, entityerr.ErrUserVerifyCred
+	}
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	if !hasher.Compare(user.Password.Value(), input.Password) {
+		return entity.User{}, entityerr.ErrUserVerifyCred
+	}
+
+	return user, err
 }

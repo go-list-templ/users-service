@@ -87,6 +87,24 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 	}, nil
 }
 
+func (u *User) VerifyCred(ctx context.Context, request *v1.VerifyCredRequest) (*v1.VerifyCredResponse, error) {
+	input := dto.VerifyCredInput{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+
+	user, err := u.service.VerifyCred(ctx, input)
+	if err != nil {
+		u.logger.Warn("verify cred", zap.Any("context", ctx), zap.Error(err))
+
+		return nil, err
+	}
+
+	return &v1.VerifyCredResponse{
+		UserId: user.ID.Value().String(),
+	}, nil
+}
+
 func (u *User) dtoToProto(user dto.User) *v1.User {
 	return &v1.User{
 		Id:        user.ID,
