@@ -9,6 +9,7 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
 	ErrUserInvalidData   = errors.New("invalid user data")
+	ErrUserVerifyCred    = errors.New("invalid email or password")
 )
 
 type UserError struct {
