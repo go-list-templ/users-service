@@ -4,6 +4,7 @@ import (
 	"github.com/samber/mo"
 	"testing"
 
+	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -134,7 +135,7 @@ func TestNewUser(t *testing.T) {
 
 				require.Equal(t, tt.args.name, username)
 				require.Equal(t, tt.args.email, got.Email.Value())
-				require.True(t, got.Password.Compare(tt.args.password))
+				require.True(t, got.Password.Compare(vo.UnsafePlainPassword(tt.args.password)))
 			}
 		})
 	}
