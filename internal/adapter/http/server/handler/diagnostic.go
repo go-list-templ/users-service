@@ -85,6 +85,7 @@ func (d *Diagnostic) writeJSON(w http.ResponseWriter, code int, v any) {
 	if err != nil {
 		d.logger.Error("json marshal", zap.Error(err))
 		http.Error(w, MessageServerErr, http.StatusInternalServerError)
+
 		return
 	}
 

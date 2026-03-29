@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"github.com/samber/mo"
 	"testing"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
 )
 

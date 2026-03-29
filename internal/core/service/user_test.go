@@ -179,9 +179,7 @@ func TestUser_Create(t *testing.T) {
 		},
 		{
 			name: "fail - invalid name",
-			mock: func() {
-
-			},
+			mock: func() {},
 			args: dto.CreateInput{
 				Name:     mo.Some("t").ToPointer(),
 				Email:    "example@example.com",

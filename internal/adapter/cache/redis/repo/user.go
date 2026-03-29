@@ -19,9 +19,7 @@ import (
 	"golang.org/x/sync/singleflight"
 )
 
-var (
-	ErrTypedSingleflight = errors.New("invalid type from singleflight")
-)
+var ErrTypedSingleflight = errors.New("invalid type from singleflight")
 
 const (
 	TTLList       = 10 * time.Minute
