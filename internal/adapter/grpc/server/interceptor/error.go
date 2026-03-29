@@ -39,6 +39,8 @@ func toGrpcError(err error) error {
 		return status.Error(codes.NotFound, err.Error())
 	case errors.Is(err, entityerr.ErrUserInvalidData):
 		return status.Error(codes.InvalidArgument, err.Error())
+	case errors.Is(err, entityerr.ErrUserVerifyCred):
+		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, context.DeadlineExceeded):
 		return status.Error(codes.DeadlineExceeded, ErrDeadlineExceeded)
 	default:
