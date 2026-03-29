@@ -10,7 +10,6 @@ import (
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port"
-	"github.com/go-list-templ/users-service/pkg/hasher"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 )
 
@@ -25,17 +24,7 @@ func NewUser(u port.UserRepo, o port.OutboxRepo, t port.TransactionManager) *Use
 }
 
 func (s *User) Create(ctx context.Context, input dto.CreateInput) (entity.User, error) {
-	password, err := vo.NewPlainPassword(input.Password)
-	if err != nil {
-		return entity.User{}, entityerr.NewUserError("password", err)
-	}
-
-	hash, err := hasher.Hash(password.Value())
-	if err != nil {
-		return entity.User{}, err
-	}
-
-	user, err := entity.NewUser(input.Name, input.Email, hash)
+	user, err := entity.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -92,7 +81,7 @@ func (s *User) VerifyCred(ctx context.Context, input dto.VerifyCredInput) (entit
 		return entity.User{}, err
 	}
 
-	if !hasher.Compare(user.Password.Value(), input.Password) {
+	if !user.Password.Compare(input.Password) {
 		return entity.User{}, entityerr.ErrUserVerifyCred
 	}
 
