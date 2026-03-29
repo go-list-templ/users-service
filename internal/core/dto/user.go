@@ -16,6 +16,11 @@ type (
 		UpdatedAt time.Time
 	}
 
+	VerifyCredInput struct {
+		Email    string
+		Password string
+	}
+
 	GetByEmailInput struct {
 		Email string
 	}
