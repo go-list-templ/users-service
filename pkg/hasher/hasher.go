@@ -3,21 +3,27 @@ package hasher
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"golang.org/x/crypto/bcrypt"
 	"strings"
+
+	"github.com/alexedwards/argon2id"
 )
 
 func Hash(password string) (string, error) {
-	b, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return "", err
 	}
 
-	return string(b), nil
+	return hash, nil
 }
 
 func Compare(hash, password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+	match, err := argon2id.ComparePasswordAndHash(password, hash)
+	if err != nil {
+		return false
+	}
+
+	return match
 }
 
 func EmailHash(email string) string {
