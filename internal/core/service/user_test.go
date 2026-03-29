@@ -7,11 +7,13 @@ import (
 	"time"
 
 	"github.com/go-list-templ/users-service/internal/core/domain/entity"
+	"github.com/go-list-templ/users-service/internal/core/domain/entityerr"
 	"github.com/go-list-templ/users-service/internal/core/domain/vo"
 	"github.com/go-list-templ/users-service/internal/core/dto"
 	"github.com/go-list-templ/users-service/internal/port/mock"
 	"github.com/go-list-templ/users-service/pkg/paginate"
 	"github.com/google/uuid"
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
@@ -48,7 +50,8 @@ func TestUser_List(t *testing.T) {
 
 	user := entity.User{
 		ID:        vo.UnsafeID(uuid.New()),
-		Name:      vo.UnsafeName("test"),
+		Name:      mo.Some(vo.UnsafeName("test")),
+		Password:  vo.UnsafePasswordHash("hash"),
 		Email:     vo.UnsafeEmail("example@example.com"),
 		Avatar:    vo.NewAvatar(),
 		CreatedAt: time.Now(),
@@ -83,7 +86,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "success - empty page token len less than 1",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit-1, ""), nil)
+				ur.EXPECT().List(gomock.Any(), gomock.Any()).Return(generateOutput(limit-1, ""), nil)
 			},
 			wantPageToken: "",
 			wantCount:     14,
@@ -92,7 +95,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "success - empty page token len equal limit",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit, ""), nil)
+				ur.EXPECT().List(gomock.Any(), gomock.Any()).Return(generateOutput(limit, ""), nil)
 			},
 			wantPageToken: "",
 			wantCount:     15,
@@ -101,7 +104,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "success - get page token len more by 1",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(limit+1, pageToken), nil)
+				ur.EXPECT().List(gomock.Any(), gomock.Any()).Return(generateOutput(limit+1, pageToken), nil)
 			},
 			wantPageToken: pageToken,
 			wantCount:     16,
@@ -110,7 +113,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "success - empty result",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(generateOutput(0, ""), nil)
+				ur.EXPECT().List(gomock.Any(), gomock.Any()).Return(generateOutput(0, ""), nil)
 			},
 			wantPageToken: "",
 			wantCount:     0,
@@ -119,7 +122,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "fail - err at get list users",
 			mock: func() {
-				ur.EXPECT().All(gomock.Any(), gomock.Any()).Return(dto.ListOutput{}, errSome)
+				ur.EXPECT().List(gomock.Any(), gomock.Any()).Return(dto.ListOutput{}, errSome)
 			},
 			wantPageToken: "",
 			wantCount:     0,
@@ -144,53 +147,67 @@ func TestUser_Create(t *testing.T) {
 	ur, or, tm := mocks(t)
 	userService := NewUser(ur, or, tm)
 
-	user := entity.User{
-		ID:        vo.UnsafeID(uuid.New()),
-		Name:      vo.UnsafeName("test"),
-		Email:     vo.UnsafeEmail("example@example.com"),
-		Avatar:    vo.NewAvatar(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
 	tests := []struct {
-		name   string
-		mock   func()
-		input  dto.CreateInput
-		output entity.User
-		isErr  bool
+		name    string
+		args    dto.CreateInput
+		mock    func()
+		wantErr bool
 	}{
 		{
 			name: "success - create user",
 			mock: func() {
 				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(nil)
 			},
-			input: dto.CreateInput{
-				Name:  "test",
-				Email: "example@example.com",
+			args: dto.CreateInput{
+				Name:     mo.Some("test").ToPointer(),
+				Email:    "example@example.com",
+				Password: "password",
 			},
-			output: user,
-			isErr:  false,
+			wantErr: false,
 		},
 		{
-			name: "fail - min len name",
-			mock: func() {},
-			input: dto.CreateInput{
-				Name:  "t",
-				Email: "example@example.com",
+			name: "success - create user without name",
+			mock: func() {
+				tm.EXPECT().Do(gomock.Any(), gomock.Any()).Return(nil)
 			},
-			output: user,
-			isErr:  true,
+			args: dto.CreateInput{
+				Name:     nil,
+				Email:    "example@example.com",
+				Password: "password",
+			},
+			wantErr: false,
+		},
+		{
+			name: "fail - invalid name",
+			mock: func() {
+
+			},
+			args: dto.CreateInput{
+				Name:     mo.Some("t").ToPointer(),
+				Email:    "example@example.com",
+				Password: "password",
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - invalid password",
+			mock: func() {},
+			args: dto.CreateInput{
+				Name:     mo.Some("t").ToPointer(),
+				Email:    "example@example.com",
+				Password: "test",
+			},
+			wantErr: true,
 		},
 		{
 			name: "fail - invalid email",
 			mock: func() {},
-			input: dto.CreateInput{
-				Name:  "test",
-				Email: "test",
+			args: dto.CreateInput{
+				Name:     mo.Some("test").ToPointer(),
+				Email:    "test",
+				Password: "password",
 			},
-			output: user,
-			isErr:  true,
+			wantErr: true,
 		},
 		{
 			name: "fail - err in user repo",
@@ -201,12 +218,12 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			input: dto.CreateInput{
-				Name:  "test",
-				Email: "example@example.com",
+			args: dto.CreateInput{
+				Name:     mo.Some("test").ToPointer(),
+				Email:    "example@example.com",
+				Password: "password",
 			},
-			output: entity.User{},
-			isErr:  true,
+			wantErr: true,
 		},
 		{
 			name: "fail - err in outbox repo",
@@ -219,26 +236,214 @@ func TestUser_Create(t *testing.T) {
 						return fn(ctx)
 					})
 			},
-			input: dto.CreateInput{
-				Name:  "test",
-				Email: "example@example.com",
+			args: dto.CreateInput{
+				Name:     mo.Some("test").ToPointer(),
+				Email:    "example@example.com",
+				Password: "password",
 			},
-			output: entity.User{},
-			isErr:  true,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 
-			got, err := userService.Create(context.Background(), tt.input)
-			if tt.isErr {
+			got, err := userService.Create(context.Background(), tt.args)
+			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 
-				require.Equal(t, tt.output.Name.Value(), got.Name.Value())
-				require.Equal(t, tt.output.Email.Value(), got.Email.Value())
+				var username *string
+				if name, ok := got.Name.Get(); ok {
+					str := name.Value()
+					username = &str
+				}
+
+				require.Equal(t, tt.args.Name, username)
+				require.Equal(t, tt.args.Email, got.Email.Value())
+				require.True(t, got.Password.Compare(vo.UnsafePlainPassword(tt.args.Password)))
+			}
+		})
+	}
+}
+
+func TestUser_GetByEmail(t *testing.T) {
+	ur, or, tm := mocks(t)
+	userService := NewUser(ur, or, tm)
+
+	user := entity.User{
+		ID:        vo.UnsafeID(uuid.New()),
+		Name:      mo.Some(vo.UnsafeName("test")),
+		Password:  vo.UnsafePasswordHash("hash"),
+		Email:     vo.UnsafeEmail("example@example.com"),
+		Avatar:    vo.NewAvatar(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	tests := []struct {
+		name    string
+		args    dto.GetByEmailInput
+		mock    func()
+		wantErr bool
+	}{
+		{
+			name: "success - get user by email",
+			args: dto.GetByEmailInput{
+				Email: user.Email.Value(),
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(user, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "fail - invalid email",
+			args: dto.GetByEmailInput{
+				Email: "invalid",
+			},
+			mock:    func() {},
+			wantErr: true,
+		},
+		{
+			name: "fail - user not found",
+			args: dto.GetByEmailInput{
+				Email: "notfound@example.com",
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(entity.User{}, entityerr.ErrUserNotFound)
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - err from repo",
+			args: dto.GetByEmailInput{
+				Email: "notfound@example.com",
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(entity.User{}, errSome)
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mock()
+
+			got, err := userService.GetByEmail(context.Background(), tt.args)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				require.Equal(t, tt.args.Email, got.Email.Value())
+			}
+		})
+	}
+}
+
+func TestUser_VerifyCred(t *testing.T) {
+	ur, or, tm := mocks(t)
+	userService := NewUser(ur, or, tm)
+
+	plainPassword, err := vo.NewPlainPassword("password")
+	require.NoError(t, err)
+
+	passwordHash, err := vo.NewPasswordHash(plainPassword)
+	require.NoError(t, err)
+
+	user := entity.User{
+		ID:        vo.UnsafeID(uuid.New()),
+		Name:      mo.Some(vo.UnsafeName("test")),
+		Password:  passwordHash,
+		Email:     vo.UnsafeEmail("example@example.com"),
+		Avatar:    vo.NewAvatar(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	tests := []struct {
+		name    string
+		args    dto.VerifyCredInput
+		mock    func()
+		wantErr bool
+	}{
+		{
+			name: "success - verify cred",
+			args: dto.VerifyCredInput{
+				Email:    user.Email.Value(),
+				Password: plainPassword.Value(),
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(user, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "fail - user not found",
+			args: dto.VerifyCredInput{
+				Email:    "notfound@example.com",
+				Password: "password",
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(entity.User{}, entityerr.ErrUserNotFound)
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - password not compare",
+			args: dto.VerifyCredInput{
+				Email:    user.Email.Value(),
+				Password: "not compare pass",
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(user, nil)
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - error from repo",
+			args: dto.VerifyCredInput{
+				Email:    user.Email.Value(),
+				Password: "test",
+			},
+			mock: func() {
+				ur.EXPECT().GetByEmail(gomock.Any(), gomock.Any()).Return(entity.User{}, errSome)
+			},
+			wantErr: true,
+		},
+		{
+			name: "fail - invalid email",
+			args: dto.VerifyCredInput{
+				Email:    "invalid",
+				Password: "password",
+			},
+			mock:    func() {},
+			wantErr: true,
+		},
+		{
+			name: "fail - invalid password",
+			args: dto.VerifyCredInput{
+				Email:    user.Email.Value(),
+				Password: "test",
+			},
+			mock:    func() {},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mock()
+
+			got, err := userService.VerifyCred(context.Background(), tt.args)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				require.Equal(t, tt.args.Email, got.Email.Value())
+				require.True(t, got.Password.Compare(vo.UnsafePlainPassword(tt.args.Password)))
 			}
 		})
 	}
