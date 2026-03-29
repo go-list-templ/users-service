@@ -57,6 +57,21 @@ func (mr *MockUserServiceMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserService)(nil).Create), arg0, arg1)
 }
 
+// GetByEmail mocks base method.
+func (m *MockUserService) GetByEmail(arg0 context.Context, arg1 dto.GetByEmailInput) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", arg0, arg1)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockUserServiceMockRecorder) GetByEmail(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUserService)(nil).GetByEmail), arg0, arg1)
+}
+
 // List mocks base method.
 func (m *MockUserService) List(arg0 context.Context, arg1 dto.ListInput) (dto.ListOutput, error) {
 	m.ctrl.T.Helper()
@@ -70,4 +85,19 @@ func (m *MockUserService) List(arg0 context.Context, arg1 dto.ListInput) (dto.Li
 func (mr *MockUserServiceMockRecorder) List(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserService)(nil).List), arg0, arg1)
+}
+
+// VerifyCred mocks base method.
+func (m *MockUserService) VerifyCred(arg0 context.Context, arg1 dto.VerifyCredInput) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyCred", arg0, arg1)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyCred indicates an expected call of VerifyCred.
+func (mr *MockUserServiceMockRecorder) VerifyCred(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyCred", reflect.TypeOf((*MockUserService)(nil).VerifyCred), arg0, arg1)
 }

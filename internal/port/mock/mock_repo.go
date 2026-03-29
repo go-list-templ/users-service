@@ -15,6 +15,7 @@ import (
 
 	entity "github.com/go-list-templ/users-service/internal/core/domain/entity"
 	event "github.com/go-list-templ/users-service/internal/core/domain/event"
+	vo "github.com/go-list-templ/users-service/internal/core/domain/vo"
 	dto "github.com/go-list-templ/users-service/internal/core/dto"
 	paginate "github.com/go-list-templ/users-service/pkg/paginate"
 	gomock "go.uber.org/mock/gomock"
@@ -44,8 +45,23 @@ func (m *MockUserRepo) EXPECT() *MockUserRepoMockRecorder {
 	return m.recorder
 }
 
-// All mocks base method.
-func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) (dto.ListOutput, error) {
+// GetByEmail mocks base method.
+func (m *MockUserRepo) GetByEmail(arg0 context.Context, arg1 vo.Email) (entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", arg0, arg1)
+	ret0, _ := ret[0].(entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockUserRepoMockRecorder) GetByEmail(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUserRepo)(nil).GetByEmail), arg0, arg1)
+}
+
+// List mocks base method.
+func (m *MockUserRepo) List(arg0 context.Context, arg1 paginate.Paginate) (dto.ListOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", arg0, arg1)
 	ret0, _ := ret[0].(dto.ListOutput)
@@ -53,10 +69,10 @@ func (m *MockUserRepo) All(arg0 context.Context, arg1 paginate.Paginate) (dto.Li
 	return ret0, ret1
 }
 
-// All indicates an expected call of All.
-func (mr *MockUserRepoMockRecorder) All(arg0, arg1 any) *gomock.Call {
+// List indicates an expected call of List.
+func (mr *MockUserRepoMockRecorder) List(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserRepo)(nil).All), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserRepo)(nil).List), arg0, arg1)
 }
 
 // Store mocks base method.
