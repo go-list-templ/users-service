@@ -1,14 +1,7 @@
-FROM alpine/git:v2.30.2 AS loader
-WORKDIR /app
+FROM yandex/yandex-tank
 
-RUN git clone https://github.com/go-list-templ/proto.git
+WORKDIR /var/loadtest
 
-FROM grafana/k6:latest
+COPY ./test/stress /var/loadtest
 
-WORKDIR /src
-
-COPY ./test/stress /src
-
-COPY --from=loader /app/proto /src/proto
-
-ENTRYPOINT ["k6", "run", "/src/main.js", "--compatibility-mode=base"]
+ENTRYPOINT ["yandex-tank"]
