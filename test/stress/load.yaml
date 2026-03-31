@@ -1,5 +1,0 @@
-phantom:
-  enabled: false # выключаем phantom
-pandora:
-  enabled: true # включаем pandora
-  config_file: pandora.yaml
