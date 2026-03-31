@@ -3,8 +3,7 @@ import check from 'k6'
 import {create, getByEmail, list, verifyCred} from "./grpc/user.js"
 
 const grpcUrl = 'app:8080'
-const tokens = {};
-
+const tokens = {}
 const createdUsers = {email: "test@gmail.com", password: "password"}
 
 const client = new grpc.Client()
@@ -12,7 +11,7 @@ client.load(['/src/proto/api/user/v1'], 'user.proto')
 
 export const options = {
     scenarios: {
-        create_grpc: {
+        create: {
             executor: 'constant-arrival-rate',
             rate: 10,
             timeUnit: '1s',
@@ -21,7 +20,7 @@ export const options = {
             maxVUs: 10,
             exec: 'runCreate',
         },
-        verify_cred_grpc: {
+        verify_cred: {
             executor: 'constant-arrival-rate',
             rate: 10,
             timeUnit: '1s',
@@ -30,7 +29,7 @@ export const options = {
             maxVUs: 10,
             exec: 'runVerifyCred',
         },
-        get_by_email_grpc: {
+        get_by_email: {
             executor: 'constant-arrival-rate',
             rate: 100,
             timeUnit: '1s',
@@ -39,7 +38,7 @@ export const options = {
             maxVUs: 50,
             exec: 'runGetByEmail',
         },
-        list_grpc: {
+        list: {
             executor: 'constant-arrival-rate',
             rate: 100,
             timeUnit: '1s',
@@ -50,10 +49,10 @@ export const options = {
         },
     },
     thresholds: {
-        'grpc_req_duration{scenario:create_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:list_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:verify_cred_grpc}': ['p(95) < 100'],
-        'grpc_req_duration{scenario:get_by_email_grpc}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:create}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:list}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:verify_cred}': ['p(95) < 100'],
+        'grpc_req_duration{scenario:get_by_email}': ['p(95) < 100'],
         'checks': ['rate >= 0.9']
     },
     summaryTrendStats: ['min', 'max', 'p(95)', 'p(99)', 'count'],
