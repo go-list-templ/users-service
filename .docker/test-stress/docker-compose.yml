@@ -8,9 +8,9 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    volumes:
-      - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent:ro
     depends_on:
+      - app
+    networks:
       - app
 
 networks:

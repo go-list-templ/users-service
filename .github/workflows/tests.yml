@@ -45,12 +45,12 @@ jobs:
           cp .env.example .env
           make test-integration
 
-#  test-stress:
-#    name: stress test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v6
-#      - name: Run Test Stress
-#        run: |
-#          cp .env.example .env
-#          make test-stress
+  test-stress:
+    name: stress test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run Test Stress
+        run: |
+          cp .env.example .env
+          make test-stress
