@@ -21,7 +21,6 @@ export const options = {
             timeUnit: '1s',
             duration: '1m',
             preAllocatedVUs: 10,
-            maxVUs: 10,
             exec: 'runCreate',
         },
         verify_cred: {
@@ -30,7 +29,6 @@ export const options = {
             timeUnit: '1s',
             duration: '1m',
             preAllocatedVUs: 10,
-            maxVUs: 10,
             exec: 'runVerifyCred',
         },
         get_by_email: {
@@ -39,7 +37,6 @@ export const options = {
             timeUnit: '1s',
             duration: '1m',
             preAllocatedVUs: 10,
-            maxVUs: 50,
             exec: 'runGetByEmail',
         },
         list: {
@@ -48,7 +45,6 @@ export const options = {
             timeUnit: '1s',
             duration: '1m',
             preAllocatedVUs: 10,
-            maxVUs: 50,
             exec: 'runList',
         },
     },
