@@ -4,6 +4,8 @@ WORKDIR /go/src/app
 
 COPY . .
 
+RUN mv /go/src/app/migrations /go/src/app/pkg/migrator
+
 RUN go mod download && \
     GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /go/bin/app ./cmd
 
