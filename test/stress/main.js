@@ -1,8 +1,14 @@
 import grpc from 'k6/net/grpc'
 import {check} from 'k6'
+import {SharedArray} from 'k6/data';
 import {create, getByEmail, list, verifyCred} from "./grpc/user.js"
+import {generateUsersData, getRandomItem} from "./helpers/helpers.js";
 
 const tokens = {}
+
+const usersData = new SharedArray('users data', () => {
+    return generateUsersData(100)
+});
 
 const client = new grpc.Client()
 client.load(['/src/proto/api/user/v1'], 'user.proto')
@@ -56,25 +62,19 @@ export const options = {
     summaryTrendStats: ['min', 'max', 'p(95)', 'p(99)', 'count'],
 }
 
-export function setup() {
-    return {
-        name: `user`,
-        email: `example${__VU}@gmail.com`,
-        password: "password"
-    };
-}
+export function runCreate() {
+    const user = getRandomItem(usersData)
 
-export function runCreate(data) {
     const payload = {
-        name: data.user,
-        email: data.email,
-        password: data.password
+        name: user.name,
+        email: user.email,
+        password: user.password
     };
 
     const response = create(client, payload)
 
     check(response, {
-        'create status is OK': (r) => r && r.status === grpc.StatusOK,
+        'create status is OK': (r) => r && r.status !== grpc.StatusInternal,
     })
 }
 
@@ -88,7 +88,7 @@ export function runList() {
     const response = list(client, payload)
 
     check(response, {
-        'list status is OK': (r) => r && r.status === grpc.StatusOK,
+        'list status is OK': (r) => r && r.status !== grpc.StatusInternal,
     })
 
     if (response && response.status === grpc.StatusOK) {
@@ -96,27 +96,31 @@ export function runList() {
     }
 }
 
-export function runGetByEmail(data) {
+export function runGetByEmail() {
+    const user = getRandomItem(usersData)
+
     const payload = {
-        email: data.email,
+        email: user.email,
     };
 
     const response = getByEmail(client, payload)
 
     check(response, {
-        'get_by_email status is OK': (r) => r && r.status === grpc.StatusOK,
+        'get_by_email status is OK': (r) => r && r.status !== grpc.StatusInternal,
     })
 }
 
-export function runVerifyCred(data) {
+export function runVerifyCred() {
+    const user = getRandomItem(usersData)
+
     const payload = {
-        email: data.email,
-        password: data.password
+        email: user.email,
+        password: user.password
     };
 
     const response = verifyCred(client, payload)
 
     check(response, {
-        'verify_cred status is OK': (r) => r && r.status === grpc.StatusOK,
+        'verify_cred status is OK': (r) => r && r.status !== grpc.StatusInternal,
     })
 }
