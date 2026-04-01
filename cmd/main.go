@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-list-templ/users-service/pkg/migrator"
 	"log"
 	"os"
 	"os/signal"
@@ -63,11 +64,10 @@ func run() error {
 		logger.Panic("init postgres", zap.Error(err))
 	}
 
-	logger.Info("postgres migration")
+	logger.Info("migrations up")
 
-	migration := postgres.NewMigration(pg, logger.With(zap.String("module", "migration")))
-	if err = migration.Up(); err != nil {
-		logger.Panic("migration", zap.Error(err))
+	if err = migrator.Up(pg); err != nil {
+		logger.Panic("migrations up", zap.Error(err))
 	}
 
 	logger.Info("initializing redis")
