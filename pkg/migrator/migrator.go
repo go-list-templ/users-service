@@ -24,10 +24,6 @@ func Up(cfg *config.DB) error {
 		return errors.Join(errSource, errDb)
 	}
 
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
-	}
-
 	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
