@@ -66,7 +66,7 @@ func run() error {
 
 	logger.Info("migrations up")
 
-	if err = migrator.Up(pg); err != nil {
+	if err = migrator.Up(&cfg.DB); err != nil {
 		logger.Panic("migrations up", zap.Error(err))
 	}
 
