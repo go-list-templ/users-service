@@ -3,17 +3,16 @@ package migrator
 import (
 	"errors"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-
 	"github.com/go-list-templ/users-service/pkg/config"
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-const migrationsUrl = "file:///migrations"
+const migrationsURL = "file:///migrations"
 
 func Up(cfg *config.DB) error {
-	m, err := migrate.New(migrationsUrl, cfg.URL)
+	m, err := migrate.New(migrationsURL, cfg.URL)
 	if err != nil {
 		return err
 	}

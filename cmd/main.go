@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/go-list-templ/users-service/pkg/migrator"
 	"log"
 	"os"
 	"os/signal"
@@ -20,6 +19,7 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/service"
 	"github.com/go-list-templ/users-service/pkg/config"
+	"github.com/go-list-templ/users-service/pkg/migrator"
 	"github.com/go-list-templ/users-service/pkg/otel"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
