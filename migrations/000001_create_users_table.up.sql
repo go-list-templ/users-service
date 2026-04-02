@@ -1,5 +1,4 @@
--- +goose Up
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id         UUID PRIMARY KEY,
     name       VARCHAR(255) NULL,
@@ -9,6 +8,3 @@ CREATE TABLE users
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
-
--- +goose Down
-DROP TABLE IF EXISTS users
