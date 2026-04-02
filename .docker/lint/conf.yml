@@ -69,7 +69,10 @@ linters:
   exclusions:
     presets:
       - comments
-
+    rules:
+      - linters:
+          - revive
+        path: pkg
 formatters:
   enable:
     - gofmt
