@@ -1,17 +1,16 @@
 FROM golang:1.26-alpine3.23 AS build
 
-WORKDIR /go/src/app
+WORKDIR /app
 
 COPY . .
 
-RUN mv /go/src/app/migrations /go/src/app/pkg/migrator
-
 RUN go mod download && \
-    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /go/bin/app ./cmd
+    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /bin/app ./cmd
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
-COPY --from=build /go/bin/app /
+COPY --from=build /bin/app /
+COPY --from=build /app/migrations /migrations
 
 CMD ["/app"]
 
