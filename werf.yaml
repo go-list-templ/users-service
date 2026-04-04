@@ -1,0 +1,6 @@
+project: users-app
+configVersion: 1
+---
+image: app
+dockerfile: .docker/app/Dockerfile
+context: .
