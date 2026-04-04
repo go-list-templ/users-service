@@ -21,3 +21,9 @@ Build docker container
 ```bash
 werf build --dev
 ```
+
+Stop and remove Kuber Pods with Service
+
+```bash
+kubectl delete all --all --namespace users-service
+```
