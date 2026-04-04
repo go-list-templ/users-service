@@ -4,8 +4,20 @@ Template users service on go
 
 ---
 
-Init project
+Run and deploy to from Helm to Kuber
 
 ```bash
-cp .env.example .env ; make init
+werf converge --repo=ghcr.io/go-list-templ/users-service --dev
+```
+
+Run docker app container
+
+```bash
+werf run --dev
+```
+
+Build docker container
+
+```bash
+werf build --dev
 ```
