@@ -1,4 +1,4 @@
-project: users-app
+project: users-service
 configVersion: 1
 ---
 image: app
