@@ -7,6 +7,6 @@ spec:
     app: {{ .Chart.Name }}
   ports:
     - name: grpc
-      port: {{ .Values.service.grpcPort }}
+      port: {{ .Values.ports.grpcPort }}
     - name: http
-      port: {{ .Values.service.diagPort }}
+      port: {{ .Values.ports.diagPort }}

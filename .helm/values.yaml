@@ -1,12 +1,16 @@
 replicaCount: 3
 
+ports:
+  grpcPort: 8081
+  diagPort: 8082
+
+limits:
+  cpu: 100m
+  memory: 256Mi
+
 env:
   DB_USER: "user"
   DB_NAME: "app_db"
   DB_HOST: "global-db"
   REDIS_HOST: "global-redis"
   OTEL_ADDR: "otel-lgtm:4317"
-
-service:
-  grpcPort: 8081
-  diagPort: 8082
