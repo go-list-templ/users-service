@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+data:
+  APP_NAME: {{ .Values.appName | quote }}
+
+  GRPC_PORT: {{ .Values.app.grpc.port | quote }}
+  GRPC_TIME: {{ .Values.app.grpc.time | quote }}
+  GRPC_TIMEOUT: {{ .Values.app.grpc.timeout | quote }}
+  GRPC_MAX_CONN_IDLE: {{ .Values.app.grpc.maxIdle | quote }}
+  GRPC_MAX_CONN_AGE: {{ .Values.app.grpc.maxAge | quote }}
+
+  DIAGNOSTIC_PORT: {{ .Values.app.diagnostic.port | quote }}
+  HTTP_TIMEOUT: {{ .Values.app.diagnostic.httpTimeout | quote }}
+  IDLE_TIMEOUT: {{ .Values.app.diagnostic.idleTimeout | quote }}
+  SHUTDOWN_TIMEOUT: {{ .Values.app.shutdownTimeout | quote }}
+
+  REDIS_HOST: {{ .Values.externalInfra.redisHost | quote }}
+  REDIS_PORT: "6379"
+  REDIS_ADDRESS: "{{ .Values.externalInfra.redisHost }}:6379"
+  REDIS_DIAL_TIMEOUT: {{ .Values.redis.dialTimeout | quote }}
+  REDIS_READ_TIMEOUT: {{ .Values.redis.readTimeout | quote }}
+  REDIS_WRITE_TIMEOUT: {{ .Values.redis.writeTimeout | quote }}
+  REDIS_MAX_RETRIES: {{ .Values.redis.maxRetries | quote }}
+  REDIS_MIN_RETRY_BACKOFF: {{ .Values.redis.minRetryBackoff | quote }}
+  REDIS_MAX_RETRY_BACKOFF: {{ .Values.redis.maxRetryBackoff | quote }}
+  REDIS_POOL_SIZE: {{ .Values.redis.pool.size | quote }}
+  REDIS_MIN_IDLE_CONS: {{ .Values.redis.pool.minIdle | quote }}
+  REDIS_POOL_TIMEOUT: {{ .Values.redis.pool.timeout | quote }}
+
+  DB_PORT: {{ .Values.db.port | quote }}
+  DB_USERNAME: {{ .Values.db.username | quote }}
+  DB_DATABASE: {{ .Values.appName | quote }}
+  DB_URL: "postgres://{{ .Values.db.username }}:{{ .Values.db.password }}@{{ .Values.externalInfra.dbHost }}:{{ .Values.db.port }}/{{ .Values.appName }}?sslmode=disable"
+
+  DB_MAX_CONN: {{ .Values.db.maxConn | quote }}
+  DB_MIN_CONN: {{ .Values.db.minConn | quote }}
+  DB_CONN_TIMEOUT: {{ .Values.db.connTimeout | quote }}
+  DB_MAX_CONN_TIME: {{ .Values.db.maxConnTime | quote }}
+  DB_MAX_CONN_IDLE_TIME: {{ .Values.db.maxConnIdleTime | quote }}
+  DB_HEALTH_CHECK_PERIOD: {{ .Values.db.healthCheckPeriod | quote }}
+
+  OTEL_GRAFANA_PORT: {{ .Values.otel.grafanaPort | quote }}
+  OTEL_GRPC_PORT: {{ .Values.otel.grpcPort | quote }}
+  OTEL_HOST: {{ .Values.externalInfra.otelHost | quote }}
+  OTEL_IS_TLS: {{ .Values.otel.isTls | quote }}
+  OTEL_ENDPOINT: "{{ .Values.externalInfra.otelHost }}:{{ .Values.otel.grpcPort }}"

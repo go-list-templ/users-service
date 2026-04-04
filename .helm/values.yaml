@@ -1,16 +1,48 @@
+appName: "users"
 replicaCount: 3
 
-ports:
-  grpcPort: 8081
-  diagPort: 8082
+app:
+  grpc:
+    port: 8080
+    time: "30s"
+    timeout: "5s"
+    maxIdle: "15m"
+    maxAge: "30m"
+  diagnostic:
+    port: 8081
+    httpTimeout: "5s"
+    idleTimeout: "30s"
+  shutdownTimeout: "30s"
 
-limits:
-  cpu: 100m
-  memory: 256Mi
+redis:
+  dialTimeout: "50ms"
+  readTimeout: "50ms"
+  writeTimeout: "50ms"
+  maxRetries: -1
+  minRetryBackoff: "5ms"
+  maxRetryBackoff: "15ms"
+  pool:
+    size: 100
+    minIdle: 20
+    timeout: "10ms"
 
-env:
-  DB_USER: "user"
-  DB_NAME: "app_db"
-  DB_HOST: "global-db"
-  REDIS_HOST: "global-redis"
-  OTEL_ADDR: "otel-lgtm:4317"
+db:
+  username: "postgres"
+  password: "root"
+  port: 5432
+  maxConn: 100
+  minConn: 5
+  connTimeout: "10s"
+  maxConnTime: "1h"
+  maxConnIdleTime: "5m"
+  healthCheckPeriod: "10m"
+
+otel:
+  grafanaPort: 3000
+  grpcPort: 4317
+  isTls: false
+
+externalInfra:
+  dbHost: "global-db"
+  redisHost: "global-redis"
+  otelHost: "otel-lgtm"

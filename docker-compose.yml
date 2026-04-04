@@ -1,22 +1,4 @@
 services:
-  app:
-    container_name: app.${APP_NAME}
-    build:
-      context: .
-      dockerfile: .docker/app/Dockerfile
-    ports:
-      - "${GRPC_PORT}:${GRPC_PORT}"
-      - "${DIAGNOSTIC_PORT}:${DIAGNOSTIC_PORT}"
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    networks:
-      - app
-
   redis:
     container_name: redis.${APP_NAME}
     image: redis:8.4.0
