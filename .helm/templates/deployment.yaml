@@ -12,6 +12,8 @@ spec:
       labels:
         app: {{ .Chart.Name }}
     spec:
+      imagePullSecrets:
+        - name: registrysecret
       containers:
         - name: app
           image: {{ .Values.werf.image.app }}

@@ -8,8 +8,6 @@ init: build
 lint: docker-lint code-lint
 
 build:
-	$(COMPOSE_TEST_CMD) down -v
-	$(COMPOSE_TEST_STRESS_CMD) down -v
 	$(COMPOSE_CMD) up -d --build --remove-orphans
 
 down:

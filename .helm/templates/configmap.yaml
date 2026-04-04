@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}-config
 data:
-  APP_NAME: {{ .Values.appName | quote }}
+  APP_NAME: "test"
 
   GRPC_PORT: {{ .Values.app.grpc.port | quote }}
   GRPC_TIME: {{ .Values.app.grpc.time | quote }}
