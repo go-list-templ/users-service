@@ -17,8 +17,7 @@ spec:
       containers:
         - name: app
           image: {{ .Values.werf.image.app }}
-          command:
-            - "/bin/app"
+          command: [ "/bin/app" ]
           ports:
             - containerPort: {{ .Values.app.grpc.port }}
             - containerPort: {{ .Values.app.diagnostic.port }}
