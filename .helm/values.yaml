@@ -13,6 +13,7 @@ app:
   shutdownTimeout: "30s"
 
 redis:
+  url: "host.docker.internal:6379"
   dialTimeout: "50ms"
   readTimeout: "50ms"
   writeTimeout: "50ms"
@@ -25,8 +26,7 @@ redis:
     timeout: "10ms"
 
 db:
-  username: "postgres"
-  password: "root"
+  url: "postgres://postgres:root@host.docker.internal:5432/users?sslmode=disable"
   port: 5432
   maxConn: 100
   minConn: 5
@@ -36,11 +36,5 @@ db:
   healthCheckPeriod: "10m"
 
 otel:
-  grafanaPort: 3000
-  grpcPort: 4317
+  url: "host.docker.internal:4317"
   isTls: false
-
-externalInfra:
-  dbHost: "host.docker.internal"
-  redisHost: "host.docker.internal"
-  otelHost: "host.docker.internal"
