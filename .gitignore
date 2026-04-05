@@ -33,3 +33,4 @@ go.work.sum
 *schema.sql
 
 .docker/otel/data
+.DS_Store
