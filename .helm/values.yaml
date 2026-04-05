@@ -1,7 +1,5 @@
-appName: "users"
-replicaCount: 3
-
 app:
+  replicas: 3
   grpc:
     port: 8080
     time: "30s"
@@ -43,6 +41,6 @@ otel:
   isTls: false
 
 externalInfra:
-  dbHost: "global-db"
-  redisHost: "global-redis"
-  otelHost: "otel-lgtm"
+  dbHost: "host.docker.internal"
+  redisHost: "host.docker.internal"
+  otelHost: "host.docker.internal"
