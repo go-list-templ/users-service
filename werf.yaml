@@ -1,5 +1,27 @@
 configVersion: 1
 project: users-service
 ---
+image: build
+from: golang:1.26-alpine3.23
+git:
+  - add: /
+    to: /app
+shell:
+  install:
+    - cd /app
+    - go mod download
+  setup:
+    - cd /app
+    - go build -ldflags="-s -w" -o /bin/app cmd/main.go
+---
 image: app
-dockerfile: .docker/app/Dockerfile
+from: gcr.io/distroless/static-debian12:nonroot
+git:
+  - add: /migrations
+    to: /migrations
+import:
+  - image: build
+    add: /bin/app
+    to: /bin/app
+    after: install
+
