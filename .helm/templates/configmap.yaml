@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}-config
 data:
-  APP_NAME: {{ .Values.werf.name | quote }}
+  APP_NAME: {{ .Chart.Name | quote }}
   APP_VERSION: {{ .Values.werf.image.app | quote}}
 
   GRPC_PORT: {{ .Values.app.grpc.port | quote }}

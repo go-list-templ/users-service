@@ -20,6 +20,11 @@ spec:
           ports:
             - containerPort: {{ .Values.app.grpc.port }}
             - containerPort: {{ .Values.app.diagnostic.port }}
+          env:
+            - name: APP_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           envFrom:
             - configMapRef:
                 name: {{ .Chart.Name }}-config
