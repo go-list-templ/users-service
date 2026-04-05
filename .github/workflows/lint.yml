@@ -30,4 +30,4 @@ jobs:
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.9.0
-          args: --config=.docker/lint/conf.yml --issues-exit-code=0
+          args: --config=lint.yml --issues-exit-code=0

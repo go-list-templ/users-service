@@ -2,4 +2,4 @@ configVersion: 1
 project: users-service
 ---
 image: app
-dockerfile: Dockerfile
+dockerfile: .docker/app/Dockerfile

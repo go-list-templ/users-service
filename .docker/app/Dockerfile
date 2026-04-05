@@ -13,7 +13,5 @@ FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /bin/app /
 COPY --from=build /app/migrations /migrations
 
-EXPOSE 8080 8081
-
 ENTRYPOINT ["/app"]
 
