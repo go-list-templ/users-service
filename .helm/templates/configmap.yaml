@@ -3,7 +3,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}-config
 data:
-  APP_NAME: "test"
+  APP_NAME: {{ .Values.werf.name | quote }}
+  APP_VERSION: {{ .Values.werf.tag | quote }}
 
   GRPC_PORT: {{ .Values.app.grpc.port | quote }}
   GRPC_TIME: {{ .Values.app.grpc.time | quote }}
@@ -29,10 +30,7 @@ data:
   REDIS_MIN_IDLE_CONS: {{ .Values.redis.pool.minIdle | quote }}
   REDIS_POOL_TIMEOUT: {{ .Values.redis.pool.timeout | quote }}
 
-  DB_PORT: {{ .Values.db.port | quote }}
-  DB_USERNAME: {{ .Values.db.username | quote }}
-  DB_DATABASE: {{ .Values.appName | quote }}
-  DB_URL: "postgres://{{ .Values.db.username }}:{{ .Values.db.password }}@{{ .Values.externalInfra.dbHost }}:{{ .Values.db.port }}/{{ .Values.appName }}?sslmode=disable"
+  DB_URL: "postgres://postgres:root@localhost:5432/users-service?sslmode=disable"
 
   DB_MAX_CONN: {{ .Values.db.maxConn | quote }}
   DB_MIN_CONN: {{ .Values.db.minConn | quote }}
