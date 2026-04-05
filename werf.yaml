@@ -1,5 +1,5 @@
-project: users-service
 configVersion: 1
+project: users-service
 ---
 image: app
-dockerfile: .docker/app/Dockerfile
+dockerfile: Dockerfile
