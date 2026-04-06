@@ -9,7 +9,7 @@ Template users service on go
 Create namespace
 
 ```bash
-kubectl create namespace user-service
+kubectl create namespace users-service
 ```
 
 Create secret
@@ -19,7 +19,7 @@ kubectl create secret docker-registry registrysecret \
   --docker-server='ghcr.io/go-list-templ/users-service' \
   --docker-username='go-list-templ' \
   --docker-password='GH_TOKEN' \
-  -n user-service
+  -n users-service
 ```
 
 Login
@@ -43,7 +43,7 @@ cd .helm ; helm dependency update
 Run and deploy to from Helm to Kuber
 
 ```bash
-werf converge --namespace user-service --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64 --dev
+werf converge --namespace users-service --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64 --dev
 ```
 
 Build docker container
