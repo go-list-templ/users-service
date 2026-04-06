@@ -22,7 +22,7 @@ app:
     maxConnIdleTime: "5m"
     healthCheckPeriod: "10m"
   redis:
-    dialTimeout: "50ms"
+    dialTimeout: "10s"
     readTimeout: "50ms"
     writeTimeout: "50ms"
     maxRetries: -1
@@ -60,5 +60,5 @@ redis:
         memory: 128Mi
 
 otel:
-  url: "host.docker.internal:4317"
+  url: "observability-alloy.monitoring.svc.cluster.local:4317"
   isTls: false
