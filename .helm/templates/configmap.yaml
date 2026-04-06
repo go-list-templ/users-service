@@ -17,24 +17,24 @@ data:
   IDLE_TIMEOUT: {{ .Values.app.diagnostic.idleTimeout | quote }}
   SHUTDOWN_TIMEOUT: {{ .Values.app.shutdownTimeout | quote }}
 
-  REDIS_ADDRESS: {{ .Values.redis.url | quote }}
-  REDIS_DIAL_TIMEOUT: {{ .Values.redis.dialTimeout | quote }}
-  REDIS_READ_TIMEOUT: {{ .Values.redis.readTimeout | quote }}
-  REDIS_WRITE_TIMEOUT: {{ .Values.redis.writeTimeout | quote }}
-  REDIS_MAX_RETRIES: {{ .Values.redis.maxRetries | quote }}
-  REDIS_MIN_RETRY_BACKOFF: {{ .Values.redis.minRetryBackoff | quote }}
-  REDIS_MAX_RETRY_BACKOFF: {{ .Values.redis.maxRetryBackoff | quote }}
-  REDIS_POOL_SIZE: {{ .Values.redis.pool.size | quote }}
-  REDIS_MIN_IDLE_CONS: {{ .Values.redis.pool.minIdle | quote }}
-  REDIS_POOL_TIMEOUT: {{ .Values.redis.pool.timeout | quote }}
+  REDIS_ADDRESS: "{{ .Release.Name }}-redis-master:6379"
+  REDIS_DIAL_TIMEOUT: {{ .Values.app.redis.dialTimeout | quote }}
+  REDIS_READ_TIMEOUT: {{ .Values.app.redis.readTimeout | quote }}
+  REDIS_WRITE_TIMEOUT: {{ .Values.app.redis.writeTimeout | quote }}
+  REDIS_MAX_RETRIES: {{ .Values.app.redis.maxRetries | quote }}
+  REDIS_MIN_RETRY_BACKOFF: {{ .Values.app.redis.minRetryBackoff | quote }}
+  REDIS_MAX_RETRY_BACKOFF: {{ .Values.app.redis.maxRetryBackoff | quote }}
+  REDIS_POOL_SIZE: {{ .Values.app.redis.pool.size | quote }}
+  REDIS_MIN_IDLE_CONS: {{ .Values.app.redis.pool.minIdle | quote }}
+  REDIS_POOL_TIMEOUT: {{ .Values.app.redis.pool.timeout | quote }}
 
-  DB_URL: {{ .Values.db.url | quote }}
-  DB_MAX_CONN: {{ .Values.db.maxConn | quote }}
-  DB_MIN_CONN: {{ .Values.db.minConn | quote }}
-  DB_CONN_TIMEOUT: {{ .Values.db.connTimeout | quote }}
-  DB_MAX_CONN_TIME: {{ .Values.db.maxConnTime | quote }}
-  DB_MAX_CONN_IDLE_TIME: {{ .Values.db.maxConnIdleTime | quote }}
-  DB_HEALTH_CHECK_PERIOD: {{ .Values.db.healthCheckPeriod | quote }}
+  DB_URL: "postgres://postgres:root_password@{{ .Release.Name }}-postgresql:5432/users_db?sslmode=disable"
+  DB_MAX_CONN: {{ .Values.app.db.maxConn | quote }}
+  DB_MIN_CONN: {{ .Values.app.db.minConn | quote }}
+  DB_CONN_TIMEOUT: {{ .Values.app.db.connTimeout | quote }}
+  DB_MAX_CONN_TIME: {{ .Values.app.db.maxConnTime | quote }}
+  DB_MAX_CONN_IDLE_TIME: {{ .Values.app.db.maxConnIdleTime | quote }}
+  DB_HEALTH_CHECK_PERIOD: {{ .Values.app.db.healthCheckPeriod | quote }}
 
   OTEL_IS_TLS: {{ .Values.otel.isTls | quote }}
   OTEL_ENDPOINT: {{ .Values.otel.url | quote}}
