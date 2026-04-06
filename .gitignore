@@ -34,3 +34,5 @@ go.work.sum
 
 .docker/otel/data
 .DS_Store
+
+.helm/charts/**.tgz
