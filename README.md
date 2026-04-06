@@ -30,6 +30,14 @@ werf cr login -u go-list-templ -p GH_TOKEN ghcr.io/go-list-templ/users-service
 
 ---
 
+## Install dependency helm
+
+```bash
+cd .helm ; helm dependency update
+```
+
+---
+
 ## Run and build App
 
 Run and deploy to from Helm to Kuber
