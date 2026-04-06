@@ -29,3 +29,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Chart.Name }}-config
+          resources:
+            requests:
+              cpu: {{ $.Values.app.limits.cpu }}
+              memory: {{ $.Values.app.limits.memory}}
+            limits:
+              cpu: {{ $.Values.app.limits.cpu }}
+              memory: {{ $.Values.app.limits.memory }}
