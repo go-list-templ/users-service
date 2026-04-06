@@ -1,5 +1,8 @@
 app:
   replicas: 3
+  limits:
+    cpu: 100m
+    memory: 256Mi
   grpc:
     port: 8080
     time: "30s"
@@ -11,29 +14,50 @@ app:
     httpTimeout: "5s"
     idleTimeout: "30s"
   shutdownTimeout: "30s"
+  db:
+    maxConn: 100
+    minConn: 5
+    connTimeout: "10s"
+    maxConnTime: "1h"
+    maxConnIdleTime: "5m"
+    healthCheckPeriod: "10m"
+  redis:
+    dialTimeout: "50ms"
+    readTimeout: "50ms"
+    writeTimeout: "50ms"
+    maxRetries: -1
+    minRetryBackoff: "5ms"
+    maxRetryBackoff: "15ms"
+    pool:
+      size: 100
+      minIdle: 20
+      timeout: "10ms"
+
+postgresql:
+  enabled: true
+  architecture: standalone
+  auth:
+    database: users_db
+    username: postgres
+    password: "root_password"
+  primary:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 redis:
-  url: "host.docker.internal:6379"
-  dialTimeout: "50ms"
-  readTimeout: "50ms"
-  writeTimeout: "50ms"
-  maxRetries: -1
-  minRetryBackoff: "5ms"
-  maxRetryBackoff: "15ms"
-  pool:
-    size: 100
-    minIdle: 20
-    timeout: "10ms"
-
-db:
-  url: "postgres://postgres:root@host.docker.internal:5432/users?sslmode=disable"
-  port: 5432
-  maxConn: 100
-  minConn: 5
-  connTimeout: "10s"
-  maxConnTime: "1h"
-  maxConnIdleTime: "5m"
-  healthCheckPeriod: "10m"
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    resources:
+      limits:
+        memory: 128Mi
 
 otel:
   url: "host.docker.internal:4317"
