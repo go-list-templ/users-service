@@ -60,5 +60,5 @@ redis:
         memory: 128Mi
 
 otel:
-  url: "observability-alloy.monitoring.svc.cluster.local:4317"
+  url: "alloy.telemetry.svc.cluster.local:4317"
   isTls: false
