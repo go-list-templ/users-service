@@ -57,3 +57,10 @@ Stop and remove Kuber Pods with Service
 ```bash
 kubectl delete all --all --namespace users-service
 ```
+
+Forward port on localhost from app
+
+```bash
+kubectl port-forward svc/users-service 8080:8080 -n users-service
+kubectl port-forward svc/users-service 8081:8081 -n users-service
+```
