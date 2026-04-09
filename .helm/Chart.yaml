@@ -3,14 +3,6 @@ name: users-service
 version: 1.0.0
 
 dependencies:
-  - name: base
-    version: "1.29.1"
-    repository: "https://istio-release.storage.googleapis.com/charts"
-    condition: istio.enabled
-  - name: istiod
-    version: "1.29.1"
-    repository: "https://istio-release.storage.googleapis.com/charts"
-    condition: istio.enabled
   - name: postgresql
     version: "18.x.x"
     repository: "https://charts.bitnami.com/bitnami"

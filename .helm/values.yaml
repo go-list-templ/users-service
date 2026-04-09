@@ -1,8 +1,11 @@
 app:
   replicas: 3
+  requests:
+    cpu: 50m
+    memory: 32Mi
   limits:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 500m
+    memory: 128Mi
   grpc:
     port: 8080
     time: "30s"
@@ -62,18 +65,3 @@ redis:
 otel:
   url: "alloy.telemetry.svc.cluster.local:4317"
   isTls: false
-
-istio:
-  enabled: true
-  sidecarInjectorWebhook:
-    enableNamespacesByDefault: true
-
-istiod:
-  meshConfig:
-    accessLogFile: /dev/stdout
-    enableTracing: true
-    defaultConfig:
-      tracing:
-        sampling: 100
-        zipkin:
-          address: tempo.telemetry.svc.cluster.local:9411
