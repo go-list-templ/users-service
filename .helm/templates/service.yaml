@@ -12,5 +12,5 @@ spec:
       targetPort: {{ .Values.app.grpc.port }}
     - name: http
       protocol: TCP
-      port: {{ .Values.app.diagnostic.port }}
-      targetPort: {{ .Values.app.diagnostic.port }}
+      port: {{ .Values.app.http.port }}
+      targetPort: {{ .Values.app.http.port }}
