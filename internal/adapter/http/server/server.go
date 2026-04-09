@@ -17,7 +17,7 @@ type HTTP struct {
 func NewHTTP(cfg *config.Server) *HTTP {
 	return &HTTP{
 		server: http.Server{
-			Addr:              net.JoinHostPort("", cfg.DiagnosticPort),
+			Addr:              net.JoinHostPort("", cfg.HTTPort),
 			Handler:           nil,
 			ReadHeaderTimeout: cfg.HTTPTimeout,
 			IdleTimeout:       cfg.IdleTimeout,

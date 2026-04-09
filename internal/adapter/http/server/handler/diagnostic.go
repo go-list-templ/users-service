@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -11,11 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	TTL              = 30 * time.Second
-	DefaultCtxTime   = 5 * time.Second
-	MessageServerErr = "server error"
-)
+const DefaultCtxTime = 5 * time.Second
 
 type Diagnostic struct {
 	postgres *postgres.Postgres
@@ -26,72 +21,32 @@ type Diagnostic struct {
 func RegisterDiagnostic(postgres *postgres.Postgres, redis *redis.Redis, l *zap.Logger) {
 	d := &Diagnostic{postgres, redis, l}
 
-	http.HandleFunc("/healthz", d.HealthZ())
+	http.HandleFunc("/healthz", d.Health())
+	http.HandleFunc("/readyz", d.Ready())
 }
 
-func (d *Diagnostic) HealthZ() func(http.ResponseWriter, *http.Request) {
+func (d *Diagnostic) Health() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, _ *http.Request) {
-		var status int
+		w.WriteHeader(http.StatusOK)
+	}
+}
 
-		cacheKey := "healthz"
-
+func (d *Diagnostic) Ready() func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultCtxTime)
 		defer cancel()
 
-		err := d.redis.GetCache(ctx, cacheKey, &status)
-		if err == nil {
-			data := map[string]int{
-				"status": status,
-			}
-
-			d.writeJSON(w, status, data)
-
+		if err := d.postgres.Ping(ctx); err != nil {
+			d.logger.Error("postgres unavailable", zap.Error(err))
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		if err := d.redis.Ping(ctx).Err(); err != nil {
+			d.logger.Error("redis unavailable", zap.Error(err))
+			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 
-		status = http.StatusOK
-
-		err = d.postgres.Ping(ctx)
-		if err != nil {
-			status = http.StatusServiceUnavailable
-
-			d.logger.Warn("pinging postgres", zap.Error(err))
-		}
-		_, err = d.redis.Ping(ctx).Result()
-		if err != nil {
-			status = http.StatusServiceUnavailable
-
-			d.logger.Warn("pinging redis", zap.Error(err))
-		}
-
-		err = d.redis.SetCache(ctx, cacheKey, status, TTL)
-		if err != nil {
-			d.logger.Warn("set cache", zap.Error(err))
-		}
-
-		data := map[string]int{
-			"status": status,
-		}
-
-		d.writeJSON(w, status, data)
-	}
-}
-
-func (d *Diagnostic) writeJSON(w http.ResponseWriter, code int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-
-	data, err := json.Marshal(v)
-	if err != nil {
-		d.logger.Error("json marshal", zap.Error(err))
-		http.Error(w, MessageServerErr, http.StatusInternalServerError)
-
-		return
-	}
-
-	_, err = w.Write(data)
-	if err != nil {
-		d.logger.Error("write json", zap.Error(err))
-		http.Error(w, MessageServerErr, http.StatusInternalServerError)
+		w.WriteHeader(http.StatusOK)
 	}
 }
