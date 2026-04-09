@@ -12,9 +12,9 @@ data:
   GRPC_MAX_CONN_IDLE: {{ .Values.app.grpc.maxIdle | quote }}
   GRPC_MAX_CONN_AGE: {{ .Values.app.grpc.maxAge | quote }}
 
-  DIAGNOSTIC_PORT: {{ .Values.app.diagnostic.port | quote }}
-  HTTP_TIMEOUT: {{ .Values.app.diagnostic.httpTimeout | quote }}
-  IDLE_TIMEOUT: {{ .Values.app.diagnostic.idleTimeout | quote }}
+  HTTP_PORT: {{ .Values.app.http.port | quote }}
+  HTTP_TIMEOUT: {{ .Values.app.http.httpTimeout | quote }}
+  IDLE_TIMEOUT: {{ .Values.app.http.idleTimeout | quote }}
   SHUTDOWN_TIMEOUT: {{ .Values.app.shutdownTimeout | quote }}
 
   REDIS_ADDRESS: "{{ .Release.Name }}-redis-master:6379"
