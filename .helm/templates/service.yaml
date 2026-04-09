@@ -10,7 +10,7 @@ spec:
       protocol: TCP
       port: {{ .Values.app.grpc.port }}
       targetPort: {{ .Values.app.grpc.port }}
-    - name: diagnostic
+    - name: http
       protocol: TCP
       port: {{ .Values.app.diagnostic.port }}
       targetPort: {{ .Values.app.diagnostic.port }}

@@ -9,7 +9,7 @@ app:
     timeout: "5s"
     maxIdle: "15m"
     maxAge: "30m"
-  diagnostic:
+  http:
     port: 8081
     httpTimeout: "5s"
     idleTimeout: "30s"
@@ -62,3 +62,18 @@ redis:
 otel:
   url: "alloy.telemetry.svc.cluster.local:4317"
   isTls: false
+
+istio:
+  enabled: true
+  sidecarInjectorWebhook:
+    enableNamespacesByDefault: true
+
+istiod:
+  meshConfig:
+    accessLogFile: /dev/stdout
+    enableTracing: true
+    defaultConfig:
+      tracing:
+        sampling: 100
+        zipkin:
+          address: tempo.telemetry.svc.cluster.local:9411
