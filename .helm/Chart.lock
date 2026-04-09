@@ -1,9 +1,15 @@
 dependencies:
+- name: base
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.29.1
+- name: istiod
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.29.1
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 18.5.15
+  version: 18.5.16
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 25.3.9
-digest: sha256:fba5e03d6724f8672e07dc3b22e1222e46e4a9a947c1ffedf10c603cf6de7b20
-generated: "2026-04-06T22:09:28.343286+03:00"
+  version: 25.3.10
+digest: sha256:8ad05c35e691cbd8d9266f20eef3b1ad10fcb19ac88df1057819272a9adc364a
+generated: "2026-04-10T00:08:07.002572+03:00"
