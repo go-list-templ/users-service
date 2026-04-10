@@ -31,4 +31,4 @@ spec:
   host: {{ .Chart.Name }}
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN # Решает проблему балансировки gRPC
+      simple: ROUND_ROBIN
