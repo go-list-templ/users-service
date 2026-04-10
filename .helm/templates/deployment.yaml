@@ -9,8 +9,6 @@ spec:
       app: {{ .Chart.Name }}
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: "true"
       labels:
         app: {{ .Chart.Name }}
     spec:
@@ -23,27 +21,27 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.app.grpc.port }}
+              protocol: TCP
             - name: http
               containerPort: {{ .Values.app.http.port }}
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /healthz
               port: {{ .Values.app.http.port }}
+            initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 3
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /readyz
               port: {{ .Values.app.http.port }}
-            periodSeconds: 5
-            failureThreshold: 2
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
             timeoutSeconds: 3
-          startupProbe:
-            httpGet:
-              path: /readyz
-              port: {{ .Values.app.http.port }}
-            periodSeconds: 2
-            failureThreshold: 30
+            successThreshold: 1
           env:
             - name: APP_NAME
               valueFrom:
