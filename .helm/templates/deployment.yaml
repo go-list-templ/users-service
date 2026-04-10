@@ -11,7 +11,6 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "true"
-        sidecar.istio.io/rewriteAppHTTPProbe: "true"
       labels:
         app: {{ .Chart.Name }}
     spec:
@@ -22,8 +21,10 @@ spec:
           image: {{ .Values.werf.image.app }}
           command: [ "/bin/app" ]
           ports:
-            - containerPort: {{ .Values.app.grpc.port }}
-            - containerPort: {{ .Values.app.http.port }}
+            - name: grpc
+              containerPort: {{ .Values.app.grpc.port }}
+            - name: http
+              containerPort: {{ .Values.app.http.port }}
           livenessProbe:
             httpGet:
               path: /healthz
