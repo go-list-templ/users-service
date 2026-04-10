@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "migration-rev{{ .Release.Revision }}"
+  annotations:
+    "helm.sh/hook": post-install, post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: registrysecret
+      initContainers:
+        - name: waiting-postgresql
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -w 2 {{ .Release.Name }}-${DB_HOST} ${DB_PORT}; do
+                echo "Waiting for postgres...";
+                sleep 2;
+              done;
+      containers:
+        - name: migrate
+          image: {{ .Values.werf.image.app }}
+          command:
+            - /migrations/migrate
+            - -path=/migrations/schemes
+            - -database=postgres://$(DB_USER):$(DB_PASSWORD)@{{ .Release.Name }}-${DB_HOST}:${DB_PORT}/$(DB_NAME)?sslmode=disable
+            - up
+          env:
+            - name: DB_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.postgresql.auth.password | quote }}
+            - name: DB_NAME
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: DB_HOST
+              value: {{ .Values.postgresql.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.postgresql.port | quote }}
