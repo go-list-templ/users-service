@@ -19,7 +19,6 @@ import (
 	"github.com/go-list-templ/users-service/internal/adapter/persistence/postgres/transaction"
 	"github.com/go-list-templ/users-service/internal/core/service"
 	"github.com/go-list-templ/users-service/pkg/config"
-	"github.com/go-list-templ/users-service/pkg/migrator"
 	"github.com/go-list-templ/users-service/pkg/otel"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
@@ -62,12 +61,6 @@ func run() error {
 	pg, err := postgres.New(&cfg.DB, logger.With(zap.String("module", "postgres")))
 	if err != nil {
 		logger.Panic("init postgres", zap.Error(err))
-	}
-
-	logger.Info("migrations up")
-
-	if err = migrator.Up(&cfg.DB); err != nil {
-		logger.Panic("migrations up", zap.Error(err))
 	}
 
 	logger.Info("initializing redis")
