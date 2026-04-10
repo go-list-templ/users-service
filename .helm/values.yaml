@@ -39,6 +39,8 @@ app:
 postgresql:
   enabled: true
   architecture: standalone
+  host: postgresql
+  port: 5432
   auth:
     database: users_db
     username: postgres
