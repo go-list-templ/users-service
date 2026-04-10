@@ -7,6 +7,9 @@ git:
   - add: /
     to: /app
 shell:
+  beforeInstall:
+    - apk add curl tar
+    - curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz
   install:
     - cd /app
     - go mod download
@@ -22,6 +25,10 @@ import:
     to: /bin/app
     after: install
   - image: build
+    add: /migrate
+    to: /migrations/migrate
+    after: install
+  - image: build
     add: /app/migrations
-    to: /migrations
+    to: /migrations/schemes
     after: install
