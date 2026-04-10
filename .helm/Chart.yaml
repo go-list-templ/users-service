@@ -4,12 +4,12 @@ version: 1.0.0
 
 dependencies:
   - name: postgresql
-    version: "18.x.x"
+    version: "18.5.16"
     repository: "https://charts.bitnami.com/bitnami"
     condition: postgresql.enabled
     alias: postgresql
   - name: redis
-    version: "25.x.x"
+    version: "25.3.10"
     repository: "https://charts.bitnami.com/bitnami"
     condition: redis.enabled
     alias: redis
