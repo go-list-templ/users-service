@@ -28,7 +28,7 @@ data:
   REDIS_MIN_IDLE_CONS: {{ .Values.app.redis.pool.minIdle | quote }}
   REDIS_POOL_TIMEOUT: {{ .Values.app.redis.pool.timeout | quote }}
 
-  DB_URL: "postgres://postgres:root_password@{{ .Release.Name }}-postgresql:5432/users_db?sslmode=disable"
+  DB_URL: "postgres://{{.Values.postgresql.auth.username}}:{{.Values.postgresql.auth.password}}@{{ .Release.Name }}-{{.Values.postgresql.host}}:{{.Values.postgresql.port}}/{{.Values.postgresql.auth.database}}?sslmode=disable"
   DB_MAX_CONN: {{ .Values.app.db.maxConn | quote }}
   DB_MIN_CONN: {{ .Values.app.db.minConn | quote }}
   DB_CONN_TIMEOUT: {{ .Values.app.db.connTimeout | quote }}
