@@ -33,7 +33,7 @@ werf cr login -u go-list-templ -p GH_TOKEN ghcr.io/go-list-templ/users-service
 ## Install dependency helm
 
 ```bash
- werf helm dependency update .helm
+werf helm dependency update .helm
 ```
 
 ---
