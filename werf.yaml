@@ -27,10 +27,6 @@ image: app
 from: gcr.io/distroless/static-debian12:nonroot
 import:
   - image: build
-    add: /bin/app
-    to: /bin/app
-    after: setup
-  - image: build
     add: /migrate
     to: /migrations/migrate
     after: setup
@@ -38,3 +34,11 @@ import:
     add: /app/migrations
     to: /migrations/schemes
     after: setup
+  - image: build
+    add: /bin/app
+    to: /bin/app
+    after: setup
+imageSpec:
+  config:
+    cmd:
+      - "/bin/app"
