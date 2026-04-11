@@ -24,9 +24,9 @@ spec:
             - name: {{ .Values.app.grpc.name }}
               containerPort: {{ .Values.app.grpc.port }}
               protocol: {{ .Values.app.grpc.protocol }}
-            - name: {{ .Values.app.grpc.name }}
+            - name: {{ .Values.app.http.name }}
               containerPort: {{ .Values.app.http.port }}
-              protocol: {{ .Values.app.grpc.protocol }}
+              protocol: {{ .Values.app.http.protocol }}
           livenessProbe:
             httpGet:
               path: /healthz
