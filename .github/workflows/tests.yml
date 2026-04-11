@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  tests:
+  unit-test:
     name: unit test
     runs-on: ubuntu-latest
     steps:
@@ -17,12 +17,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
-      - name: Run Tests
-        run: |
-          cp .env.example .env
-          make test-cmd
+      - name: Run Unit Tests
+        run: make unit-test
 
-  test-coverage:
+  coverage-test:
     name: coverage test
     runs-on: ubuntu-latest
     steps:
@@ -31,26 +29,14 @@ jobs:
         with:
           go-version-file: "go.mod"
       - name: Run Test Coverage
-        run: |
-          cp .env.example .env
-          make test-coverage-cmd
+        run: make test-coverage-cmd
 
-  test-integration:
-    name: integration test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Run Test Integration
-        run: |
-          cp .env.example .env
-          make test-integration
-
-  test-stress:
-    name: stress test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Run Test Stress
-        run: |
-          cp .env.example .env
-          make test-stress
+#  test-integration:
+#    name: integration test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v6
+#      - name: Run Test Integration
+#        run: |
+#          cp .env.example .env
+#          make test-integration

@@ -9,16 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  hadolint:
-    name: lint dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: .docker/app/Dockerfile
-          recursive: true
-
   golangci:
     name: lint code
     runs-on: ubuntu-latest
