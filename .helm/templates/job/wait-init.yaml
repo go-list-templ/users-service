@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Chart.Name }}-wait-init-rev{{ .Release.Revision }}"
+  annotations:
+    werf.io/weight: "10"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: waiting-postgresql
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -w 2 $(DB_HOST) $(DB_PORT); do
+                echo "Waiting for postgres...";
+                sleep 2;
+              done;
+          env:
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-{{ .Values.postgresql.host }}"
+            - name: DB_PORT
+              value: {{ .Values.postgresql.port | quote }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 50m
+              memory: 50Mi
+        - name: waiting-redis
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -w 2 $(DB_HOST) $(DB_PORT); do
+                echo "Waiting for redis...";
+                sleep 2;
+              done;
+          env:
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-{{ .Values.redis.host }}"
+            - name: DB_PORT
+              value: {{ .Values.redis.port | quote }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 50m
+              memory: 50Mi
