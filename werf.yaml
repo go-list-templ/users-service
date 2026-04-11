@@ -26,8 +26,8 @@ import:
   - image: build
     add: /bin/app
     to: /bin/app
-    after: install
+    after: setup
   - image: build
     add: /migrate
     to: /migrations/migrate
-    after: install
+    after: setup
