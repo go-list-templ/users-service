@@ -28,7 +28,11 @@ type (
 	}
 
 	DB struct {
-		URL string `envconfig:"DB_URL"`
+		Host     string `envconfig:"DB_HOST"`
+		Port     uint16 `envconfig:"DB_PORT"`
+		Name     string `envconfig:"DB_NAME"`
+		Username string `envconfig:"DB_USERNAME"`
+		Password string `envconfig:"DB_PASSWORD"`
 
 		MaxConn     int32         `envconfig:"DB_MAX_CONN"`
 		MinConn     int32         `envconfig:"DB_MIN_CONN"`

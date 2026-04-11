@@ -24,7 +24,12 @@ type Postgres struct {
 func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	pg := &Postgres{}
 
-	conf, err := pgxpool.ParseConfig(cfg.URL)
+	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
+
+	logger.Warn("url", zap.String("url", url), zap.String("test", "test"))
+
+	conf, err := pgxpool.ParseConfig(url)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +51,7 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	for connAttempts > 0 {
 		pg.Pool, err = pgxpool.NewWithConfig(ctx, conf)
 		if err != nil {
-			logger.Info("postgres err config", zap.Error(err))
+			logger.Warn("postgres err config", zap.Error(err))
 		}
 
 		err = pg.Ping(ctx)
@@ -54,7 +59,7 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 			break
 		}
 
-		logger.Warn("Postgres is trying to connect", zap.Int("attempts", connAttempts), zap.Error(err))
+		logger.Warn("postgres is trying to connect", zap.Int("attempts", connAttempts), zap.Error(err))
 
 		time.Sleep(connTimeout)
 
