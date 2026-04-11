@@ -64,3 +64,9 @@ Forward port on localhost from app
 kubectl port-forward svc/users-service 8080:8080 -n users-service
 kubectl port-forward svc/users-service 8081:8081 -n users-service
 ```
+
+Delete all images from container registry (token with rules on write+delete packages)
+
+```bash
+werf purge --repo ghcr.io/go-list-templ/users-service --dev --repo-github-token GH_TOKEN
+```
