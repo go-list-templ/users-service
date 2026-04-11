@@ -33,7 +33,7 @@ werf cr login -u go-list-templ -p GH_TOKEN ghcr.io/go-list-templ/users-service
 ## Install dependency helm
 
 ```bash
-helm dependency update .helm
+ werf helm dependency update .helm
 ```
 
 ---
@@ -43,19 +43,19 @@ helm dependency update .helm
 Run and deploy to from Helm to Kuber
 
 ```bash
-werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64 --dev
+werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
 ```
 
 Build docker container
 
 ```bash
-werf build --platform=linux/amd64 --dev
+werf build --platform=linux/amd64
 ```
 
 Stop and remove release in kuber
 
 ```bash
-werf dismiss --dev
+werf dismiss
 ```
 
 Forward port on localhost from app
@@ -68,5 +68,5 @@ kubectl port-forward svc/users-service 8081:8081 -n users-service
 Delete all images from container registry (token with rules on write+delete packages)
 
 ```bash
-werf purge --repo ghcr.io/go-list-templ/users-service --dev --repo-github-token GH_TOKEN
+werf purge --repo ghcr.io/go-list-templ/users-service --repo-github-token GH_TOKEN
 ```
