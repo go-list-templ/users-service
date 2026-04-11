@@ -24,7 +24,7 @@ type Postgres struct {
 func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	pg := &Postgres{}
 
-	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 		cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
 
 	logger.Warn("url", zap.String("url", url), zap.String("test", "test"))
