@@ -7,13 +7,17 @@ app:
     cpu: 500m
     memory: 128Mi
   grpc:
+    name: grpc
     port: 8080
+    protocol: TCP
     time: "30s"
     timeout: "5s"
     maxIdle: "15m"
     maxAge: "30m"
   http:
+    name: http
     port: 8081
+    protocol: TCP
     httpTimeout: "5s"
     idleTimeout: "30s"
   shutdownTimeout: "30s"

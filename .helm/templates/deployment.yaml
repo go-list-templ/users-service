@@ -17,16 +17,16 @@ spec:
       imagePullSecrets:
         - name: registrysecret
       containers:
-        - name: app
+        - name: {{ .Chart.Name }}
           image: {{ .Values.werf.image.app }}
           command: [ "/bin/app" ]
           ports:
-            - name: grpc
+            - name: {{ .Values.app.grpc.name }}
               containerPort: {{ .Values.app.grpc.port }}
-              protocol: TCP
-            - name: http
+              protocol: {{ .Values.app.grpc.protocol }}
+            - name: {{ .Values.app.grpc.name }}
               containerPort: {{ .Values.app.http.port }}
-              protocol: TCP
+              protocol: {{ .Values.app.grpc.protocol }}
           livenessProbe:
             httpGet:
               path: /healthz
