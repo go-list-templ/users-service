@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Chart.Name }}-wait-init-rev{{ .Release.Revision }}"
+  name: "{{ .Chart.Name }}-wait-depends-rev{{ .Release.Revision }}"
   annotations:
     werf.io/weight: "10"
 spec:
