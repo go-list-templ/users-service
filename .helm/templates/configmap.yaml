@@ -17,7 +17,7 @@ data:
   IDLE_TIMEOUT: {{ .Values.app.http.idleTimeout | quote }}
   SHUTDOWN_TIMEOUT: {{ .Values.app.shutdownTimeout | quote }}
 
-  REDIS_ADDRESS: "{{ .Release.Name }}-redis-master:6379"
+  REDIS_ADDRESS: "{{ .Release.Name }}-{{ .Values.redis.host }}:{{ .Values.redis.port }}"
   REDIS_DIAL_TIMEOUT: {{ .Values.app.redis.dialTimeout | quote }}
   REDIS_READ_TIMEOUT: {{ .Values.app.redis.readTimeout | quote }}
   REDIS_WRITE_TIMEOUT: {{ .Values.app.redis.writeTimeout | quote }}
