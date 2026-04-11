@@ -49,7 +49,7 @@ werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
 Build docker container
 
 ```bash
-werf build --platform=linux/amd64
+werf build --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
 ```
 
 Stop and remove release in kuber
