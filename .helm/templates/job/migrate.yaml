@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Chart.Name }}-migration-rev{{ .Release.Revision }}"
+  name: "{{ .Chart.Name }}-migrate-rev{{ .Release.Revision }}"
   annotations:
-    werf.io/weight: "10"
+    werf.io/weight: "20"
 spec:
   backoffLimit: 0
   template:
@@ -11,17 +11,6 @@ spec:
       restartPolicy: Never
       imagePullSecrets:
         - name: registrysecret
-      initContainers:
-        - name: waiting-postgresql
-          image: busybox
-          command:
-            - sh
-            - -c
-            - |
-              until nc -w 2 {{ .Release.Name }}-{{ .Values.postgresql.host | quote }} {{ .Values.postgresql.port }}; do
-                echo "Waiting for postgres...";
-                sleep 2;
-              done;
       containers:
         - name: migrate
           image: {{ .Values.werf.image.app }}
