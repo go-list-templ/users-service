@@ -39,11 +39,13 @@ func (d *Diagnostic) Ready() func(http.ResponseWriter, *http.Request) {
 		if err := d.postgres.Ping(ctx); err != nil {
 			d.logger.Error("postgres unavailable", zap.Error(err))
 			w.WriteHeader(http.StatusServiceUnavailable)
+
 			return
 		}
 		if err := d.redis.Ping(ctx).Err(); err != nil {
 			d.logger.Error("redis unavailable", zap.Error(err))
 			w.WriteHeader(http.StatusServiceUnavailable)
+
 			return
 		}
 
