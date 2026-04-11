@@ -43,7 +43,7 @@ helm dependency update .helm
 Run and deploy to from Helm to Kuber
 
 ```bash
-werf converge --namespace users-service --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64 --dev
+werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64 --dev
 ```
 
 Build docker container
@@ -52,10 +52,10 @@ Build docker container
 werf build --platform=linux/amd64 --dev
 ```
 
-Stop and remove Kuber Pods with Service
+Stop and remove release in kuber
 
 ```bash
-kubectl delete all --all --namespace users-service
+werf dismiss --dev
 ```
 
 Forward port on localhost from app
