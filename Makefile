@@ -1,4 +1,9 @@
-lint:
+lint: lint-code helm-lint
+
+helm-lint:
+	werf lint
+
+lint-code:
 	docker run --rm -v $$(pwd):/app -w /app golangci/golangci-lint:v2.9.0 golangci-lint run --config=lint.yml
 
 lint-fix:

@@ -9,7 +9,20 @@ permissions:
   contents: read
 
 jobs:
-  golangci:
+  helm-lint:
+    name: helm lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install werf
+        uses: werf/actions/install@v2
+      - name: Run script
+        run: make helm-lint
+
+  code-lint:
     name: lint code
     runs-on: ubuntu-latest
     steps:
