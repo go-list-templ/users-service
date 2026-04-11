@@ -1,11 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "migration-rev{{ .Release.Revision }}"
+  name: "{{ .Chart.Name }}-migration-rev{{ .Release.Revision }}"
   annotations:
-    "helm.sh/hook": post-install, post-upgrade
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation
+    werf.io/weight: "10"
 spec:
   backoffLimit: 0
   template:
@@ -20,7 +18,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -w 2 {{ .Release.Name }}-${DB_HOST} ${DB_PORT}; do
+              until nc -w 2 {{ .Release.Name }}-{{ .Values.postgresql.host | quote }} {{ .Values.postgresql.port }}; do
                 echo "Waiting for postgres...";
                 sleep 2;
               done;
@@ -30,16 +28,16 @@ spec:
           command:
             - /migrations/migrate
             - -path=/migrations/schemes
-            - -database=postgres://$(DB_USER):$(DB_PASSWORD)@{{ .Release.Name }}-${DB_HOST}:${DB_PORT}/$(DB_NAME)?sslmode=disable
+            - -database=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
             - up
           env:
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-{{ .Values.postgresql.host }}"
             - name: DB_USER
               value: {{ .Values.postgresql.auth.username | quote }}
             - name: DB_PASSWORD
               value: {{ .Values.postgresql.auth.password | quote }}
             - name: DB_NAME
               value: {{ .Values.postgresql.auth.database | quote }}
-            - name: DB_HOST
-              value: {{ .Values.postgresql.host | quote }}
             - name: DB_PORT
               value: {{ .Values.postgresql.port | quote }}
