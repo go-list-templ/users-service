@@ -55,10 +55,6 @@ func New(cfg *config.Redis) (*Redis, error) {
 		return nil, err
 	}
 
-	if err = redisotel.InstrumentMetrics(client); err != nil {
-		return nil, err
-	}
-
 	return &Redis{client}, nil
 }
 

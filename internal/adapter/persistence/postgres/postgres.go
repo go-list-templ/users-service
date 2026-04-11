@@ -70,9 +70,5 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 		return nil, fmt.Errorf("end attempts exceeded: %w", err)
 	}
 
-	if err = otelpgx.RecordStats(pg.Pool); err != nil {
-		return nil, fmt.Errorf("unable to record database stats: %w", err)
-	}
-
 	return pg, nil
 }
