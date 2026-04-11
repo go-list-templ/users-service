@@ -10,9 +10,10 @@ import (
 )
 
 type Telemetry struct {
-	Logger *Logger
-	Tracer *Trace
-	Metric *Metric
+	Pyroscope *Pyroscope
+	Logger    *Logger
+	Tracer    *Trace
+	Metric    *Metric
 }
 
 func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
@@ -39,10 +40,16 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 		return nil, err
 	}
 
+	pyroscope, err := NewPyroscope(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Telemetry{
-		Logger: logger,
-		Tracer: tracer,
-		Metric: metric,
+		Pyroscope: pyroscope,
+		Logger:    logger,
+		Tracer:    tracer,
+		Metric:    metric,
 	}, nil
 }
 
@@ -58,6 +65,11 @@ func (t *Telemetry) Shutdown(ctx context.Context) error {
 	}
 
 	err = t.Logger.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = t.Pyroscope.Shutdown()
 	if err != nil {
 		return err
 	}
