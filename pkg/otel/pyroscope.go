@@ -1,15 +1,20 @@
 package otel
 
 import (
+	otelpyroscope "github.com/grafana/otel-profiling-go"
+
 	"github.com/go-list-templ/users-service/pkg/config"
 	"github.com/grafana/pyroscope-go"
+	"go.opentelemetry.io/otel"
 )
 
 type Pyroscope struct {
 	*pyroscope.Profiler
 }
 
-func NewPyroscope(cfg *config.Config) (*Pyroscope, error) {
+func NewPyroscope(cfg *config.Config, trace *Trace) (*Pyroscope, error) {
+	otel.SetTracerProvider(otelpyroscope.NewTracerProvider(trace.Provider))
+
 	profiler, err := pyroscope.Start(pyroscope.Config{
 		ApplicationName: cfg.App.Name,
 		ServerAddress:   cfg.Otel.PyroscopeEndpoint,

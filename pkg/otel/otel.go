@@ -40,7 +40,7 @@ func NewTelemetry(cfg *config.Config) (*Telemetry, error) {
 		return nil, err
 	}
 
-	pyroscope, err := NewPyroscope(cfg)
+	pyroscope, err := NewPyroscope(cfg, tracer)
 	if err != nil {
 		return nil, err
 	}
