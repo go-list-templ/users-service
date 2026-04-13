@@ -72,5 +72,5 @@ redis:
 
 otel:
   otlp: "alloy.telemetry.svc.cluster.local:4317"
-  pyroscope: "alloy.telemetry.svc.cluster.local:4040"
+  pyroscope: "pyroscope.telemetry.svc.cluster.local:4040"
   isTls: false
