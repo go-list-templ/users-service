@@ -60,8 +60,9 @@ type (
 	}
 
 	Otel struct {
-		Endpoint string `envconfig:"OTEL_ENDPOINT"`
-		IsTLS    bool   `envconfig:"OTEL_IS_TLS"`
+		PyroscopeEndpoint string `envconfig:"OTEL_PYROSCOPE_ENDPOINT"`
+		Endpoint          string `envconfig:"OTEL_ENDPOINT"`
+		IsTLS             bool   `envconfig:"OTEL_IS_TLS"`
 	}
 
 	Config struct {

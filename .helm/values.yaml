@@ -71,5 +71,6 @@ redis:
         memory: 128Mi
 
 otel:
-  url: "alloy.telemetry.svc.cluster.local:4317"
+  otlp: "alloy.telemetry.svc.cluster.local:4317"
+  pyroscope: "alloy.telemetry.svc.cluster.local:4040"
   isTls: false
