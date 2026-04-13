@@ -26,23 +26,13 @@ spec:
             - name: {{ .Values.app.http.name }}
               containerPort: {{ .Values.app.http.port }}
               protocol: {{ .Values.app.http.protocol }}
-          livenessProbe:
+          startupProbe:
             httpGet:
               path: /healthz
               port: {{ .Values.app.http.port }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            timeoutSeconds: 3
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: {{ .Values.app.http.port }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            failureThreshold: 3
-            timeoutSeconds: 3
-            successThreshold: 1
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
           env:
             - name: APP_NAME
               valueFrom:
