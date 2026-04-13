@@ -12,7 +12,7 @@ type Pyroscope struct {
 func NewPyroscope(cfg *config.Config) (*Pyroscope, error) {
 	profiler, err := pyroscope.Start(pyroscope.Config{
 		ApplicationName: cfg.App.Name,
-		ServerAddress:   cfg.Otel.Endpoint,
+		ServerAddress:   cfg.Otel.PyroscopeEndpoint,
 		ProfileTypes: []pyroscope.ProfileType{
 			pyroscope.ProfileCPU,
 			pyroscope.ProfileAllocObjects,
