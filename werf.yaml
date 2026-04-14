@@ -13,7 +13,7 @@ git:
       setup:
         - "**/*.go"
       beforeSetup:
-        - "migrations/**/*"
+        - "migrations"
 shell:
   beforeInstall:
     - apk add curl tar
