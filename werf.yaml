@@ -21,7 +21,7 @@ shell:
   install:
     - cd /app && go mod download
   setup:
-    - cd /app && go build -ldflags="-s -w" -o /bin/app cmd/main.go
+    - cd /app && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o /bin/app cmd/main.go
 ---
 image: app
 from: gcr.io/distroless/static-debian12:nonroot
