@@ -1,11 +1,11 @@
 package otel
 
 import (
-	"github.com/go-list-templ/users-service/pkg/config"
 	otelpyroscope "github.com/grafana/otel-profiling-go"
+
+	"github.com/go-list-templ/users-service/pkg/config"
 	"github.com/grafana/pyroscope-go"
 	"go.opentelemetry.io/otel"
-	"time"
 )
 
 type Pyroscope struct {
@@ -13,26 +13,19 @@ type Pyroscope struct {
 }
 
 func NewPyroscope(cfg *config.Config, trace *Trace) (*Pyroscope, error) {
-	otel.SetTracerProvider(otelpyroscope.NewTracerProvider(trace.Provider))
-
 	profiler, err := pyroscope.Start(pyroscope.Config{
 		ApplicationName: cfg.App.Name,
 		ServerAddress:   cfg.Otel.PyroscopeEndpoint,
-		ProfileTypes: []pyroscope.ProfileType{
-			pyroscope.ProfileCPU,
-			pyroscope.ProfileAllocObjects,
-			pyroscope.ProfileAllocSpace,
-			pyroscope.ProfileInuseObjects,
-			pyroscope.ProfileInuseSpace,
-		},
 		Tags: map[string]string{
 			"version": cfg.App.Version,
 		},
-		UploadRate: 15 * time.Second,
+		UploadRate: cfg.Otel.Timeout,
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	otel.SetTracerProvider(otelpyroscope.NewTracerProvider(trace.Provider))
 
 	return &Pyroscope{profiler}, err
 }
