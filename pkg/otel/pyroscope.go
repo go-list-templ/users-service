@@ -16,10 +16,6 @@ func NewPyroscope(cfg *config.Config, trace *Trace) (*Pyroscope, error) {
 	profiler, err := pyroscope.Start(pyroscope.Config{
 		ApplicationName: cfg.App.Name,
 		ServerAddress:   cfg.Otel.PyroscopeEndpoint,
-		Tags: map[string]string{
-			"version": cfg.App.Version,
-		},
-		UploadRate: cfg.Otel.Timeout,
 	})
 	if err != nil {
 		return nil, err
