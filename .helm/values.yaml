@@ -70,7 +70,10 @@ redis:
       limits:
         memory: 128Mi
 
-otel:
-  otlp: "alloy.telemetry.svc.cluster.local:4317"
-  pyroscope: "alloy.telemetry.svc.cluster.local:4040"
-  isTls: false
+telemetry:
+  collector:
+    url: "alloy.telemetry.svc.cluster.local:4317"
+    timeout: "15s"
+    isTls: false
+  pyroscope:
+    url: "http://pyroscope.telemetry.svc.cluster.local:4040"

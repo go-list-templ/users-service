@@ -40,6 +40,7 @@ data:
   DB_MAX_CONN_IDLE_TIME: {{ .Values.app.db.maxConnIdleTime | quote }}
   DB_HEALTH_CHECK_PERIOD: {{ .Values.app.db.healthCheckPeriod | quote }}
 
-  OTEL_IS_TLS: {{ .Values.otel.isTls | quote }}
-  OTEL_ENDPOINT: {{ .Values.otel.otlp | quote}}
-  OTEL_PYROSCOPE_ENDPOINT: {{ .Values.otel.pyroscope | quote}}
+  OTEL_IS_TLS: {{ .Values.telemetry.collector.isTls | quote }}
+  OTEL_ENDPOINT: {{ .Values.telemetry.collector.url | quote}}
+  OTEL_PYROSCOPE_ENDPOINT: {{ .Values.telemetry.pyroscope.url | quote}}
+  OTEL_TIMEOUT: {{ .Values.telemetry.collector.timeout | quote }}
