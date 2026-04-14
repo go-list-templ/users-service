@@ -76,4 +76,4 @@ telemetry:
     timeout: "15s"
     isTls: false
   pyroscope:
-    url: "http://pyroscope.telemetry.svc.cluster.local:4040"
+    url: "http://alloy.telemetry.svc.cluster.local:4040"
