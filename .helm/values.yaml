@@ -1,11 +1,11 @@
 app:
   replicas: 3
   requests:
-    cpu: 50m
-    memory: 32Mi
-  limits:
-    cpu: 500m
+    cpu: 100m
     memory: 128Mi
+  limits:
+    cpu: 1
+    memory: 512Mi
   grpc:
     name: grpc
     port: 8080
@@ -51,12 +51,12 @@ postgresql:
     password: "root_password"
   primary:
     resources:
-      limits:
+      requests:
         cpu: 200m
         memory: 256Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
+      limits:
+        cpu: 1
+        memory: 512Mi
 
 redis:
   host: redis-master
@@ -67,8 +67,12 @@ redis:
     enabled: false
   master:
     resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
       limits:
-        memory: 128Mi
+        cpu: 500m
+        memory: 256Mi
 
 telemetry:
   collector:
