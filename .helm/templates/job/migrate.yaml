@@ -10,7 +10,7 @@ spec:
     spec:
       restartPolicy: Never
       imagePullSecrets:
-        - name: users-service-secret
+        - name: registrysecret
       containers:
         - name: migrate
           image: {{ .Values.werf.image.app }}
