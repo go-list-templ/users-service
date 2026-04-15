@@ -46,12 +46,6 @@ Run and deploy to from Helm to Kuber
 werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
 ```
 
-Build docker container
-
-```bash
-werf build --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
-```
-
 Stop and remove release in kuber
 
 ```bash
@@ -61,8 +55,8 @@ werf dismiss
 Forward port on localhost from app
 
 ```bash
-kubectl port-forward svc/users-service 8080:8080 -n users-service
-kubectl port-forward svc/users-service 8081:8081 -n users-service
+werf kubectl port-forward svc/users-service 8080:8080 -n users-service
+werf kubectl port-forward svc/users-service 8081:8081 -n users-service
 ```
 
 Delete all images from container registry (token with rules on write+delete packages)
