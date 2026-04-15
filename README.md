@@ -24,7 +24,7 @@ kubectl create secret docker-registry registrysecret \
 Login
 
 ```bash
-werf cr login -u go-list-templ -p GH_TOKEN ghcr.io/go-list-templ/users-service
+werf cr login -u go-list-templ -p GH_TOKEN
 ```
 
 ---
