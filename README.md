@@ -15,11 +15,10 @@ kubectl create namespace users-service
 Create secret
 
 ```bash
-kubectl create secret docker-registry registrysecret \                                                        
-  --docker-server=ghcr.io/go-list-templ/users-service \
+kubectl create secret docker-registry registrysecret \
+  --docker-server=ghcr.io \
   --docker-username=go-list-templ \
-  --docker-password=GH_TOKEN \
-  -n users-service
+  --docker-password=GH_TOKEN
 ```
 
 Login
