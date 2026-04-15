@@ -30,9 +30,8 @@ spec:
             httpGet:
               path: /healthz
               port: {{ .Values.app.http.port }}
-            initialDelaySeconds: 3
-            periodSeconds: 5
-            failureThreshold: 10
+            periodSeconds: 3
+            failureThreshold: 20
           env:
             - name: APP_NAME
               valueFrom:
