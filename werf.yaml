@@ -12,7 +12,6 @@ git:
         - "go.sum"
       setup:
         - "**/*.go"
-      beforeSetup:
         - "migrations"
 shell:
   beforeInstall:
