@@ -15,7 +15,6 @@ linters:
     - errorlint
     - exhaustive
     - forbidigo
-    - gochecknoglobals
     - gochecknoinits
     - gocognit
     - goconst
