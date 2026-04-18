@@ -7,6 +7,7 @@ import (
 	"github.com/go-list-templ/users-service/pkg/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
@@ -44,6 +45,11 @@ func NewTraceProvider(ctx context.Context, res *resource.Resource, cfg *config.O
 	)
 
 	otel.SetTracerProvider(provider)
+
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 
 	return provider, nil
 }
