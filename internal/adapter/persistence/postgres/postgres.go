@@ -51,7 +51,7 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 	for connAttempts > 0 {
 		pg.Pool, err = pgxpool.NewWithConfig(ctx, conf)
 		if err != nil {
-			logger.Error("err config", zap.Error(err))
+			logger.Error("config", zap.Error(err))
 		}
 
 		err = pg.Ping(ctx)
