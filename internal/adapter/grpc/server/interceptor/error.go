@@ -10,10 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	ErrDeadlineExceeded = "request server timeout"
-	ErrInternalServer   = "internal server"
-)
+const ErrInternalServer = "internal server"
 
 func ErrorHandling() grpc.UnaryServerInterceptor {
 	return func(
@@ -31,19 +28,22 @@ func ErrorHandling() grpc.UnaryServerInterceptor {
 	}
 }
 
+var allErr = map[error]codes.Code{
+	entityerr.ErrUserAlreadyExists: codes.AlreadyExists,
+	entityerr.ErrUserNotFound:      codes.NotFound,
+	entityerr.ErrUserInvalidData:   codes.InvalidArgument,
+}
+
 func toGrpcError(err error) error {
-	switch {
-	case errors.Is(err, entityerr.ErrUserAlreadyExists):
-		return status.Error(codes.AlreadyExists, err.Error())
-	case errors.Is(err, entityerr.ErrUserNotFound):
-		return status.Error(codes.NotFound, err.Error())
-	case errors.Is(err, entityerr.ErrUserInvalidData):
-		return status.Error(codes.InvalidArgument, err.Error())
-	case errors.Is(err, entityerr.ErrUserVerifyCred):
-		return status.Error(codes.InvalidArgument, err.Error())
-	case errors.Is(err, context.DeadlineExceeded):
-		return status.Error(codes.DeadlineExceeded, ErrDeadlineExceeded)
-	default:
-		return status.Error(codes.Internal, ErrInternalServer)
+	if _, ok := status.FromError(err); ok {
+		return err
 	}
+
+	for currentErr, resCode := range allErr {
+		if errors.Is(err, currentErr) {
+			return status.Error(resCode, err.Error())
+		}
+	}
+
+	return status.Error(codes.Internal, ErrInternalServer)
 }

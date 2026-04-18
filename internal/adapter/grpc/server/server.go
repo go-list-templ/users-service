@@ -37,7 +37,6 @@ func New(cfg *config.Server, logger *zap.Logger) *GRPC {
 		grpc.ConnectionTimeout(cfg.GRPCTimeout),
 		grpc.ChainUnaryInterceptor(
 			interceptor.Recovery(logger),
-			interceptor.ServerTimeout(cfg.GRPCTimeout),
 			interceptor.ErrorHandling(),
 		),
 	)
