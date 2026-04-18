@@ -12,6 +12,12 @@ import (
 
 const ErrInternalServer = "internal server"
 
+var allErr = map[error]codes.Code{
+	entityerr.ErrUserAlreadyExists: codes.AlreadyExists,
+	entityerr.ErrUserNotFound:      codes.NotFound,
+	entityerr.ErrUserInvalidData:   codes.InvalidArgument,
+}
+
 func ErrorHandling() grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -26,12 +32,6 @@ func ErrorHandling() grpc.UnaryServerInterceptor {
 
 		return resp, nil
 	}
-}
-
-var allErr = map[error]codes.Code{
-	entityerr.ErrUserAlreadyExists: codes.AlreadyExists,
-	entityerr.ErrUserNotFound:      codes.NotFound,
-	entityerr.ErrUserInvalidData:   codes.InvalidArgument,
 }
 
 func toGrpcError(err error) error {
