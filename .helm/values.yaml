@@ -76,8 +76,8 @@ redis:
 
 telemetry:
   collector:
-    url: "alloy.telemetry.svc.cluster.local:4317"
+    url: "alloy.monitoring.svc.cluster.local:4317"
     timeout: "15s"
     isTls: false
   pyroscope:
-    url: "http://alloy.telemetry.svc.cluster.local:4040"
+    url: "http://alloy.monitoring.svc.cluster.local:4040"
