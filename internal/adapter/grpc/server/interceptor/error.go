@@ -16,6 +16,7 @@ var allErr = map[error]codes.Code{
 	entityerr.ErrUserAlreadyExists: codes.AlreadyExists,
 	entityerr.ErrUserNotFound:      codes.NotFound,
 	entityerr.ErrUserInvalidData:   codes.InvalidArgument,
+	entityerr.ErrUserVerifyCred:    codes.InvalidArgument,
 }
 
 func ErrorHandling() grpc.UnaryServerInterceptor {
