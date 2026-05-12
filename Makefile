@@ -1,12 +1,12 @@
 lint: lint-code helm-lint
 
-install:
+deps:
 	werf helm dependency update .helm
 
-build:
+release:
 	werf converge --repo=ghcr.io/go-list-templ/users-service --platform=linux/amd64
 
-down:
+rollback:
 	werf dismiss
 
 helm-lint:
