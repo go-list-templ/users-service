@@ -53,7 +53,7 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 
 	_, err := u.getter.TrOrDB(ctx, u.Postgres).Exec(ctx, query, args)
 
-	return u.toPostgresError(ctx, err)
+	return u.toPostgresError(err)
 }
 
 func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOutput, error) {
@@ -87,12 +87,12 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
-		return dto.ListOutput{}, u.toPostgresError(ctx, err)
+		return dto.ListOutput{}, u.toPostgresError(err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
-		return dto.ListOutput{}, u.toPostgresError(ctx, err)
+		return dto.ListOutput{}, u.toPostgresError(err)
 	}
 
 	isNext := len(users) > limit
@@ -122,18 +122,18 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 
 	row, err := u.Query(ctx, query, email.Value())
 	if err != nil {
-		return entity.User{}, u.toPostgresError(ctx, err)
+		return entity.User{}, u.toPostgresError(err)
 	}
 
 	user, err := pgx.CollectOneRow(row, dao.RowToEntity)
 	if err != nil {
-		return entity.User{}, u.toPostgresError(ctx, err)
+		return entity.User{}, u.toPostgresError(err)
 	}
 
 	return user, nil
 }
 
-func (u *User) toPostgresError(ctx context.Context, err error) error {
+func (u *User) toPostgresError(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -143,8 +143,6 @@ func (u *User) toPostgresError(ctx context.Context, err error) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return entityerr.ErrUserNotFound
 		}
-
-		u.logger.Error("operation", zap.Any("context", ctx), zap.Error(err))
 
 		return fmt.Errorf("operation: %w", err)
 	}
@@ -157,10 +155,6 @@ func (u *User) toPostgresError(ctx context.Context, err error) error {
 	case postgres.ErrCodeInvalidData:
 		return entityerr.ErrUserInvalidData
 	default:
-		infraErr := fmt.Errorf("code %s: %w", pgErr.Code, err)
-
-		u.logger.Error("postgres", zap.Any("context", ctx), zap.Error(infraErr))
-
-		return infraErr
+		return fmt.Errorf("code %s: %w", pgErr.Code, err)
 	}
 }
