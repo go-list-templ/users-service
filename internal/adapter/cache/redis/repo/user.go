@@ -82,7 +82,7 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 		}
 
 		if err = u.redis.SetByTags(ctx, cacheKey, users, TTLList, TagList); err != nil {
-			u.logger.Warn(
+			u.logger.Error(
 				"set by tag",
 				zap.Any("context", ctx),
 				zap.Any("page token", pageToken),
@@ -162,7 +162,7 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 		user, err := u.repo.GetByEmail(ctx, email)
 		if errors.Is(err, entityerr.ErrUserNotFound) {
 			if err = u.redis.SetCache(ctx, cacheKey, cached, TTLNegative); err != nil {
-				u.logger.Warn(
+				u.logger.Error(
 					"set negative cache",
 					zap.Any("context", ctx),
 					zap.Any("cache key", cacheKey),
@@ -177,7 +177,7 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 		}
 
 		if err = u.redis.SetByTags(ctx, cacheKey, dao.FromEntity(user), TTLGetByEmail, TagByEmail); err != nil {
-			u.logger.Warn(
+			u.logger.Error(
 				"set cache",
 				zap.Any("context", ctx),
 				zap.Any("cache key", cacheKey),

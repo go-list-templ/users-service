@@ -36,7 +36,7 @@ func (u *User) Create(ctx context.Context, request *v1.CreateRequest) (*v1.Creat
 
 	user, err := u.service.Create(ctx, input)
 	if err != nil {
-		u.logger.Warn("user create", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("user create", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (u *User) GetByEmail(ctx context.Context, request *v1.GetByEmailRequest) (*
 
 	user, err := u.service.GetByEmail(ctx, input)
 	if err != nil {
-		u.logger.Warn("user get by email", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("user get by email", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (u *User) List(ctx context.Context, request *v1.ListRequest) (*v1.ListRespo
 
 	output, err := u.service.List(ctx, input)
 	if err != nil {
-		u.logger.Warn("user list", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("user list", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (u *User) VerifyCred(ctx context.Context, request *v1.VerifyCredRequest) (*
 
 	user, err := u.service.VerifyCred(ctx, input)
 	if err != nil {
-		u.logger.Warn("verify cred", zap.Any("context", ctx), zap.Error(err))
+		u.logger.Error("verify cred", zap.Any("context", ctx), zap.Error(err))
 
 		return nil, err
 	}

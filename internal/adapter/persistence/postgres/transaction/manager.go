@@ -28,14 +28,14 @@ func (m *Manager) Do(ctx context.Context, fn func(ctx context.Context) error) er
 	defer func() {
 		if r := recover(); r != nil {
 			err = tx.Rollback(trCtx)
-			m.logger.Warn("trm panic", zap.Error(err), zap.Any("panic", r))
+			m.logger.Error("trm panic", zap.Error(err), zap.Any("panic", r))
 		}
 	}()
 
 	if err = fn(trCtx); err != nil {
 		errTx := tx.Rollback(trCtx)
 		if errTx != nil {
-			m.logger.Warn("trm rollback", zap.Error(errTx))
+			m.logger.Error("trm rollback", zap.Error(errTx))
 		}
 
 		return err

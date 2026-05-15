@@ -59,7 +59,7 @@ func New(cfg *config.DB, logger *zap.Logger) (*Postgres, error) {
 			break
 		}
 
-		logger.Warn("trying to connect", zap.Int("attempts", connAttempts), zap.Error(err))
+		logger.Error("trying to connect", zap.Int("attempts", connAttempts), zap.Error(err))
 
 		time.Sleep(connTimeout)
 
