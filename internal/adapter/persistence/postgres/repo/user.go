@@ -52,6 +52,9 @@ func (u *User) Store(ctx context.Context, user entity.User) error {
 	}
 
 	_, err := u.getter.TrOrDB(ctx, u.Postgres).Exec(ctx, query, args)
+	if err != nil {
+		u.logger.Error("transaction store", zap.Any("context", ctx), zap.Error(err))
+	}
 
 	return u.toPostgresError(err)
 }
@@ -87,11 +90,15 @@ func (u *User) List(ctx context.Context, paginate paginate.Paginate) (dto.ListOu
 
 	rows, err := u.Query(ctx, query, args...)
 	if err != nil {
+		u.logger.Error("list query", zap.Any("context", ctx), zap.Error(err))
+
 		return dto.ListOutput{}, u.toPostgresError(err)
 	}
 
 	users, err := pgx.CollectRows(rows, dao.RowToEntity)
 	if err != nil {
+		u.logger.Error("collect row list", zap.Any("context", ctx), zap.Error(err))
+
 		return dto.ListOutput{}, u.toPostgresError(err)
 	}
 
@@ -122,11 +129,15 @@ func (u *User) GetByEmail(ctx context.Context, email vo.Email) (entity.User, err
 
 	row, err := u.Query(ctx, query, email.Value())
 	if err != nil {
+		u.logger.Error("query get by email", zap.Any("context", ctx), zap.Error(err))
+
 		return entity.User{}, u.toPostgresError(err)
 	}
 
 	user, err := pgx.CollectOneRow(row, dao.RowToEntity)
 	if err != nil {
+		u.logger.Error("collect row get by email", zap.Any("context", ctx), zap.Error(err))
+
 		return entity.User{}, u.toPostgresError(err)
 	}
 
