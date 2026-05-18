@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+spec:
+  selector:
+    app: users-service
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: http
+      protocol: TCP
+      port: 8081
+      targetPort: 8081

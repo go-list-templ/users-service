@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: users-service
+
+resources:
+  - ../../base
+
+helmCharts:
+  - name: postgresql
+    releaseName: postgresql
+    namespace: users-service
+    repo: https://charts.bitnami.com/bitnami
+    version: 18.5.16
+    valuesFile: values.yaml
+  - name: redis
+    releaseName: redis
+    namespace: users-service
+    repo: https://charts.bitnami.com/bitnami
+    version: 25.3.10
+    valuesFile: values.yaml

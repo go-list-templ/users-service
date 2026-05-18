@@ -30,4 +30,4 @@ go.work.sum
 *schema.sql
 
 .DS_Store
-.helm/charts/**.tgz
+**/charts

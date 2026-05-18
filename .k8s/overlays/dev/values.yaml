@@ -1,0 +1,33 @@
+postgresql:
+  enabled: true
+  architecture: standalone
+  host: postgresql
+  port: 5432
+  auth:
+    database: users_db
+    username: postgres
+    password: "root_password"
+  primary:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1
+        memory: 512Mi
+
+redis:
+  host: redis-master
+  port: 6379
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
