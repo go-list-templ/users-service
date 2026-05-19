@@ -1,9 +1,7 @@
-global:
-  postgresql:
-    auth:
-      database: users_db
-      username: postgres
-      password: "root_password"
+auth:
+  database: users_db
+  username: postgres
+  password: "root_password"
 
 architecture: standalone
 
