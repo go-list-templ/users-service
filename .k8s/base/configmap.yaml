@@ -17,7 +17,9 @@ data:
   IDLE_TIMEOUT: "30s"
   SHUTDOWN_TIMEOUT: "30s"
 
-  REDIS_ADDRESS: "users-service-redis-master:6379"
+  REDIS_ADDRESS: "redis-master:6379"
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
   REDIS_DIAL_TIMEOUT: "10s"
   REDIS_READ_TIMEOUT: "50ms"
   REDIS_WRITE_TIMEOUT: "50ms"
