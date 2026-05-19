@@ -12,10 +12,10 @@ helmCharts:
     namespace: users-service
     repo: https://charts.bitnami.com/bitnami
     version: 18.5.16
-    valuesFile: values.yaml
+    valuesFile: postgresql-values.yaml
   - name: redis
     releaseName: redis
     namespace: users-service
     repo: https://charts.bitnami.com/bitnami
     version: 25.3.10
-    valuesFile: values.yaml
+    valuesFile: redis-values.yaml
