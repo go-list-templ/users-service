@@ -19,7 +19,7 @@ patches:
         value:
           - name: wait-redis
             image: busybox:1.36
-            command: ["sh", "-c", "until nc -w 2 $(REDIS_HOST) $(REDIS_PORT); do echo Waiting for redis; sleep 2; done;"]
+            command: ["sh", "-c", "until nc -w 2 $(REDIS_ADDRESS); do echo Waiting for redis; sleep 2; done;"]
             envFrom:
               - configMapRef:
                   name: users-service-config
